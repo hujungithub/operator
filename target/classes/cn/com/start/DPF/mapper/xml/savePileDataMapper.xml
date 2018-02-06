@@ -1,0 +1,734 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.com.start.DPF.mapper.SavePileDataMapper">
+	
+	<!-- 8.2直流遥信变位信息 -->
+	<insert id = "insertDCBYXRunrecord" parameterType = "DCYxRunRecord">
+		insert
+		into
+			dcyxchangerecord
+			(
+			cpid,
+			yxpointid,
+			oldvaluerecordtime,
+			oldvalue,
+			oldvaluemean,
+			newvalue,
+			newvaluemean,
+			recordtime
+			)
+		values
+			(
+			#{cpid},
+			#{yxpointid},		
+			#{oldvalue},
+			#{oldvaluemean},
+			#{oldvaluerecordtime},
+			#{newvalue},
+			#{newvaluemean},
+			#{recordtime}
+			)
+	</insert>
+	
+	<!--  8.1直流遥信信息 -->
+	<insert id = "insertDCYXRunRecord" parameterType = "DCYxRunRecord">
+		insert 
+		into	
+				dcyxrunrecord
+				(
+				cpid,
+				oldValue,
+				oldValueRecordTime,
+				newValue,
+				newValueRecordTime
+				)
+		values
+				(
+				#{cpid},
+				#{oldValue},
+				#{oldValueRecordTime},
+				#{newValue},
+				#{recordTime}
+				)				
+	</insert>
+	
+	<!-- 8.0直流遥测信息 -->
+	<insert id = "insertDCYCRunRecord" parameterType = "DCYcRunRecord">
+		insert
+		into
+				dcycrunrecord
+				(
+				 CPID,
+				 RECORDTIME,
+				 chargeVOut,
+				 chargeAOut,
+				 SOC,
+				 batteryPackMintemp,
+				 batteryPackMaxtemp,
+				 batteryMintemp,
+				 batteryMaxtemp,
+				 chargerTemp,
+				 chargeDirectV,
+				 chargeQuantity,
+				 chargePower,
+				 chargeMoney,
+				 chargeTimeSpan
+				)
+		values
+				(
+				 #{CPID},
+				 #{RECORDTIME},
+				 #{chargeVOut},
+				 #{chargeAOut},
+				 #{SOC},
+				 #{batteryPackMintemp},
+				 #{batteryPackMaxtemp},
+				 #{batteryMintemp},
+				 #{batteryMaxtemp},
+				 #{chargerTemp},
+				 #{chargeDirectV},
+				 #{chargeQuantity},
+				 #{chargePower},
+				 #{chargeMoney},
+				 #{chargeTimeSpan}
+				)
+	</insert>
+	
+	<!-- 7.0页面告警信息入库 -->
+	<insert id = "insertWebAlarmRecord" parameterType = "WebAlarmRecord">
+		INSERT
+		INTO	
+				WEBALARMRECORD
+				(
+				RECORDTIME,
+				CARDNUM,
+				CPUSERID,
+				CPID,
+				GUN,
+				ALARMTYPE,
+				CHARGETYPE
+				)
+		VALUES
+				(
+				#{RECORDTIME},
+				#{CARDNUM},
+				#{CPUSERID},
+				#{CPID},
+				#{GUN},
+				#{ALARMTYPE},
+				#{CHARGETYPE}
+				)
+	</insert>
+	<!-- 6.0 变位遥信入库 -->
+	<insert id = "insertBYXRunRecord" parameterType = "CPYXRunRecord_104">
+		INSERT
+		INTO
+				CPYXCHANGERECORD
+				(
+				CPID,
+				YXPOINTID,
+				RECORDTIME,
+				OLDVALUE,
+				OLDVALUEMEAN,
+				OLDVALUERELIABILITY,
+				OLDVALUERECORDTIME,
+				NEWVALUE,
+				NEWVALUEMEAN,
+				NEWVALUERELIABILITY,
+				NEWVALUERECORDTIME,
+				CHECKSTATE,
+				CHECKMODE
+				)	
+		VALUES
+				(
+				#{CPID},
+				#{YXPOINTID},
+				#{RECORDTIME},
+				#{OLDVALUE},
+				#{OLDVALUEMEAN},
+				#{OLDVALUERELIABILITY},
+				#{OLDVALUERECORDTIME},
+				#{NEWVALUE},
+				#{NEWVALUEMEAN},
+				#{NEWVALUERELIABILITY},
+				#{NEWVALUERECORDTIME},
+				#{CHECKSTATE},
+				#{CHECKMODE}
+				)	
+	</insert>
+	<!-- 5.1扣款信息入库 -->
+	<insert id = "insertDeductFeeRecord" parameterType = "UserDeductMoneyRecord" >
+		INSERT
+		INTO
+				USERDEDUCTMONEYRECORD
+				(
+				CPID,
+				INTERFACEID,
+				RECORDTIME,
+				DEVICEID,
+				PHYSICALCARDNUM,
+				CPUSERID,
+				CHARGEMONEY,
+				SERVICETIP,
+				DEDUCTMONEY,
+				REMAINMONEY,
+				DEDUCTSUCCESSFLAG,
+				DEDUCTFAILREASON,
+				DEDUCTMILE,
+				REMAINMILE,
+				DEDUCTQUANTITY,
+				REMAINQUANTITY,
+				DEDUCTTIMES,
+				REMAINTIMES,
+				TRANSATIONID
+				)
+		VALUES
+				(
+				#{CPID},
+				#{INTERFACEID},
+				#{RECORDTIME},
+				#{DEVICEID},
+				#{PHYSICALCARDNUM},
+				#{CPUSERID},
+				#{CHARGEMONEY},
+				#{SERVICETIP},
+				#{DEDUCTMONEY},
+				#{REMAINMONEY},
+				#{DEDUCTSUCCESSFLAG},
+				#{DEDUCTFAILREASON},
+				#{DEDUCTMILE},
+				#{REMAINMILE},
+				#{DEDUCTQUANTITY},
+				#{REMAINQUANTITY},
+				#{DEDUCTTIMES},
+				#{REMAINTIMES},
+				#{TRANSATIONID}
+				)	
+	</insert>
+	
+	<!-- 5.0充电记录入库-->
+	<insert id = "insertChargeRecord" parameterType = "ChargeRecord_DPF">
+		INSERT
+		INTO
+				USERCHARGERECORD
+				(
+				CPID,
+				INTERFACEID,
+				CHARGEMETHODID,
+				CHARGEMODEID,
+				CHARGEPARA,
+				RECORDTIME,
+				CHARGESTARTTIME,
+				CHARGETIMESPAN,
+				TRANSATIONID,
+				CARDNUM,
+				CPUSERID,
+				DEVICEID,
+				CHARGEFINISHEDFLAG,
+				CHARGEQUANTITY,
+				BEFORECHARGEBALANCE,
+				CHARGEMONEY,
+				SERVICETIP,				
+				CHARGEENDCAUSE,
+				BILLMODELID,
+				JQ,
+				FQ,
+				PQ,
+				GQ,
+				JT,
+				FT,
+				PT,
+				GT,
+				JF,
+				FF,
+				PF,
+				GF
+				)
+		VALUES
+				(
+				#{CPID},
+				#{INTERFACEID},
+				#{CHARGEMETHODID},
+				#{CHARGEMODEID},
+				#{CHARGEPARA},
+				#{RECORDTIME},
+				#{CHARGESTARTTIME},
+				#{CHARGETIMESPAN},
+				#{TRANSATIONID},
+				#{CARDNUM},
+				#{CPUSERID},
+				#{DEVICEID},
+				#{CHARGEFINISHEDFLAG},
+				#{CHARGEQUANTITY},
+				#{BEFORECHARGEBALANCE},
+				#{CHARGEMONEY},		
+				#{SERVICETIP},						
+				#{CHARGEENDCAUSE},
+				#{BILLMODELID},
+				#{JQ},
+				#{FQ},
+				#{PQ},
+				#{GQ},
+				#{JT},
+				#{FT},
+				#{PT},
+				#{GT},
+				#{JF},
+				#{FF},
+				#{PF},
+				#{GF}
+				)
+	</insert>
+	<!-- 4.1启动充电枪记录更新 -->
+	<update id = "updateStartChargeGunRecord" parameterType = "StartChargeGunRecord">
+		UPDATE
+				STARTCHARGEGUNRECORD
+		SET
+				STARTCHARGEFLAG = #{STARTCHARGEFLAG},
+				STARTCHARGEFAILDESP = #{STARTCHARGEFAILDESP},
+				SENDENDCMDTIME = #{SENDENDCMDTIME},
+				ENDCHARGEFLAG = #{ENDCHARGEFLAG}
+		WHERE
+				DEVICEID = #{DEVICEID}
+		AND
+				INTERFACEID = #{INTERFACEID}
+		AND
+				SENDSTARTCMDTIME = #{SENDSTARTCMDTIME}
+	</update>
+	
+	<!-- 4.0 启动充电枪记录入库 -->
+	<insert id = "insertStartChargeGunRecord" parameterType = "StartChargeGunRecord">
+		INSERT
+		INTO
+				STARTCHARGEGUNRECORD
+				(
+				DEVICEID,
+				INTERFACEID,
+				CPUSERID,
+				CHARGEMODEID,
+				CHARGEPARA,
+				ACCOUNTBALANCE,
+				SENDSTARTCMDTIME				
+				)
+		VALUES
+				(
+				#{DEVICEID},
+				#{INTERFACEID},
+				#{CPUSERID},
+				#{CHARGEMODEID},
+				#{CHARGEPARA},
+				#{ACCOUNTBALANCE},
+				#{SENDSTARTCMDTIME}	
+				)
+	</insert>
+	<!-- 3.1鉴权数据更新 -->
+	<update id = "updateAuthentiCationRecord" parameterType = "SwipeCardAutRecord">
+		UPDATE
+				SWIPECARDAUTRECORD
+		SET
+				AUTRESULTFLAG = #{AUTRESULTFLAG},
+				AUTFAILCAUSE = #{AUTFAILCAUSE},
+				REMAINMILEAGE = #{REMAINMILEAGE},
+				ALLOWQUANTITY = #{ALLOWQUANTITY},
+				REMAINTIMES = #{REMAINTIMES}
+		WHERE
+				RECORDTIME = #{RECORDTIME}
+		AND
+				DEVICEID = #{DEVICEID}
+		AND
+				INTERFACEID = #{INTERFACEID}
+	</update>
+	
+	<!-- 3.0鉴权数据入库 -->
+	<insert id = "insertAuthentiCationRecord" parameterType = "SwipeCardAutRecord">
+		INSERT
+		INTO
+				SWIPECARDAUTRECORD
+				(
+				CPID,
+				DEVICEID,
+				INTERFACEID,				
+				PHYSICALCARDNUM,
+				CPUSERID,
+				PWD,
+				INPUTPWD,
+				CARDBALANCE,
+				CARDSTATE,
+				EVUNIQUEID,
+				BILLMODELID,
+				PAYMENTCARDNUM,
+				CERTIFIEDPAYMENTCARDDATA,
+				ACCOUNTBALANCE,
+				RECORDTIME
+				)
+		VALUES
+				(
+				#{CPID},
+				#{DEVICEID},
+				#{INTERFACEID},				
+				#{PHYSICALCARDNUM},
+				#{CPUSERID},
+				#{PWD},
+				#{INPUTPWD},
+				#{CARDBALANCE},
+				#{CARDSTATE},
+				#{EVUNIQUEID},
+				#{BILLMODELID},
+				#{PAYMENTCARDNUM},
+				#{CERTIFIEDPAYMENTCARDDATA},
+				#{ACCOUNTBALANCE},
+				#{RECORDTIME}
+				)
+	</insert>
+	<!-- 2.3充电记录变化更新 -->	  
+	<update id = "updateChargeChangeRecord" parameterType = "ChargeChangeRecord">
+		UPDATE
+				CHARGECHANGERECORD
+		SET
+				ENDCHARGETIME = #{ENDCHARGETIME},
+				RECORDFLAG = #{RECORDFLAG}
+		WHERE
+				BEGINCHARGETIME = #{BEGINCHARGETIME}
+		AND
+				DEVICEID = #{DEVICEID}
+		AND
+				GUN = #{GUN}
+				
+	</update>
+
+	<!-- 2.2充电记录变化入库 -->	  
+	<insert id = "insertChargeChangeRecord" parameterType = "ChargeChangeRecord">
+		INSERT
+		INTO
+				CHARGECHANGERECORD
+				(
+				BEGINCHARGETIME,
+				DEVICEID,
+				GUN,
+				CPID			
+				)
+		VALUES
+				(
+				#{BEGINCHARGETIME},
+				#{DEVICEID},
+				#{GUN},
+				#{CPID}
+				)	
+	</insert>
+
+	<!-- 2.1遥测记录入库 -->
+	<insert id = "insertYCRunRecord" parameterType = "CPYCRunRecord_104">
+		INSERT
+		INTO
+				CPYCRUNRECORD
+				(
+				CPID,
+				RECORDTIME,
+				UA1,
+				UA2,
+				UB1,
+				UB2,
+				UC1,
+				UC2,
+				IA1,
+				IA2,
+				IB1,
+				IB2,
+				IC1,
+				IC2,
+				GUNA_E,
+				GUNB_E,
+				GUNA_F,
+				GUNB_F,
+				GUNA_P,
+				GUNB_P,
+				GUNA_M,
+				GUNB_M,
+				GUNA_STATE,
+				GUNB_STATE,
+				CREDIBLE			
+				)
+		VALUES
+				(
+				#{CPID},
+				#{RECORDTIME},
+				#{UA1},
+				#{UA2},
+				#{UB1},
+				#{UB2},
+				#{UC1},
+				#{UC2},
+				#{IA1},
+				#{IA2},
+				#{IB1},
+				#{IB2},
+				#{IC1},
+				#{IC2},
+				#{GUNA_E},
+				#{GUNB_E},
+				#{GUNA_F},
+				#{GUNB_F},
+				#{GUNA_P},
+				#{GUNB_P},
+				#{GUNA_M},
+				#{GUNB_M},
+				#{GUNA_STATE},
+				#{GUNB_STATE},
+				#{CREDIBLE}	
+				)
+	</insert>
+	<!-- 2.0遥信记录入库 --> 
+	<insert id = "insertYXRunRecord" parameterType = "CPYXRunRecord_104">
+		INSERT
+		INTO
+				CPYXRUNRECORD
+				(
+				CPID,
+				RECORDTIME,
+				OLDVALUE,
+				OLDVALUERELIABILITY,
+				OLDVALUERECORDTIME,
+				NEWVALUE,
+				NEWVALUERELIABILITY,
+				NEWVALUERECORDTIME
+				)
+		VALUES
+				(
+				#{CPID},
+				#{RECORDTIME},
+				#{OLDVALUE},
+				#{OLDVALUERELIABILITY},
+				#{OLDVALUERECORDTIME},
+				#{NEWVALUE},
+				#{NEWVALUERELIABILITY},
+				#{NEWVALUERECORDTIME}
+				)
+	</insert>
+	
+	<!-- 1.3计费模型更新 -->
+	<update id = "updateBillModelSendRecord" parameterType = "BillModelSendRecord">
+		UPDATE
+				BILLMODELSENDRECORD
+		SET
+				FINISHEDFLAG = #{FINISHEDFLAG},
+				BILLIDRETURN = #{BILLIDRETURN},
+				RESULTRETURN = #{RESULTRETURN}
+		WHERE
+				CPID = #{CPID}
+		AND
+				BILLID = #{BILLID}
+		AND
+				RECORDTIME = #{RECORDTIME}
+				
+	</update>
+	<!-- 1.2计费模型下发 -->
+	<insert id = "insertBillModelSendRecord" parameterType = "BillModelSendRecord">
+		INSERT 
+		INTO
+				BILLMODELSENDRECORD
+				(
+				CPID,
+				BILLID,
+				RECORDTIME,
+				VALIDTIME,
+				INVALIDTIME,
+				EXECUTIONSTATE,
+				MEASUREMENTTYPE,
+				TIMEINTERVALCOUNT,
+				TISTRING,
+				JPRICE,
+				FPRICE,
+				PPRICE,
+				GPRICE,
+				SERVICETIP,
+				SENDFLAG,
+				ACTIVEREQUESTFLAG,
+				FINISHEDFLAG,
+				BILLIDRETURN,
+				RESULTRETURN			
+				)
+		VALUES 
+				(
+				#{CPID},
+				#{BILLID},
+				#{RECORDTIME},
+				#{VALIDTIME},
+				#{INVALIDTIME},
+				#{EXECUTIONSTATE},
+				#{MEASUREMENTTYPE},
+				#{TIMEINTERVALCOUNT},
+				#{TISTRING},
+				#{JPRICE},
+				#{FPRICE},
+				#{PPRICE},
+				#{GPRICE},
+				#{SERVICETIP},
+				#{SENDFLAG},
+				#{ACTIVEREQUESTFLAG},
+				#{FINISHEDFLAG},
+				#{BILLIDRETURN},
+				#{RESULTRETURN}	
+				)
+	</insert>
+	<!-- 1.1socket连接更新 -->
+	<update id = "updateSocketLinkRecord" parameterType = "SocketLinkRecord">
+		UPDATE
+				LINKRECORD
+		SET
+				ID = #{ID},
+				TYPE = #{TYPE},
+				LOSTTIME = #{LOSTTIME},
+				REASON = #{REASON}
+		WHERE
+				CONNECTTIME = #{CONNECTTIME}
+		AND
+				IP = #{IP}
+		AND
+				PORT = #{PORT}
+	
+	</update>
+	<!-- 1.0-socket连接入库 -->
+	<insert id = "insertSocketLinkRecord" parameterType = "SocketLinkRecord">
+		INSERT
+		INTO
+				LINKRECORD		
+				(
+				ID,
+				TYPE,
+				CONNECTTIME,
+				IP,
+				PORT,
+				LOSTTIME,
+				REASON
+				)
+		VALUES
+				(
+				#{ID},
+				#{TYPE},
+				#{CONNECTTIME},
+				#{IP},
+				#{PORT},
+				#{LOSTTIME},
+				#{REASON})
+	</insert>
+	
+	
+	<insert id="insertStart" parameterType="ChargeProgressDto">
+		INSERT 	INTO
+				CHARGEPROGRESSINFO
+				(
+					CPID,
+					CPUSERID,
+					CHARGESTARTTIME,
+					CHARGESTATUS,
+					STARTCHARGETIME,
+					STARTCHARGEREPLYSTATUS,
+					ENDCHARGETIME,
+					ENDCHARGESTATUS,
+					RECEIVEENDREPLYTIME,
+					ENDSTATUS,
+					RECEIVECHARGERECORDTIME,
+					RECEIVECHARGERECORDSTATUS,
+					DEDUCTIONTIME,
+					DEDUCTIONSTATUS,
+					CHARGEMETHODID,
+					CHARGEMODEID
+				)
+				VALUE
+				(
+					#{CPID},
+					#{CPUSERID},
+					#{CHARGESTARTTIME},
+					#{CHARGESTATUS},
+					#{STARTCHARGETIME},
+					#{STARTCHARGEREPLYSTATUS},
+					#{ENDCHARGETIME},
+					#{ENDCHARGESTATUS},
+					#{RECEIVEENDREPLYTIME},
+					#{ENDSTATUS},
+					#{RECEIVECHARGERECORDTIME},
+					#{RECEIVECHARGERECORDSTATUS},
+					#{DEDUCTIONTIME},
+					#{DEDUCTIONSTATUS},
+					#{CHARGEMETHODID},
+					#{CHARGEMODEID}
+				)
+	</insert>
+	
+	<!-- 接收启动充电枪回复信息入库 -->
+	<update id="updateStartResponse" parameterType="ChargeProgressDto">
+		UPDATE	
+					CHARGEPROGRESSINFO
+				SET
+					STARTCHARGEREPLYSTATUS = #{STARTCHARGEREPLYSTATUS},
+					STARTCHARGETIME = #{STARTCHARGETIME}
+				WHERE
+					CPID = #{CPID}
+				AND
+					CPUSERID = #{CPUSERID}
+				AND
+					CHARGESTARTTIME = #{CHARGESTARTTIME}
+	</update>
+	
+	<!-- 发送停止充电枪命令信息入库 -->
+	<update id="updateSendStopInfo" parameterType="ChargeProgressDto">
+		UPDATE	 
+					CHARGEPROGRESSINFO
+				SET
+					ENDCHARGETIME = #{ENDCHARGETIME},
+					ENDCHARGESTATUS = #{ENDCHARGESTATUS}
+				WHERE
+					CPID = #{CPID}
+				AND
+					CPUSERID = #{CPUSERID}
+				AND
+					CHARGESTARTTIME = #{CHARGESTARTTIME}
+	</update>
+	
+	<!-- 收到回复停止充电枪信息入库 -->
+	<update id="updateStopResponse" parameterType="ChargeProgressDto">
+		UPDATE	
+					CHARGEPROGRESSINFO
+				SET
+					RECEIVEENDREPLYTIME = #{RECEIVEENDREPLYTIME},
+					ENDSTATUS = #{ENDSTATUS}
+				WHERE
+					CPID = #{CPID}
+				AND
+					CPUSERID = #{CPUSERID}
+				AND
+					CHARGESTARTTIME = #{CHARGESTARTTIME}
+	</update>
+	
+	<!-- 收到充电记录信息入库 -->
+	<update id="updateRecordInfo" parameterType="ChargeProgressDto">
+		UPDATE	
+					CHARGEPROGRESSINFO
+				SET
+					RECEIVECHARGERECORDTIME = #{RECEIVECHARGERECORDTIME},
+					RECEIVECHARGERECORDSTATUS = #{RECEIVECHARGERECORDSTATUS}
+				WHERE
+					CPID = #{CPID}
+				AND
+					CPUSERID = #{CPUSERID}
+				AND
+					CHARGESTARTTIME = #{CHARGESTARTTIME}
+	</update>
+	
+	<!-- 下发扣费信息入库 -->
+	<update id="updateDeducuteInfo" parameterType="ChargeProgressDto">
+		UPDATE	
+					CHARGEPROGRESSINFO
+				SET
+					DEDUCTIONTIME = #{DEDUCTIONTIME},
+					DEDUCTIONSTATUS = #{DEDUCTIONSTATUS}
+				WHERE
+					CPID = #{CPID}
+				AND
+					CPUSERID = #{CPUSERID}
+				AND
+					CHARGESTARTTIME = #{CHARGESTARTTIME}
+	</update>
+
+</mapper>

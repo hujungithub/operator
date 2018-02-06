@@ -1,0 +1,270 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.com.start.AppAPI.mapper.UserManagerMapper">
+
+	<!-- 新增注册 -->
+	<insert id="insertUserByid" parameterType="RegisterUserDto">
+		INSERT
+		INTO
+			CPUSERINFO
+			(
+			CPUSERID,
+			TELEPHONE,
+			CPUSERNAME,
+			PASSWORD,
+			REGTIME,
+			VALIDFLAG
+			)
+		VALUES
+			(
+			#{CPUSERID},
+			#{PHONE},
+			#{CPUSERNAME},
+			#{PASSWORD},
+			#{REGTIME},
+			#{VALIDFLAG}
+			)
+	</insert>
+
+<!--  忘记密码-->
+	<update id="resetPassword" parameterType="String">
+		UPDATE
+			CPUSERINFO
+		SET		
+			PASSWORD = #{PASSWORD}
+		WHERE
+			TELEPHONE = #{PHONE}
+	</update>
+
+
+
+	<select id="selectUserByphone" parameterType="String"
+		resultType="int">
+		SELECT
+			COUNT(*)
+		FROM
+			CPUSERINFO
+		WHERE
+			TELEPHONE = #{PHONE}
+	</select>
+
+<!--  登录-->
+	<select id="loginUser" parameterType="String"
+		resultType="CpuserInfoDto">
+		SELECT
+			cpUserId,
+			headImgUrl,
+			cpUserName,
+			sex,
+			telephone,
+			accountSum,
+			PLATENUMBER,
+			VIN
+		FROM
+			CPUSERINFO
+		WHERE
+			TELEPHONE = #{PHONE}
+			AND PASSWORD = #{PASSWORD}
+	</select>
+
+
+
+<!--  充电记录-->
+	<select id="chargeRecorderByUserId" parameterType="String"
+		resultType="UserChargeRecorder">
+		SELECT DISTINCT 
+		    TRANSATIONID,
+			CPINFO.CPID,
+			CPNAME,
+			left(CHARGESTARTTIME,19) CHARGESTARTTIME,
+			CHARGETIMESPAN,
+			CHARGEMONEY,
+			CHARGEQUANTITY,
+			SERVICETIP,
+			ROUND((CHARGEMONEY + SERVICETIP),2)TOTALFEE
+		FROM
+			USERCHARGERECORD HJL,
+			CPINFO
+		WHERE
+			CPUSERID = #{USERID}
+			AND CPINFO.CPID = HJL.CPID
+			AND CHARGEMETHODID = 0
+		ORDER BY  CHARGESTARTTIME DESC
+			
+	</select>
+
+<!-- 	更新头像 -->
+	<update id="updateHeadUrl" parameterType="String">
+		UPDATE
+			CPUSERINFO
+		SET
+			HEADIMGURL = #{URL}
+		WHERE
+			CPUSERID = #{USERID}
+	</update>
+
+<!--     更新个人资料 -->
+	<update id="updateProfile" parameterType="UserProfileInfoDto">
+		UPDATE
+			CPUSERINFO
+		SET
+			CPUSERNAME = #{CPUSERNAME},
+			SEX = #{SEX},
+			PLATENUMBER = #{PLATENUMBER},
+			VIN = #{VIN}
+		WHERE
+			CPUSERID = #{CPUSERID}
+	</update>
+
+
+<!-- 获取个人资料 -->
+	<select id="loadProfile" parameterType="String"
+		resultType="CpuserInfoDto">
+		SELECT
+			HEADIMGURL,
+			CPUSERNAME,
+			SEX,
+			TELEPHONE,
+			ACCOUNTSUM,
+			PLATENUMBER,
+			VIN,
+			CHARGESTATE
+		FROM
+			CPUSERINFO
+		WHERE
+			CPUSERID = #{USERID}
+	</select>
+
+
+	<!-- 微信支付结果 -->
+	<insert id="insertWechatPay" parameterType="WechatResultDto">
+		INSERT
+		INTO
+			APPUSERRECHARGERECORD
+			(
+			CPUSERID,
+			RECHARGETIME,
+			RECHARGEMONEY,
+			PAYMENTMODEID,
+			TRANSACTIONNUM,
+			MERCHANTNUM,
+			PAYRESULTFLAG,
+			FAILDESP,
+			PREACCOUNTSUM
+			)
+		VALUES
+			(
+			#{cpUserId},
+			#{rechargeTime},
+			#{rechargeMoney},
+			#{paymentModeId},
+			#{transactionNum},
+			#{merchantNum},
+			#{payResultFlag},
+			#{failDesp},
+			#{preAccountSum}
+			)
+
+	</insert>
+	
+	<!-- 更新微信支付结果 -->
+	<update id="wechatResult" parameterType="WechatResultDto">
+		UPDATE
+			APPUSERRECHARGERECORD
+		SET
+			RECHARGETIME = #{rechargeTime},
+			RECHARGEMONEY = #{rechargeMoney},
+			PAYMENTMODEID = #{paymentModeId},
+			TRANSACTIONNUM = #{transactionNum},
+			PAYRESULTFLAG = #{payResultFlag},
+			FAILDESP = #{failDesp}
+		WHERE
+			MERCHANTNUM = #{merchantNum}
+			
+			
+	</update>
+
+
+	<!-- 查询充值记录 -->
+	<select id="loadAccountInfo" parameterType="String"
+		resultType="WechatResultDto">
+		SELECT
+			CPUSERID,
+			left(RECHARGETIME,19) RECHARGETIME,
+			PAYMENTMODEID,
+			RECHARGEMONEY,
+			PAYRESULTFLAG
+		FROM
+			APPUSERRECHARGERECORD
+		WHERE
+			CPUSERID = #{USERID}
+			AND PAYRESULTFLAG ='0'
+			ORDER BY RECHARGETIME DESC
+	</select>
+
+	<!-- 查询支付状态 -->
+	<select id="getPayStatus" parameterType="String"
+		resultType="String">
+		SELECT
+			FAILDESP
+		FROM
+			APPUSERRECHARGERECORD
+		WHERE
+			MERCHANTNUM = #{MERCHANTNUM}
+	</select>
+
+	<!-- 	获取用户充电状态 -->
+	<select id="getUserState" parameterType="String"
+		resultType="String">
+		SELECT
+			CHARGESTATE
+		FROM
+			CPUSERINFO
+		WHERE
+			CPUSERID = #{USERID}
+	</select>
+
+
+	<insert id="insertAppointRecorder" parameterType="AppointRecorderDto">
+		INSERT
+		INTO
+		APPOINTRECORD
+		(
+			APPOINTID,
+			CPUSERID,
+			CPID,
+			APPOINTCHARGINGTIME,
+			APPOINTRESULT,
+			APPOINTSTATE,
+			ENDTIME
+		)
+		VALUES
+		(
+			#{appointId},
+			#{cpUserId},
+			#{cpId},
+			#{appointChargingTime},
+			#{appointResult},
+			#{appointState},
+			#{endTime}
+		)
+	</insert>
+
+	<select id="getAppointRecorder" parameterType="String"
+			resultType="AppointRecorderDto">
+		SELECT
+			APPOINTID,
+            CPID,
+            left(APPOINTCHARGINGTIME,19) APPOINTCHARGINGTIME,
+            APPOINTRESULT,
+            APPOINTSTATE,
+            left(endTime,19) endTime
+		FROM
+			APPOINTRECORD
+		WHERE
+			CPUSERID = #{userId}
+	</select>
+
+
+</mapper>

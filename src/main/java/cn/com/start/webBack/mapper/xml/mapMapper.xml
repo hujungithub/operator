@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.com.start.webBack.mapper.mapMapper">
+	
+	<!--  -->
+	<select id = "findmap" parameterType = "String" resultType = "mapDto">
+		<!-- SELECT 
+				
+				CPID,
+				CPNAME,				
+				ADDRESS.LATITUDE,
+				ADDRESS.LONGITUDE,
+				ADDRESS.ADDRESSNAME,
+				PRO.PROVINCENAME,
+				CONCAT(PRO.PROVINCENAME,CITY.CITYNAME,AREA.AREANAME,ADDRESS.ADDRESSNAME)LOCATION								
+		FROM
+				CPINFO CP,
+				OPERATORINFO CO,
+				CSINFO CS,
+		
+				PROVINCE PRO,
+				CITY,
+				AREA,
+				ADDRESS,
+				CPMFRINFO MFR,
+				PROTOCOLINFO INFO
+		WHERE
+				CP.ADDRESSID = ADDRESS.ADDRESSID
+		AND
+				ADDRESS.AREAID = AREA.AREAID
+		AND
+				AREA.CITYID = CITY.CITYID
+		AND
+				CITY.PROVINCEID = PRO.PROVINCEID
+		AND
+				CP.CSID = CS.CSID
+		AND
+				CP.OPERATORID = CO.OPERATORID
+		AND
+				CP.MFRID = MFR.MFRID
+		AND
+				INFO.PROTOCOLID = CP.PROTOCOLID
+		
+		<if test="ADDRESSNAME!=null and ADDRESSNAME!=''">
+		AND     ADDRESS.ADDRESSNAME like '%${ADDRESSNAME}%'
+		</if>		
+		ORDER
+		BY
+				CP.CPID -->
+		SELECT 
+				
+				CPID,
+				CPNAME,				
+				LATITUDE,
+				LONGITUDE,
+				ADDRESSNAME,
+				PROVINCENAME,
+				STATUS,
+				LOCATION								
+		FROM
+				WEBALARMOPERATION
+		WHERE 
+			1 = 1
+		<if test="ADDRESSNAME!=null and ADDRESSNAME!=''">
+			AND   ADDRESSNAME LIKE '%${ADDRESSNAME}%'
+		</if>
+		AND STATUS IN ('0','1','2','3')	
+		ORDER BY
+				CPID
+		
+	</select>
+</mapper>

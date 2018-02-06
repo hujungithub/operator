@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+ 
+<mapper namespace="cn.com.start.webBack.mapper.ChargeOrderMapper">	
+	
+	<!-- 查询充电桩数量 -->
+	<select id="getOrderCount"  parameterType="FindOrderInfoDto" resultType="Int" >
+		SELECT 
+			COUNT(*)  
+		FROM 
+			CARORDERRECORD AS RECORD
+		WHERE 1=1 
+
+		<if test="CARID!=null and CARID!=''">
+		AND  
+				RECORD.CARID = #{CARID}
+		</if>
+		<if test="ORDERSTATE!=null and ORDERSTATE!=''">
+		AND  
+				RECORD.ORDERSTATE = #{ORDERSTATE}
+		</if>
+		<if test="CPUSERID!=null and CPUSERID!=''">
+		AND  
+				RECORD.CPUSERID = #{CPUSERID}
+		</if>
+
+	</select>
+				
+	<select id="selectOrderByPage" parameterType="FindOrderInfoDto" resultType="OrderInfoDto">
+		
+		SELECT 
+			CARID,
+			CPUSERID,
+			LEFT(STARTTIME,19) AS STARTTIME,
+			LEFT(ENDTIME,19) AS ENDTIME,
+			ORDERSTATE,
+			ORDERRESULT,
+			ORDERNUMBER,
+			MONEY,
+			KILOMETRE
+
+		FROM 
+			CARORDERRECORD AS RECORD
+		WHERE 1=1 
+
+		<if test="CARID!=null and CARID!=''">
+		AND  
+				RECORD.CARID = #{CARID}
+		</if>
+		<if test="ORDERSTATE!=null and ORDERSTATE!=''">
+		AND  
+				RECORD.ORDERSTATE = #{ORDERSTATE}
+		</if>
+		<if test="CPUSERID!=null and CPUSERID!=''">
+		AND  
+				RECORD.CPUSERID = #{CPUSERID}
+		</if>
+		LIMIT 0,10
+		
+	</select>
+	
+	<select id="selectOrderState"  resultType="String" >
+		SELECT 
+			DISTINCT ORDERSTATE 
+		FROM 
+			CARORDERRECORD
+
+	</select>
+		
+</mapper>

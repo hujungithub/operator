@@ -1,0 +1,626 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.com.start.DPF.mapper.SaveCardDataMapper">
+
+	<!-- 用户卡start -->
+	<!-- 用户发卡操作成功的记录入库 -->
+	<insert id="insertCardUserInfo" parameterType="CardUserInfo">
+		INSERT
+		INTO
+				CARDUSERINFO
+				(
+				CARDNUM,
+				CARDUSERNAME,
+				IDENTITYCARDNUM,
+				INITKEY,
+				PIN,
+				TELEPHONE,
+				REGTIME,
+				SEX,
+				PLATENUM,
+				VIN,
+				EMAIL,
+				ADDRESS,
+				USERID,
+				OPERATORID
+				)
+		VALUES
+				(
+				#{CARDNUM},
+				#{CARDUSERNAME},
+				#{IDENTITYCARDNUM},
+				#{INITKEY},
+				#{PIN},
+				#{TELEPHONE},
+				#{REGTIME},
+				#{SEX},
+				#{PLATENUM},
+				#{VIN},
+				#{EMAIL},
+				#{ADDRESS},
+				#{USERID},
+				(SELECT OPERATORID FROM USERINFO WHERE USERID = #{USERID})
+				)
+	</insert>
+
+
+	<!-- 记录开用户卡操作信息 -->
+	<insert id="insertIssueUserCard" parameterType="CardIssueRecord">
+		INSERT
+		INTO
+				USERCARDISSUERECORD
+				(
+				SERIALNO,
+				CARDNUM,
+				PIN,
+				CARDUSERNAME,
+				IDENTITY,
+				PHONE,
+				SENDRECORDTIME,
+				OPENCARDSTATE,
+				USERID,
+				OPERATORID
+				)
+		VALUES
+				(
+				#{SERIALNO},
+				#{CARDNUM},
+				#{PIN},
+				#{CARDUSERNAME},
+				#{IDENTITY},
+				#{PHONE},
+				#{SENDRECORDTIME},
+				#{OPENCARDSTATE},
+				#{USERID},
+				(SELECT OPERATORID FROM USERINFO WHERE USERID = #{USERID})
+				)
+	</insert>
+	
+	<!-- 获取刚刚插入的发用户卡操作记录id -->
+	<select id="getUserCardIssueRecordId" resultType="BigInteger">
+		SELECT
+				MAX(ID)
+		FROM
+				USERCARDISSUERECORD
+				
+	</select>
+	
+	<!-- 更新开用户卡操作状态 -->
+	<update id="updateIssueUserCard" parameterType="CardIssueRecord">
+		UPDATE
+				USERCARDISSUERECORD
+		SET
+				INITIALKEY = #{INITIALKEY},
+				GETREPLYTIME = #{GETREPLYTIME},
+				OPENCARDSTATE = #{OPENCARDSTATE},
+				OPENCARDRESULT = #{OPENCARDRESULT}
+		WHERE
+				ID = #{ID}
+	</update>
+	<!-- 用户卡end -->
+	
+	<!-- ESAM卡start -->
+	<!-- 发ESAM卡操作入库 -->
+	<select id="insertIssueESAMCard" parameterType="ESAMCardIssueRecord">
+		INSERT
+		INTO
+				ESAMCARDISSUERECORD
+				(
+				CARDNUM,
+				SERIALNO,
+				SENDRECORDTIME,
+				OPENCARDSTATE,
+				USERID
+				)
+		VALUES
+				(
+				#{CARDNUM},
+				#{SERIALNO},
+				#{SENDRECORDTIME},
+				#{OPENCARDSTATE},
+				#{USERID}
+				)
+	</select>
+	
+	<!-- 获取刚刚插入的发ESAM卡操作记录id -->
+	<select id="getESAMCardIssueRecordId" resultType="BigInteger">
+		SELECT
+				MAX(ID)
+		FROM
+				ESAMCARDISSUERECORD
+	</select>
+	
+	<!-- 更新发ESAM卡操作状态 -->
+	<update id="updateIssueESAMCard" parameterType="ESAMCardIssueRecord">
+		UPDATE
+				ESAMCARDISSUERECORD
+		SET
+				GETREPLYTIME = #{GETREPLYTIME},
+				OPENCARDSTATE = #{OPENCARDSTATE},
+				OPENCARDRESULT = #{OPENCARDRESULT}
+		WHERE
+				ID = #{ID}
+	</update>
+	
+	<!-- 发ESAM卡成功数据入库 -->
+	<insert id="insertESAMCardData" parameterType="ESAMCardData">
+		INSERT
+		INTO
+				ESAMCARDDATA
+				(
+				CARDNUM,
+				INITKEY,
+				CARDISSUETIME
+				)
+		VALUES
+				(
+				#{CARDNUM},
+				#{INITKEY},
+				#{CARDISSUETIME}
+				)
+	</insert>
+	<!-- ESAM卡end -->
+	
+	<!-- ISAM卡start -->
+	<!-- 发ISAM卡操作入库 -->
+	<select id="insertIssueISAMCard" parameterType="ISAMCardIssueRecord">
+		INSERT
+		INTO
+				ISAMCARDISSUERECORD
+				(
+				CARDNUM,
+				SERIALNO,
+				SENDRECORDTIME,
+				OPENCARDSTATE,
+				USERID
+				)
+		VALUES
+				(
+				#{CARDNUM},
+				#{SERIALNO},
+				#{SENDRECORDTIME},
+				#{OPENCARDSTATE},
+				#{USERID}
+				)
+	</select>
+	
+	<!-- 获取刚刚插入的发ISAM卡操作记录id -->
+	<select id="getISAMCardIssueRecordId" resultType="BigInteger">
+		SELECT
+				MAX(ID)
+		FROM
+				ISAMCARDISSUERECORD
+	</select>
+	
+	<!-- 更新发ISAM卡操作状态 -->
+	<update id="updateIssueISAMCard" parameterType="ISAMCardIssueRecord">
+		UPDATE
+				ISAMCARDISSUERECORD
+		SET
+				GETREPLYTIME = #{GETREPLYTIME},
+				OPENCARDSTATE = #{OPENCARDSTATE},
+				OPENCARDRESULT = #{OPENCARDRESULT}
+		WHERE
+				ID = #{ID}
+	</update>
+	
+	<!-- 发ISAM卡成功数据入库 -->
+	<insert id="insertISAMCardData" parameterType="ISAMCardData">
+		INSERT
+		INTO
+				ISAMCARDDATA
+				(
+				CARDNUM,
+				INITKEY,
+				CARDISSUETIME
+				)
+		VALUES
+				(
+				#{CARDNUM},
+				#{INITKEY},
+				#{CARDISSUETIME}
+				)
+	</insert>
+	<!-- ISAM卡end -->
+	
+	<!-- 读取卡号start -->
+	<!-- 读取卡号操作入库 -->
+	<insert id="insertReadCardNumRecord" parameterType="ReadCardNumRecord">
+		INSERT
+		INTO
+				READCARDNUMRECORD
+				(
+				SERIALNO,
+				SENDRECORDTIME,
+				READCARDNUMSTATE,
+				USERID
+				)
+		VALUES
+				(
+				#{SERIALNO},
+				#{SENDRECORDTIME},
+				#{READCARDNUMSTATE},
+				#{USERID}
+				)
+	</insert>
+	
+	<!-- 获取刚刚插入的读卡号操作记录id -->
+	<select id="getReadCardNumRecordId" resultType="BigInteger">
+		SELECT
+				MAX(ID)
+		FROM
+				READCARDNUMRECORD
+	</select>
+	
+	<!-- 更新读取卡号操作状态 -->
+	<update id="updateReadCardNumRecord" parameterType="ReadCardNumRecord">
+		UPDATE
+				READCARDNUMRECORD
+		SET
+				GETREPLYTIME = #{GETREPLYTIME},
+				READCARDNUMSTATE = #{READCARDNUMSTATE},
+				READCARDNUMRESULT = #{READCARDNUMRESULT}
+		WHERE
+				ID = #{ID}
+	</update>
+	<!-- 读取卡号end -->
+	
+	<!-- 读取余额start -->
+	<!-- 读取余额操作入库 -->
+	<insert id="insertReadBalanceRecord" parameterType="ReadCardNumRecord">
+		INSERT
+		INTO
+				READBALANCERECORD
+				(
+				SERIALNO,
+				SENDRECORDTIME,
+				READBALANCESTATE,
+				USERID,
+				PIN
+				)
+		VALUES
+				(
+				#{SERIALNO},
+				#{SENDRECORDTIME},
+				#{READBALANCESTATE},
+				#{USERID},
+				#{PIN}
+				)
+	</insert>
+	
+	<!-- 获取刚刚插入的读余额操作记录id -->
+	<select id="getReadBalanceRecordId" resultType="BigInteger">
+		SELECT
+				MAX(ID)
+		FROM
+				READBALANCERECORD
+	</select>
+	
+	<!-- 更新读取余额操作状态 -->
+	<update id="updateReadBalanceRecord" parameterType="ReadCardNumRecord">
+		UPDATE
+				READBALANCERECORD
+		SET
+				GETREPLYTIME = #{GETREPLYTIME},
+				READBALANCESTATE = #{READBALANCESTATE},
+				READBALANCERESULT = #{READBALANCERESULT}
+		WHERE
+				ID = #{ID}
+	</update>
+	<!-- 读取余额end -->
+	
+	<!-- 充值start -->
+	<!-- 充值操作入库 -->
+	<insert id="insertRechargeCard" parameterType="RechargeRecord">
+		INSERT
+		INTO
+				RECHARGERECORD
+				(
+				USERID,
+				SERIALNO,
+				CARDNUM,
+				PIN,
+				MONEY,
+				RECHARGETIME,
+				RECHARGETIMES,
+				SENDRECORDTIME,
+				RECHARGESTATE,
+				OPERATORID
+				)
+		VALUES
+				(
+				#{USERID},
+				#{SERIALNO},
+				#{CARDNUM},
+				#{PIN},
+				#{MONEY},
+				#{RECHARGETIME},
+				#{RECHARGETIMES},
+				#{SENDRECORDTIME},
+				#{RECHARGESTATE},
+				(SELECT OPERATORID FROM USERINFO WHERE USERID = #{USERID})
+				)
+	</insert>
+	
+	<!-- 获取刚刚插入的充值操作id -->
+	<select id="getRechargeRecordId" resultType="BigInteger">
+		SELECT
+				MAX(ID)
+		FROM
+				RECHARGERECORD
+	</select>
+	
+	<!-- 更新充值操作状态 -->
+	<update id="updateRechargeRecord" parameterType="RechargeRecord">
+		UPDATE
+				RECHARGERECORD
+		SET
+				GETREPLYTIME = #{GETREPLYTIME},
+				RECHARGESTATE = #{RECHARGESTATE},
+				RECHARGERESULT = #{RECHARGERESULT},
+				BALANCE = #{BALANCES}
+		WHERE
+				ID = #{ID}
+	</update>
+	
+	<!-- 更新用户卡表的余额 -->
+	<update id="updateUserCardBalance" parameterType="RechargeRecord">
+		UPDATE
+				CARDUSERINFO
+		SET
+				ACCOUNTSUM = ACCOUNTSUM + #{MONEY}
+		WHERE
+				CARDNUM = #{CARDNUM}
+	</update>
+	
+	<select id="getBalance" parameterType="String" resultType="float">
+		SELECT
+				ACCOUNTSUM
+		FROM
+				CARDUSERINFO
+		WHERE
+				CARDNUM = #{CARDNUM}
+	</select>
+	<!-- 充值end -->
+	
+	<!-- 修改、重置pin start -->
+	<!-- 重置pin操作入库 -->
+	<insert id="insertReloadPinRecord" parameterType="ReloadPINRecord">
+		INSERT
+		INTO
+				RELOADPINRECORD
+				(
+				USERID,
+				SERIALNO,
+				CARDNUM,
+				NEWPIN,
+				SENDRECORDTIME,
+				RELOADPINSTATE
+				)
+		VALUES
+				(
+				#{USERID},
+				#{SERIALNO},
+				#{CARDNUM},
+				#{NEWPIN},
+				#{SENDRECORDTIME},
+				#{RELOADPINSTATE}
+				)
+	</insert>
+	
+	<!-- 获取刚刚插入的充值pin操作记录id -->
+	<select id="getReloadPINRecordId" resultType="BigInteger">
+		SELECT
+				MAX(ID)
+		FROM
+				RELOADPINRECORD
+	</select>
+	
+	<!-- 更新充值pin操作状态 -->
+	<update id="updateReloadPINRecord">
+		UPDATE
+				RELOADPINRECORD
+		SET
+				GETREPLYTIME = #{GETREPLYTIME},
+				RELOADPINSTATE = #{RELOADPINSTATE},
+				RELOADPINRESULT = #{RELOADPINRESULT}
+		WHERE
+				ID = #{ID}
+	</update>
+				
+	<!-- 更新用户卡表pin -->
+	<update id="updateUserCardPIN" parameterType="String">
+		UPDATE
+				CARDUSERINFO
+		SET
+				PIN = #{param2}
+		WHERE
+				CARDNUM = #{param1}
+	</update>
+	
+	<!-- 修改pin操作入库 -->
+	<insert id="insertChangePINRecord" parameterType="ChangePINRecord">
+		INSERT
+		INTO
+				CHANGEPINRECORD
+				(
+				USERID,
+				SERIALNO,
+				CARDNUM,
+				OLDPIN,
+				NEWPIN,
+				SENDRECORDTIME,
+				CHANGEPINSTATE
+				)
+		VALUES
+				(
+				#{USERID},
+				#{SERIALNO},
+				#{CARDNUM},
+				#{OLDPIN},
+				#{NEWPIN},
+				#{SENDRECORDTIME},
+				#{CHANGEPINSTATE}
+				)
+	</insert>
+	<!-- 获取刚刚插入的修改pin操作记录id -->
+	<select id="getChangePINRecordId" resultType="BigInteger">
+		SELECT
+				MAX(ID)
+		FROM
+				CHANGEPINRECORD
+	</select>
+	<!-- 更新修改pin操作 -->
+	<update id="updateChangePINRecord" parameterType="ChangePINRecord">
+		UPDATE
+				CHANGEPINRECORD
+		SET
+				GETREPLYTIME = #{GETREPLYTIME},
+				CHANGEPINSTATE = #{CHANGEPINSTATE},
+				CHANGEPINRESULT = #{CHANGEPINRESULT}
+		WHERE
+				ID = #{ID}
+	</update>
+	<!-- 修改、重置pin end -->
+	
+	<!-- 预处理start -->
+	<!-- 预处理操作入库 -->
+	<insert id="inserPretreatmentRecord" parameterType="PretreatmentRecord">
+		INSERT
+		INTO
+				PRETREATMENTRECORD
+				(
+				USERID,
+				SERIALNO,
+				PIN,
+				SENDRECORDTIME,
+				PRETREATMENTSTATE
+				)
+		VALUES
+				(
+				#{USERID},
+				#{SERIALNO},
+				#{PIN},
+				#{SENDRECORDTIME},
+				#{PRETREATMENTSTATE}
+				)
+	</insert>
+	<!-- 获取刚刚插入的预处理操作id -->
+	<select id="getPretreatmentRecordId" resultType="BigInteger">
+		SELECT
+				MAX(ID)
+		FROM
+				PRETREATMENTRECORD
+	</select>
+	<!-- 更新预处理操作状态 -->
+	<update id="updatePretreatmentRecord" parameterType="PretreatmentRecord">
+		UPDATE
+				PRETREATMENTRECORD
+		SET
+				GETREPLYTIME = #{GETREPLYTIME},
+				PRETREATMENTSTATE = #{PRETREATMENTSTATE},
+				PRETREATMENTRESULT = #{PRETREATMENTRESULT}
+		WHERE
+				ID = #{ID}
+	</update>
+	<!-- 预处理end -->
+	
+	<!-- 联机解扣start -->
+	<!-- 联机解扣操作入库 -->
+	<insert id="insertUnlockGreyRecord" parameterType="UnlockGreyRecord">
+		INSERT
+		INTO
+				UNLOCKGREYRECORD
+				(
+				USERID,
+				SERIALNO,
+				CARDNUM,
+				MONEY,
+				PIN,
+				TRADETIME,
+				SENDRECORDTIME,
+				UNLOCKGREYSTATE
+				)
+		VALUES
+				(
+				#{USERID},
+				#{SERIALNO},
+				#{CARDNUM},
+				#{MONEY},
+				#{PIN},
+				#{TRADETIME},
+				#{SENDRECORDTIME},
+				#{UNLOCKGREYSTATE}
+				)
+	</insert>
+	
+	<!-- 获取刚刚插入的联机解扣操作id -->
+	<select id="getUnlockGreyRecordId" resultType="BigInteger">
+		SELECT
+				MAX(ID)
+		FROM
+				UNLOCKGREYRECORD
+	</select>
+	
+	<!-- 联机解扣处理操作状态 -->
+	<update id="updateUnlockGreyRecord" parameterType="UnlockGreyRecord">
+		UPDATE
+				UNLOCKGREYRECORD
+		SET
+				GETREPLYTIME = #{GETREPLYTIME},
+				UNLOCKGREYSTATE = #{UNLOCKGREYSTATE},
+				UNLOCKGREYRESULT = #{UNLOCKGREYRESULT}
+		WHERE
+				ID = #{ID}
+	</update>
+	<!-- 联机解扣end -->
+	
+	<!-- 1.1socket连接更新 -->
+	<!--  
+	<update id = "updateSocketLinkRecord" parameterType = "SocketLinkRecord">
+		UPDATE
+				LINKRECORD
+		SET
+				ID = #{ID},
+				TYPE = #{TYPE},
+				LOSTTIME = #{LOSTTIME},
+				REASON = #{REASON}
+		WHERE
+				CONNECTTIME = #{CONNECTTIME}
+		AND
+				IP = #{IP}
+		AND
+				PORT = #{PORT}
+	
+	</update>
+	-->
+	
+	
+	<!-- 1.0-socket连接入库 -->
+	<!--  
+	<insert id = "insertSocketLinkRecord" parameterType = "SocketLinkRecord">
+		INSERT
+		INTO
+				LINKRECORD		
+				(
+				ID,
+				TYPE,
+				CONNECTTIME,
+				IP,
+				PORT,
+				LOSTTIME,
+				REASON
+				)
+		VALUES
+				(
+				#{ID},
+				#{TYPE},
+				#{CONNECTTIME},
+				#{IP},
+				#{PORT},
+				#{LOSTTIME},
+				#{REASON})
+	</insert>
+	-->
+</mapper>

@@ -1,0 +1,244 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.com.start.webBack.mapper.StatisticsCpMapper">
+
+	<select id="selectoper" parameterType="String"
+		resultType="String">
+		SELECT OPERATORNAME FROM OPERATORINFO WHERE OPERATORID = #{operatorid}
+	</select>
+	<!-- 桩充电统计总数 -->
+	<select id="getCpCount" parameterType="FindreportsDto" resultType="Int">
+		SELECT 
+				COUNT(*) 
+		FROM 	
+				(
+				SELECT
+			  			UCORD.CPID,
+			  			CP.CPNAME,
+			  			COUNT(UCORD.CPID)    CPCOUNT,
+			  			CONCAT(SUBSTR(SEC_TO_TIME(SUM(UCORD.CHARGETIMESPAN)),1,2),"小时", SUBSTR(SEC_TO_TIME(SUM(UCORD.CHARGETIMESPAN)),4,2),"分",SUBSTR(SEC_TO_TIME(SUM(UCORD.CHARGETIMESPAN)),7),"秒")    CHARGETIMESPAN,
+						SUM(UCORD.CHARGEQUANTITY)    CHARGEQUANTITY,
+						SUM(UCORD.CHARGEMONEY)    CHARGEMONEY,
+						SUM(UCORD.SERVICETIP)    SERVICETIP
+				FROM 
+						USERCHARGERECORD UCORD,
+			  			CPINFO CP,
+			  			CSINFO CS,
+			  			OPERATORINFO OPER
+				WHERE 
+						UCORD.CPID = CP.CPID 
+				AND 
+						CS.CSID = CP.CSID
+				AND 
+						OPER.OPERATORID = CS.OPERATORID
+				AND 
+						FIND_IN_SET(OPER.OPERATORID, GetChildInfo(#{OPERATORLOGINID}))
+			    <if test="CPNAME!=null and CPNAME!=''">
+				AND 
+						CP.CPNAME LIKE '%${CPNAME}%'
+				</if>
+				<if test="OPERATORID!=null and OPERATORID!=''">
+				AND 
+						OPER.OPERATORID = #{OPERATORID}
+				</if>
+				<if test="CPID!=null and CPID!=''">
+				AND 
+						CP.CPID LIKE '%${CPID}%'
+				</if>
+				<if test="FROMDATE!=null and FROMDATE!=''">
+			    AND
+						 STR_TO_DATE(UCORD.CHARGESTARTTIME, '%Y-%m-%d %H:%i') &gt;= #{FROMDATE}
+				</if>
+				<if test="TODATE!=null and TODATE!=''">
+				AND
+						 STR_TO_DATE(UCORD.CHARGESTARTTIME, '%Y-%m-%d %H:%i') &lt;= #{TODATE}
+				</if>	
+				GROUP BY 
+						CP.CPID
+				) A
+	</select>
+	
+	
+	<!-- 桩充电统计-->
+	<select id="selectCpByPage" parameterType="FindreportsDto"
+		resultType="UserChargeDto">
+			SELECT
+					OPER.OPERATORNAME,
+					CS.CSNAME,
+					UCORD.CPID,CP.CPNAME,
+					COUNT(UCORD.CPID)    CPCOUNT,
+					CONCAT(SUBSTR(SEC_TO_TIME(SUM(UCORD.CHARGETIMESPAN)),1,2),"小时", SUBSTR(SEC_TO_TIME(SUM(UCORD.CHARGETIMESPAN)),4,2),"分",SUBSTR(SEC_TO_TIME(SUM(UCORD.CHARGETIMESPAN)),7),"秒")    CHARGETIMESPAN,
+					SUM(UCORD.CHARGEQUANTITY)    CHARGEQUANTITY,
+					SUM(UCORD.CHARGEMONEY)    CHARGEMONEY,
+					SUM(UCORD.SERVICETIP)    SERVICETIP
+			FROM 
+					USERCHARGERECORD UCORD,
+					CPINFO CP, 
+					CSINFO CS,
+					OPERATORINFO OPER
+			WHERE 
+					UCORD.CPID = CP.CPID 
+			AND 
+					CS.CSID = CP.CSID
+			AND 
+					OPER.OPERATORID = CS.OPERATORID
+			AND 
+					FIND_IN_SET(OPER.OPERATORID, GetChildInfo(#{OPERATORLOGINID}))
+		    <if test="CPNAME!=null and CPNAME!=''">
+			AND 
+					CP.CPNAME LIKE '%${CPNAME}%'
+			</if>
+			<if test="CPID!=null and CPID!=''">
+			AND 
+					CP.CPID LIKE '%${CPID}%'
+			</if>
+			<if test="OPERATORID!=null and OPERATORID!=''">
+			AND 
+					OPER.OPERATORID = #{OPERATORID}
+			</if>
+			<if test="FROMDATE!=null and FROMDATE!=''">
+		    AND
+					 STR_TO_DATE(UCORD.CHARGESTARTTIME, '%Y-%m-%d %H:%i') &gt;= #{FROMDATE}
+			</if>
+			<if test="TODATE!=null and TODATE!=''">
+			AND
+					 STR_TO_DATE(UCORD.CHARGESTARTTIME, '%Y-%m-%d %H:%i') &lt;= #{TODATE}
+			</if>	
+			GROUP BY 
+					 CP.CPID
+		    LIMIT
+					#{startPos},#{pageSize}
+	</select>
+
+	<!-- 桩总计 -->
+	<select id="selectCpOperinfo" parameterType="FindreportsDto" resultType="UserChargeDto">
+			SELECT
+			  		COUNT(UCORD.CPID)    CPCOUNT,
+			  		CONCAT(SUBSTR(SEC_TO_TIME(SUM(UCORD.CHARGETIMESPAN)),1,2),"小时", SUBSTR(SEC_TO_TIME(SUM(UCORD.CHARGETIMESPAN)),4,2),"分",SUBSTR(SEC_TO_TIME(SUM(UCORD.CHARGETIMESPAN)),7),"秒")    CHARGETIMESPAN,
+			  		SUM(UCORD.CHARGEQUANTITY)    CHARGEQUANTITY,
+			  		SUM(UCORD.CHARGEMONEY)    CHARGEMONEY,
+			  		SUM(UCORD.SERVICETIP)    SERVICETIP
+			FROM 
+					USERCHARGERECORD UCORD,
+			  		CPINFO CP,
+			  		CSINFO CS,
+			  		OPERATORINFO OPER
+			WHERE 
+					UCORD.CPID = CP.CPID 
+			AND 
+					CS.CSID = CP.CSID
+			AND 
+					OPER.OPERATORID = CS.OPERATORID
+			AND 
+					FIND_IN_SET(OPER.OPERATORID, GetChildInfo(#{OPERATORLOGINID}))
+		    <if test="CPNAME!=null and CPNAME!=''">
+			AND 
+					CP.CPNAME LIKE '%${CPNAME}%'
+			</if>
+			<if test="CPID!=null and CPID!=''">
+			AND 
+					CP.CPID LIKE '%${CPID}%'
+			</if>
+			<if test="OPERATORID!=null and OPERATORID!=''">
+			AND 
+					OPER.OPERATORID = #{OPERATORID}
+			</if>
+			<if test="FROMDATE!=null and FROMDATE!=''">
+		    AND
+					 STR_TO_DATE(UCORD.CHARGESTARTTIME, '%Y-%m-%d %H:%i') &gt;= #{FROMDATE}
+			</if>
+			<if test="TODATE!=null and TODATE!=''">
+			AND
+					 STR_TO_DATE(UCORD.CHARGESTARTTIME, '%Y-%m-%d %H:%i') &lt;= #{TODATE}
+			</if>
+		    LIMIT
+					 #{startPos},#{pageSize}
+	</select>
+	
+	<!-- 桩导出 -->
+	<select id="selectCpAllreports" parameterType="FindreportsDto" resultType="UserChargeDto">
+		SELECT
+				OPER.OPERATORNAME,
+				CS.CSNAME,
+				UCORD.CPID,
+				CP.CPNAME,
+			  	COUNT(UCORD.CPID)    CPCOUNT,
+			  	CONCAT(SUBSTR(SEC_TO_TIME(SUM(UCORD.CHARGETIMESPAN)),1,2),"小时", SUBSTR(SEC_TO_TIME(SUM(UCORD.CHARGETIMESPAN)),4,2),"分",SUBSTR(SEC_TO_TIME(SUM(UCORD.CHARGETIMESPAN)),7),"秒")    CHARGETIMESPAN,
+			  	SUM(UCORD.CHARGEQUANTITY)    CHARGEQUANTITY,
+			  	SUM(UCORD.CHARGEMONEY)    CHARGEMONEY,
+			  	SUM(UCORD.SERVICETIP)    SERVICETIP
+		FROM 
+				USERCHARGERECORD UCORD,
+			  	CPINFO CP,
+			  	CSINFO CS,
+			  	OPERATORINFO OPER
+		WHERE 
+				UCORD.CPID = CP.CPID 
+		AND 
+				CS.CSID = CP.CSID
+		AND 
+				OPER.OPERATORID = CS.OPERATORID
+		AND 
+				FIND_IN_SET(OPER.OPERATORID, GetChildInfo(#{OPERATORLOGINID}))
+		<if test="OPERATORID!=null and OPERATORID!=''">
+		AND 
+				OPER.OPERATORID = #{OPERATORID}
+		</if>
+		<if test="FROMDATE!=null and FROMDATE!=''">
+	    AND
+				 STR_TO_DATE(UCORD.CHARGESTARTTIME, '%Y-%m-%d %H:%i') &gt;= #{FROMDATE}
+		</if>
+		<if test="TODATE!=null and TODATE!=''">
+		AND
+				 STR_TO_DATE(UCORD.CHARGESTARTTIME, '%Y-%m-%d %H:%i') &lt;= #{TODATE}
+		</if>	
+		GROUP BY 
+				 CP.CPID
+	</select>
+	
+	
+	<!-- 桩总计 -->
+	<select id="selectCpAll" parameterType="FindreportsDto" resultType="UserChargeDto">
+		SELECT
+			  	COUNT(UCORD.CPID)    CPCOUNT,
+			 	CONCAT(SUBSTR(SEC_TO_TIME(SUM(UCORD.CHARGETIMESPAN)),1,2),"小时", SUBSTR(SEC_TO_TIME(SUM(UCORD.CHARGETIMESPAN)),4,2),"分",SUBSTR(SEC_TO_TIME(SUM(UCORD.CHARGETIMESPAN)),7),"秒")    CHARGETIMESPAN,
+			  	SUM(UCORD.CHARGEQUANTITY)    CHARGEQUANTITY,
+			 	SUM(UCORD.CHARGEMONEY)    CHARGEMONEY,
+			  	SUM(UCORD.SERVICETIP)    SERVICETIP
+		FROM 
+			  	USERCHARGERECORD UCORD,
+			  	CPINFO CP,
+			  	CSINFO CS,
+			  	OPERATORINFO OPER
+		WHERE 
+				UCORD.CPID = CP.CPID 
+		AND 
+				CS.CSID = CP.CSID
+		AND 
+				OPER.OPERATORID = CS.OPERATORID
+		AND 
+				FIND_IN_SET(OPER.OPERATORID, GetChildInfo(#{OPERATORLOGINID}))
+	    <if test="CPNAME!=null and CPNAME!=''">
+		AND 
+				CP.CPNAME LIKE '%${CPNAME}%'
+		</if>
+		<if test="CPID!=null and CPID!=''">
+		AND 
+				CP.CPID LIKE '%${CPID}%'
+		</if>
+		<if test="OPERATORID!=null and OPERATORID!=''">
+		AND 
+				OPER.OPERATORID = #{OPERATORID}
+		</if>
+		<if test="FROMDATE!=null and FROMDATE!=''">
+	    AND
+				STR_TO_DATE(UCORD.CHARGESTARTTIME, '%Y-%m-%d %H:%i') &gt;= #{FROMDATE}
+		</if>
+		<if test="TODATE!=null and TODATE!=''">
+		AND
+				STR_TO_DATE(UCORD.CHARGESTARTTIME, '%Y-%m-%d %H:%i') &lt;= #{TODATE}
+		</if>
+	</select>
+	
+</mapper>

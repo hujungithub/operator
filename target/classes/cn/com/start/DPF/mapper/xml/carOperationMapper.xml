@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.com.start.DPF.mapper.CarOperationMapper">
+	
+	<!-- 查询所有的汽车-->
+	<select id = "getCarInfo" resultType ="CarInfo">
+		select 
+				*
+		from
+				carInfo
+	</select>
+	
+	
+	<!-- 根据ID查找配置 -->
+	<select id="getCarStateType" resultType="CarStateType">
+		select
+				* 
+		from 
+				carStatetype
+	</select>
+	
+	
+</mapper>

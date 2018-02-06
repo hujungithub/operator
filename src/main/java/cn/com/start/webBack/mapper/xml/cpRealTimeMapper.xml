@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+ 
+<mapper namespace="cn.com.start.webBack.mapper.CpRealTimeMapper">
+	<!-- 根据条件查询数量 -->
+	<select id = "getCPCount" parameterType = "FindCPDto" resultType = "Int">
+		SELECT
+				COUNT(*)
+		FROM
+				CPINFO CP,
+				OPERATORINFO CO,
+				CSINFO CS,
+				CPMODEL MODEL
+		WHERE
+				CP.MFRID = MODEL.MFRID
+		AND
+				CP.MODEL = MODEL.MODEL
+		AND
+				CP.OPERATORID = CO.OPERATORID
+		AND
+				CP.CSID = CS.CSID
+		<if test="CPTYPE!= null and CPTYPE!=''">
+		AND 
+				MODEL.CPTYPE = #{CPTYPE}
+		</if>
+		<if test="OPERATORID!= null and OPERATORID!=''">
+		AND 
+				CO.OPERATORID = #{OPERATORID}
+		</if>
+		<if test="CSID!=null and CSID!=''">
+		AND 
+				CS.CSID = #{CSID}
+		</if>
+	</select>
+	
+	<!-- 根据条件查询cpidlist -->
+	<select id = "selectCPIdList" parameterType = "FindCPDto" resultType = "String">
+		SELECT
+				CPID
+		FROM
+				CPINFO CP,
+				OPERATORINFO CO,
+				CSINFO CS,
+				CPMODEL MODEL
+		WHERE
+				CP.OPERATORID = CO.OPERATORID
+		AND
+				CP.CSID = CS.CSID
+		AND
+				CP.MFRID = MODEL.MFRID
+		AND
+				CP.MODEL = MODEL.MODEL
+		<if test="CPTYPE!= null and CPTYPE!=''">
+		AND 
+				MODEL.CPTYPE = #{CPTYPE}
+		</if>
+		<if test="OPERATORID!= null and OPERATORID!=''">
+		AND 
+				CO.OPERATORID = #{OPERATORID}			
+		</if>
+		<if test="CSID!=null and CSID!=''">
+		AND 
+				CS.CSID = #{CSID}
+		</if>
+		LIMIT
+				#{startPos},#{pageSize}
+	</select>
+	
+	<!-- 条件查询充电桩 显示最新运行部分数据 -->	
+ 	<select id = "selectCPRTByPage" parameterType = "String" resultType = "CpRealTimeDto">
+		SELECT
+				CPID,
+				INTERFACEID,
+				RECORDTIME,
+				SOC,
+				CHARGETIMESPAN,
+				REMAINTIMESPAN,
+				UA,
+				IA,
+				TOTALQUANTITY,
+				TOTALFEE
+		FROM
+				CPRUNRECORD				
+    </select> 		
+
+
+</mapper>

@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.com.start.webBack.mapper.LoggerInfoMapper">
+	<!-- 插入数据 -->
+	<insert id="insertInfo" parameterType="LoggerInfoDto" >
+		INSERT
+		INTO
+			LOGGERINFO
+			(OPERATINGUSER,
+			OPERATINGTIME,
+			OPERATING,
+			OPERATIONCONTENT,
+			OPERATIONOBJECT)
+		VALUE
+			(#{OPERATINGUSER},
+			(#{OPERATINGTIME}),
+			#{OPERATING},
+			#{OPERATIONCONTENT},
+			#{OPERATIONOBJECT})
+			
+	</insert>
+
+	<!-- 查询数量 -->
+	<select id="findLoggerInfoCount" parameterType="LoggerInfoDto" resultType="int">
+		SELECT 
+				COUNT(1)
+		FROM 
+				LOGGERINFO LOGGER,OPERATORINFO OPER
+		WHERE
+				LOGGER.OPERATINGUSER IN (SELECT OPERATORID FROM OPERATORINFO WHERE OPERATORID = #{OPERATORLOGINID}
+				OR BOSSID = #{OPERATORLOGINID}
+				OR BOSSID IN 
+				(SELECT OPERATORID FROM OPERATORINFO WHERE BOSSID=#{OPERATORLOGINID}))
+		AND 
+				LOGGER.OPERATINGUSER = OPER.OPERATORID
+		<if test="OPERATORID != null and OPERATORID != ''">
+		AND
+				LOGGER.OPERATINGUSER = #{OPERATORID}
+		</if>				
+		<if test="FROMTIME != null and FROMTIME != ''">
+		AND
+				STR_TO_DATE(LOGGER.OPERATINGTIME, '%Y-%m-%d') &gt;= #{FROMTIME}
+		</if>
+		<if test="TOTIME != null and TOTIME != ''">
+		AND
+				STR_TO_DATE(LOGGER.OPERATINGTIME, '%Y-%m-%d') &lt;= #{TOTIME}
+		</if>
+		
+	</select>
+
+	<!-- 查询记录 -->
+	<select id="findLoggerInfoByPage" parameterType="LoggerInfoDto" resultType="LoggerInfoDto">
+		SELECT 
+				OPER.OPERATORNAME,
+				LEFT(LOGGER.OPERATINGTIME,19) OPERATINGTIME,
+				OPERATING,
+				OPERATIONCONTENT,
+				OPERATIONOBJECT
+		FROM 
+				LOGGERINFO LOGGER,OPERATORINFO OPER
+		WHERE
+				LOGGER.OPERATINGUSER IN (SELECT OPERATORID FROM OPERATORINFO WHERE OPERATORID = #{OPERATORLOGINID}
+				OR BOSSID = #{OPERATORLOGINID}
+				OR BOSSID IN 
+				(SELECT OPERATORID FROM OPERATORINFO WHERE BOSSID=#{OPERATORLOGINID}))
+		AND 
+				LOGGER.OPERATINGUSER = OPER.OPERATORID
+		<!-- <if test="OPERATORID != null and OPERATORID != ''">
+		AND
+				LOGGER.OPERATINGUSER = #{OPERATORID}
+		</if>				
+		<if test="FROMTIME != null and FROMTIME != ''">
+		AND
+				STR_TO_DATE(LOGGER.OPERATINGTIME, '%Y-%m-%d') &gt;= #{FROMTIME}
+		</if>
+		<if test="TOTIME != null and TOTIME != ''">
+		AND
+				STR_TO_DATE(LOGGER.OPERATINGTIME, '%Y-%m-%d') &lt;= #{TOTIME}
+		</if> -->
+		ORDER BY LOGGER.OPERATINGTIME DESC
+		<!-- limit
+				#{startPos},#{pageSize} -->
+	</select>
+	
+
+</mapper>

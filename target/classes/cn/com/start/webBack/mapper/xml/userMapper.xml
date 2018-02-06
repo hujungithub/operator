@@ -1,0 +1,190 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="cn.com.start.webBack.mapper.UserMapper">
+	
+	<!-- 查询总记录数 -->
+	<select id = "getUserCount" resultType="int" parameterType = "FindUserInfoDto">
+		SELECT
+				count(*)
+		FROM
+				USERINFO USER,
+				ROLEINFO ROLE
+		WHERE
+				USER.ROLEID = ROLE.ROLEID
+		AND     FIND_IN_SET(USER.OPERATORID, GetChildInfo(#{OPERATORLOGINID}))
+		<if test="USERNAME!=null and USERNAME!=''">
+		AND  
+				USER.USERNAME LIKE '%${USERNAME}%'
+		</if>
+		<if test="ROLEID!=null and ROLEID!=''">
+		AND 
+				USER.ROLEID = #{ROLEID}
+		</if>
+	</select>
+	
+	<!-- 分页查询所有管理员 -->
+	<select id="selectUserByPage" parameterType="FindUserInfoDto" resultType="UserInfoDto">
+		SELECT
+				USERID,
+				USERNAME,
+				LOGINID,
+				MD5(LOGINPWD)LOGINPWD,
+				LEFT(LOGINTIME,19) LOGINTIME,
+				ROLENAME,
+				USER.ROLEID,
+				OPER.OPERATORID,
+				OPER.OPERATORNAME
+		FROM
+				USERINFO USER,
+				ROLEINFO ROLE,
+				OPERATORINFO OPER
+		WHERE
+				USER.ROLEID = ROLE.ROLEID
+		AND     OPER.OPERATORID = USER.OPERATORID
+				
+		AND     FIND_IN_SET(USER.OPERATORID, GetChildInfo(#{OPERATORLOGINID}))
+		<if test="USERNAME!=null and USERNAME!=''">
+		AND  
+				USER.USERNAME LIKE '%${USERNAME}%'
+		</if>
+		<if test="OPERATORID!=null and OPERATORID!=''">
+		AND 
+				OPER.OPERATORID = #{OPERATORID}
+		</if>
+		<if test="ROLEID!=null and ROLEID!=''">
+		AND 
+				USER.ROLEID = #{ROLEID}
+		</if>
+		LIMIT
+				#{startPos},#{pageSize}
+		
+	</select>
+	
+	<!-- 新增管理员用户 -->
+	<insert id="insertUser" parameterType="UserInfo">
+		INSERT 
+		INTO
+				USERINFO
+				 (
+				 USERID,
+				 USERNAME,
+				 LOGINID,
+				 LOGINPWD,
+				 VALIDFLAG,
+				 ROLEID,
+				 OPERATORID
+				 )
+		VALUES
+				(
+				#{USERID},
+				#{USERNAME},
+				#{LOGINID},
+				#{LOGINPWD},
+				#{VALIDFLAG},
+				#{ROLEID},
+				#{OPERATORID}
+				)
+	</insert>
+	
+		<!-- 根据ID删除 -->
+	<delete id="deleteById" parameterType="String">
+		DELETE FROM
+				USERINFO
+		WHERE
+				USERID
+		IN
+				<foreach item="USERID" index="index" collection="array" open="(" separator="," close=")">
+						#{USERID,jdbcType=VARCHAR}
+				</foreach>
+	</delete>
+	<!-- 判断boss是否存在超级管理员 -->
+	<select id="selectbosscount" resultType="int" parameterType="String">
+		SELECT
+				COUNT(*)
+		FROM
+				USERINFO
+		WHERE OPERATORID = 34
+		AND ROLEID = 0
+	</select>
+	<!-- 判断运营商是否存在管理员 -->
+	<select id="selectcount" resultType="int" parameterType="String">
+		SELECT
+				COUNT(*)
+		FROM
+				USERINFO
+		WHERE OPERATORID = #{operatorloginid}
+		AND ROLEID = 2
+	</select>
+	<!-- 查询管理员用户角色信息 -->
+	<select id = "selectRoleList" parameterType="String" resultType = "RoleInfo">
+		SELECT
+				ROLEID,
+				ROLENAME
+		FROM
+				ROLEINFO
+		 
+		<if test="roleloginid == 0">
+		WHERE ROLEID = 1 OR ROLEID = 2 OR ROLEID = 3
+		</if>
+		<if test="roleloginid == 2">
+		WHERE ROLEID = 3	
+		</if>
+	</select>
+	
+	<!-- 查询管理员用户角色信息 -->
+	<select id = "selectAllRolelist" parameterType="String" resultType = "RoleInfo">
+		SELECT
+				ROLEID,
+				ROLENAME
+		FROM
+				ROLEINFO
+		 
+		<if test="roleloginid == 0">
+		WHERE ROLEID = 0 OR ROLEID = 1 OR ROLEID = 2 OR ROLEID = 3
+		</if>
+		<if test="roleloginid == 2">
+		WHERE ROLEID = 2 OR ROLEID = 3	
+		</if>
+	</select>
+	
+	<!-- 修改 -->
+    <update id="updateById"  parameterType="UserInfo">
+		UPDATE
+				USERINFO
+		SET
+				USERNAME=#{USERNAME},
+				LOGINID=#{LOGINID},
+				LOGINPWD=#{LOGINPWD},
+				VALIDFLAG=#{VALIDFLAG},
+				ROLEID=#{ROLEID},
+				OPERATORID=#{OPERATORID}
+		WHERE
+				USERID=#{USERID,jdbcType=VARCHAR}
+	</update>
+	
+		<!-- 显示详情 根据ID查询 -->
+	<select id="findAdminById" resultType="UserInfoDto" parameterType="String">
+		SELECT
+				USERINFO.*,
+				ROLEINFO.ROLENAME
+		FROM
+				USERINFO INNER JOIN ROLEINFO
+		ON
+				USERINFO.ROLEID = ROLEINFO.ROLEID
+		WHERE
+				USERID=#{USERID,jdbcType=VARCHAR}
+	</select>
+	
+		<!-- 查询所有的管理员 -->
+	<select id="selectAllAdmin" resultType="UserInfoDto">
+	    SELECT
+				USERINFO.*,
+				ROLEINFO.ROLENAME
+		FROM
+				USERINFO INNER JOIN ROLEINFO
+		ON
+				USERINFO.ROLEID = ROLEINFO.ROLEID
+	</select>
+</mapper>

@@ -1,0 +1,317 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.com.start.webBack.mapper.AddressMapper">
+<!-- ********************************************************************************** -->
+<!-- ********************************************************************************** -->
+	<!-- 根据充电站ID查询地址 -->
+	<select id = "selectAddressByCSId" parameterType = "int" resultType = "Address">
+		SELECT
+				ADDRESS.AREAID,
+				ADDRESS.ADDRESSID
+		FROM
+				ADDRESS,
+				CSINFO
+		WHERE
+				CSINFO.ADDRESSID = ADDRESS.ADDRESSID
+		AND
+				CSINFO.CSID = #{csId}
+	</select>
+	<!-- 查找桩地址 -->
+	 <select id="selectAddressByPage" resultType="AddressDto" parameterType= "FindAddressDto">
+		SELECT 
+				ADDRESSID,
+				PROVINCENAME,
+				CITYNAME,
+				AREA.AREAID,
+				AREANAME,				
+				ADDRESSNAME,
+				LONGITUDE,
+				LATITUDE
+		FROM
+				PROVINCE PRO,
+				CITY,
+				AREA,
+				ADDRESS
+		WHERE
+				ADDRESS.AREAID = AREA.AREAID
+		AND
+				AREA.CITYID = CITY.CITYID
+		AND
+				CITY.PROVINCEID = PRO.PROVINCEID
+				
+		<if test="PROVINCEID!=null and PROVINCEID!=''">
+		AND  
+				PRO.PROVINCEID = #{PROVINCEID}
+		</if>
+		<if test="CITYID!=null and CITYID!=''">
+		AND 
+				CITY.CITYID = #{CITYID}
+		</if>
+		<if test="AREAID!=null and AREAID!=''">
+		AND 
+				AREA.AREAID = #{AREAID}
+		</if>
+		<if test="ADDRESSNAME != null and ADDRESSNAME != ''">
+		AND 
+				ADDRESS.ADDRESSNAME LIKE '%${ADDRESSNAME}%'
+		</if>
+		
+		<!-- LIMIT #{startPos}, #{pageSize} -->
+	</select>
+<!-- ********************************************************************************** -->
+<!-- ********************************************************************************** -->
+	
+	<!-- 根据桩ID查询地址dto -->
+	<select id = "selectAddressDtoByCPId" parameterType = "String" resultType = "AddressDto">
+		SELECT
+				PRO.PROVINCEID,
+				CITY.CITYID,
+				AREA.AREAID,
+				ADDRESS.ADDRESSID
+		FROM
+				CPINFO CP,
+				PROVINCE PRO,
+				CITY,
+				AREA,
+				ADDRESS
+		WHERE
+				PRO.PROVINCEID = CITY.PROVINCEID
+		AND
+				CITY.CITYID = AREA.CITYID
+		AND
+				AREA.AREAID = ADDRESS.AREAID
+		AND
+				ADDRESS.ADDRESSID = CP.ADDRESSID
+		AND
+				CP.CPID = #{cpId}
+	</select> 
+	<!-- 新增地址记录 -->
+	<insert id ="insertAddress" parameterType = "AddressDto" useGeneratedKeys="true" keyProperty="ADDRESSID">
+		INSERT 
+		INTO
+				ADDRESS
+				(
+				AREAID,
+				ADDRESSID,
+				ADDRESSNAME,
+				LONGITUDE,
+				LATITUDE				
+				)
+		VALUES
+				(
+				#{AREAID},
+				#{ADDRESSID},
+				#{ADDRESSNAME},
+				#{LONGITUDE},
+				#{LATITUDE}
+				)
+	</insert>
+	<!-- 根据省市区ID拼接地址 -->
+	<select id = "selectPCAById" parameterType = "AddressDto" resultType = "String">
+		SELECT
+				CONCAT(PRO.PROVINCENAME,CITY.CITYNAME,AREA.AREANAME)
+		FROM
+				PROVINCE PRO,
+				CITY,
+				AREA
+		WHERE
+				PRO.PROVINCEID = #{PROVINCEID}
+		AND
+				CITY.CITYID = #{CITYID}
+		AND
+				AREA.AREAID = #{AREAID}
+	</select>
+	<!-- 增加地址前先查询id -->
+	<select id = "selectAddressIdBeforeAdd" resultType = "String">
+		SELECT
+				MAX(ADDRESSID)
+		FROM
+				ADDRESS
+	</select>
+	
+	<!-- MODIFIED BY HANMJ 20170719 BEGIN -->
+	<!-- 分页查询地址-->
+	<!-- 
+	<select id="selectAddressByPage" resultType="AddressDto" parameterType= "FindAddressDto">
+		SELECT 
+				ADDRESSID,
+				PROVINCENAME,
+				CITYNAME,
+				AREANAME,				
+				ADDRESSNAME,
+				LONGITUDE,
+				LATITUDE
+		FROM
+				PROVINCE PRO,
+				CITY,
+				AREA,
+				ADDRESS
+		WHERE
+				ADDRESS.AREAID = AREA.AREAID
+		AND
+				AREA.CITYID = CITY.CITYID
+		AND
+				CITY.PROVINCEID = PRO.PROVINCEID
+				
+		<if test="PROVINCEID!=null and PROVINCEID!=''">
+		AND  
+				PRO.PROVINCEID = #{PROVINCEID}
+		</if>
+		<if test="CITYID!=null and CITYID!=''">
+		AND 
+				CITY.CITYID = #{CITYID}
+		</if>
+		<if test="AREAID!=null and AREAID!=''">
+		AND 
+				AREA.AREAID = #{AREAID}
+		</if>
+		<if test="ADDRESSNAME != null and ADDRESSNAME != ''">
+		AND 
+				ADDRESS.ADDRESSNAME LIKE '%${ADDRESSNAME}%'
+		</if>
+		ORDER  
+		BY		
+				  ADDRESSID 
+		DESC
+		LIMIT #{startPos}, #{pageSize}
+	</select>
+	 -->
+	
+	<!-- MODIFIED BY HANMJ 20170719 END -->
+	
+	<!-- 按条件查询总记录数 -->
+	<select id = "getAddressCount" resultType = "Int" parameterType="FindAddressDto">
+		SELECT 
+				COUNT(*)
+		FROM
+				PROVINCE PRO,
+				CITY,
+				AREA,
+				ADDRESS
+		WHERE
+				ADDRESS.AREAID = AREA.AREAID
+		AND
+				AREA.CITYID = CITY.CITYID
+		AND
+				CITY.PROVINCEID = PRO.PROVINCEID
+				
+		<if test="PROVINCEID!=null and PROVINCEID!=''">
+		AND  
+				PRO.PROVINCEID = #{PROVINCEID}
+		</if>
+		<if test="CITYID!=null and CITYID!=''">
+		AND 
+				CITY.CITYID = #{CITYID}
+		</if>
+		<if test="AREAID!=null and AREAID!=''">
+		AND 
+				AREA.AREAID = #{AREAID}
+		</if>
+		<if test="ADDRESSNAME!=null and ADDRESSNAME!=''">
+		AND 
+				ADDRESS.ADDRESSNAME LIKE '%${ADDRESSNAME}%'
+		</if>
+	</select>	
+	<!-- ***************************************************************-->
+	<!-- ***************************************************************-->
+	<!-- ***************************************************************-->
+	<!-- ***************************************************************-->
+	<!-- ***************************************************************-->
+	<!-- ***************************************************************-->
+	
+
+	<select id="findAddressDtoById" resultType="AddressDto" parameterType="Int">
+	SELECT 
+				ADDRESSID,
+			    ADDRESSNAME,
+			    LONGITUDE,
+			    LATITUDE,
+			    AREA.AREAID,
+			    CITY.CITYID,
+			    PROVINCE.PROVINCEID
+	FROM 
+				ADDRESS 
+	LEFT JOIN 
+				AREA 
+	ON 
+				ADDRESS.AREAID = AREA.AREAID
+	LEFT JOIN 
+				CITY 
+	ON 
+				AREA.CITYID = CITY.CITYID
+	LEFT JOIN 
+				PROVINCE 
+	ON 
+				CITY.PROVINCEID = PROVINCE.PROVINCEID
+	WHERE
+				ADDRESSID = #{ADDRESSID}
+	</select>
+	
+	<!-- 查询所有地址信息 导出-->
+	<select id="selectAllAddress" resultType="AddressDto" parameterType="FindAddressDto">
+		SELECT 
+		  		   ADDRESSID,
+		  		   ADDRESSNAME, 
+		  		   AREANAME, 
+		  		   CITYNAME, 
+		  		   PROVINCENAME,
+		  		   LONGITUDE,
+		  		   LATITUDE
+		FROM 
+				   ADDRESS 
+		LEFT JOIN 
+				   AREA 
+		ON         
+				 	ADDRESS.AREAID = AREA.AREAID
+		LEFT JOIN 
+				   CITY 
+	    ON         
+	    			AREA.CITYID = CITY.CITYID
+		LEFT JOIN 
+				   PROVINCE 
+		ON         
+					CITY.PROVINCEID = PROVINCE.PROVINCEID
+		where 1=1 
+		<if test="ADDRESSNAME!=null and ADDRESSNAME!=''">
+		AND ADDRESS.ADDRESSNAME LIKE '%${ADDRESSNAME}%'
+		</if>
+	</select>
+	
+	<!-- 显示详情 根据ID查询 -->
+	<select id="findAddressById" resultType="Address" parameterType="Int">
+		SELECT
+				 * 
+		FROM
+				 ADDRESS 
+		WHERE
+				 ADDRESSID=#{ADDRESSID}
+	</select>
+	
+	<!-- 根据ID删除address表 -->
+	<delete id="deleteById" parameterType="String">
+		DELETE 
+		FROM
+				ADDRESS
+		WHERE
+				ADDRESSID
+		IN
+				<foreach item="ADDRESSID" index="index" collection="array" open="(" separator="," close=")">
+						#{ADDRESSID,jdbcType=VARCHAR}
+				</foreach>
+	</delete>
+
+	
+	<!-- 修改地址 -->
+	<update id="updateById" parameterType="AddressDto" >
+		UPDATE 
+				ADDRESS
+		SET 
+				ADDRESSNAME = #{ADDRESSNAME},
+				ADDRESS.AREAID = #{AREAID},
+				LONGITUDE = #{LONGITUDE},
+				LATITUDE = #{LATITUDE}
+		WHERE
+				ADDRESSID = #{ADDRESSID}
+	</update>
+</mapper>

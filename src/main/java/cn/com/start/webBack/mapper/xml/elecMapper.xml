@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.com.start.webBack.mapper.ElecMapper">
+	<select id="findElecInfo" resultType="Electrician">
+		SELECT ELECID,
+			TELEPHONE,
+			ELECNAME,
+			CARDID,
+			AREA,
+			BALANCE,
+			CASE STATUS WHEN '0' THEN '未审核'
+			WHEN '1' THEN '已审核' END STATUS,
+			IMGURL 
+		FROM 
+		ELECTRICIANMANAGE
+	</select>
+	
+	<select id="findInfoById" parameterType="String" resultType="Electrician">
+		SELECT * 
+			FROM 
+		ELECTRICIANMANAGE
+			WHERE
+			ELECID = #{elecid} 
+	</select>
+	
+	<update id="updateElec" parameterType="Electrician">
+		UPDATE ELECTRICIANMANAGE SET 
+			TELEPHONE = #{TELEPHONE},
+			ELECNAME = #{ELECNAME},
+			CARDID = #{CARDID},
+			AREA = #{AREA}
+		WHERE 
+			ELECID = #{ELECID2}
+	</update>
+	
+	<insert id="insertElecInfo" parameterType="Electrician">
+		INSERT 
+			INTO
+		ELECTRICIANMANAGE 
+			(
+			ELECID,
+			TELEPHONE,
+			ELECNAME,
+			CARDID,
+			AREA
+			) 
+		VALUES
+			(
+			#{ELECID},
+			#{TELEPHONE},
+			#{ELECNAME},
+			#{CARDID},
+			#{AREA}
+			)
+	</insert>
+	
+	<delete id="deleteElec" parameterType="String">
+		DELETE FROM ELECTRICIANMANAGE WHERE ELECID in 
+					<foreach item="elecid" index="index" collection="array" 
+                         open="(" separator="," close=")">
+                        #{elecid}
+                </foreach>
+	</delete>
+	
+	<select id="findInfoByOrderId" parameterType="String" resultType="ElecOrder">
+		SELECT EO.`ORDERID`,
+			EO.`STARTTIME`,
+			EO.`ENDTIME`,
+			EO.`TYPE`,
+			EO.`STATUS`,
+			EO.`IMGURL`,
+			EO.`ELECID`,
+			EM.`ELECNAME`,
+			EM.`TELEPHONE`,
+			EM.`AREA`
+		 FROM 
+			 ELECORDERMANAGE EO,
+			 ELECTRICIANMANAGE EM 
+		 WHERE 
+				EO.`ELECID` = EM.`ELECID`
+		AND ORDERID = #{ORDERID}
+	</select>
+	
+	<update id="checkElecInfoById" parameterType="String">
+		UPDATE ELECTRICIANMANAGE SET STATUS = '1' WHERE ELECID = #{ELECID}
+	</update>
+</mapper>

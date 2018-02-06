@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.com.start.DPF.mapper.SelectDataMapper">
+	<!-- 根据物理卡号查询卡信息状态-->
+	<select id = "selectCardUserInfo" parameterType = "String" resultType = "CardUserInfo">
+		SELECT
+				CARDNUM,
+				PIN,
+				ACCOUNTSUM,
+				VIN,
+				CARDSTATE
+		FROM
+				CARDUSERINFO
+		WHERE
+				CARDNUM = #{CARDNUMBER}
+	</select>
+	
+	<!-- 根据app用户id查询余额 -->
+	<select id = "selectAppUserBalance" parameterType = "String" resultType = "Float">
+		SELECT		
+				ACCOUNTSUM
+		FROM
+				CPUSERINFO
+		WHERE
+				CPUSERID = #{CPUSERID}
+	</select>
+	
+	<!-- 根据物理卡号查询余额 -->
+	<select id = "selectCardUserBalance" parameterType = "Long" resultType = "Float">
+		SELECT		
+				ACCOUNTSUM
+		FROM
+				CARDUSERINFO
+		WHERE
+				CARDNUM = #{CARDNUM}
+	
+	</select>
+</mapper>

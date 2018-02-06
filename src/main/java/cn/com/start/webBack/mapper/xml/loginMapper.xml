@@ -1,0 +1,119 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.com.start.webBack.mapper.LoginMapper">
+
+	<!-- 查找是否有满足要求的用户名和密码 -->
+	<!-- <select id="check" parameterType = "String" resultType="int">
+		SELECT
+				COUNT(*)
+		FROM
+				USERINFO
+		WHERE
+				LOGINID = #{LOGINID}
+		AND
+				LOGINPWD = #{LOGINPWD}
+	</select> -->
+	<select id="check1" parameterType = "String" resultType="int">
+		SELECT
+				COUNT(*)
+		FROM
+				USERINFO
+		WHERE
+				LOGINID = #{LOGINID}
+	</select>
+	<select id="check2" parameterType = "String" resultType="int">
+		SELECT
+				COUNT(*)
+		FROM
+				USERINFO
+		WHERE
+				LOGINID = #{LOGINID}
+		AND
+				LOGINPWD = #{LOGINPWD}
+	</select>
+	 <!--检查登陆账号和密码  -->
+	 
+	<select id="selectUserInfo" parameterType = "String" resultType="UserInfo">
+		SELECT	
+				LOGINID,
+				USERNAME,
+				LOGINPWD,
+				ROLEID,
+				OPERATORID,
+				USERID,
+				SALT
+		FROM
+				USERINFO
+		WHERE
+				LOGINID = #{LOGINID}
+	</select>
+	
+
+	<update id="setTime" parameterType="String">
+		UPDATE
+				SYS_USER
+		SET
+				LOGINTIME = STR_TO_DATE(#{LOGINTIME},'%Y-%m-%d %H:%i:%s')
+		WHERE
+				ID = #{ID}
+	</update>
+	
+	<!-- 根据用户id查询菜单 -->						
+  <select id="findMenuListByUserId"  parameterType="string" resultType="cn.com.start.webBack.entity.SysPermission">
+  		SELECT 
+	  * 
+	FROM
+	  sys_permission 
+	WHERE TYPE = 'menu' 
+	  AND id IN 
+	  (SELECT 
+	    sys_permission_id 
+	  FROM
+	    sys_role_permission 
+	  WHERE sys_role_id IN 
+	    (SELECT 
+	      sys_role_id 
+	    FROM
+	      sys_user_role 
+	    WHERE sys_user_id = #{id}))
+  </select>
+
+<!-- 根据用户id查询用户权限 -->
+<select id="findPermissionListByUserId"  parameterType="cn.com.start.webBack.entity.SysUser" resultType="cn.com.start.webBack.entity.SysPermission">
+  SELECT 
+	  * 
+	FROM
+	  sys_permission 
+	WHERE  id IN 
+	  (SELECT 
+	    sys_permission_id 
+	  FROM
+	    sys_role_permission 
+	  WHERE sys_role_id IN 
+	    (SELECT 
+	      sys_role_id 
+	    FROM
+	      sys_user_role 
+	    WHERE 1=1 
+	    and sys_user_id = #{ID}))
+</select>
+
+<select id="querySysUserInfo" parameterType = "String" resultType="cn.com.start.webBack.entity.SysUser">
+		SELECT	
+				ID,
+				USERNAME,
+				USERCODE,
+				PASSWORD,
+				SALT,
+				LOCKED,
+				LEFT(LOGINTIME,19) LOGINTIME,
+				OPERATORID
+		FROM
+				SYS_USER
+		WHERE
+				USERCODE = #{USERCODE}
+	</select>
+
+
+</mapper>

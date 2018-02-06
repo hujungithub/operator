@@ -1,0 +1,138 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.com.start.DPF.mapper.CardOperationMapper">
+	<!-- 根据id查询串口模板 -->
+	<select id = "selectSPCById" parameterType = "int" resultType ="SerialPortConfig">
+		SELECT
+				*
+		FROM
+				SERIALPORTCONFIG
+		WHERE
+				ID = #{id}
+	</select>
+	
+	<!-- 根据ID查找配置 -->
+	<select id="findOperatorById" parameterType="int" resultType="SerialPortConfig">
+		SELECT
+				*
+		FROM
+				SERIALPORTCONFIG
+		WHERE
+				ID = #{ID}
+	</select>
+	
+	<!-- 检查是否存在相同的配置 -->
+	<select id="checkConfig" parameterType = "SerialPortConfig" resultType="int">
+		SELECT
+				COUNT(*)
+		FROM
+				SERIALPORTCONFIG
+		WHERE
+				SERIALPORT = #{SERIALPORT}
+		AND 
+				BAUDRATE = #{BAUDRATE}
+		AND
+				SECRETKEY = #{SECRETKEY}
+	</select>
+	
+	<!-- 新增串口配置模板 -->
+	<insert id = "insertSerialPortConfig" parameterType = "SerialPortConfig">
+		INSERT
+		INTO
+				SERIALPORTCONFIG
+				(
+				SERIALPORT,
+				BAUDRATE,
+				SECRETKEY
+				)
+		VALUES
+				(
+				#{SERIALPORT},
+				#{BAUDRATE},
+				#{SECRETKEY}
+				)
+	</insert>
+	
+	<!-- 删除配置 -->
+	<delete id="deleteById">
+		DELETE FROM
+					SERIALPORTCONFIG 		
+		WHERE 
+					ID
+		IN
+				<foreach item="ID" index="index" collection="array" 
+                         open="(" separator="," close=")">
+                        #{ID,jdbcType=VARCHAR}
+                </foreach>
+	</delete>
+	
+	<!-- 查询所有串口配置 -->
+	<select id = "selectSerialPortConfig" resultType = "SerialPortConfig">
+		SELECT
+				*
+		FROM
+				SERIALPORTCONFIG
+	</select>
+	
+	<!-- 修改串口配置 -->
+	<update id = "updateSerialPortConfig" parameterType = "SerialPortConfig">
+		UPDATE
+				SERIALPORTCONFIG
+		SET
+				SERIALPORT = #{SERIALPORT},
+				BAUDRATE = #{BAUDRATE},
+				SECRETKEY = #{SECRETKEY}
+		WHERE
+				ID = #{ID}
+	</update>
+	
+	<!-- 检查用户卡号是否存在 -->
+	<select id="checkUserCardNum" parameterType="BigInteger" resultType="int">
+	SELECT
+			COUNT(*)
+	FROM
+			CARDUSERINFO
+	WHERE
+			CARDNUM = #{cardNum}
+	</select>
+	
+	<!-- 检查ESAM卡号是否存在 -->
+	<select id="checkESAMCardNum" parameterType="String" resultType="int">
+		SELECT
+				COUNT(*)
+		FROM
+				ESAMCARDDATA
+		WHERE
+				CARDNUM = #{cardNum}
+	</select>
+
+	<!-- 检查ISAM卡号是否存在 -->
+	<select id="checkISAMCardNum" parameterType="String" resultType="int">
+		SELECT
+				COUNT(*)
+		FROM
+				ISAMCARDDATA
+		WHERE
+				CARDNUM = #{cardNum}
+	</select>
+	
+	<select id="selectShortMessageMsg" parameterType="CardShortMessage" resultType="CardShortMessage">
+		SELECT
+				ACCOUNTSUM,
+				TELEPHONE
+		FROM
+				CARDUSERINFO
+		WHERE
+				CARDNUM = #{CARDNUM}
+	</select>
+	
+	<select id="findCardState" parameterType="String" resultType="int">
+		SELECT
+				CARDSTATE
+		FROM
+				CARDUSERINFO
+		WHERE
+				CARDNUM = #{cardNum}
+	</select>
+</mapper>

@@ -1,0 +1,664 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+ 
+<mapper namespace="cn.com.start.webBack.mapper.ChargePileMapper">	
+	
+	<!-- <cache type="org.mybatis.caches.ehcache.LoggingEhcache"/> -->
+<!-- ******************************************************************************** -->
+<!-- ******************************************************************************** -->
+<!--取同站下桩#前的数 -->
+	<select id = "selectCpname" parameterType = "String" resultType = "String">
+		SELECT
+				MAX(SUBSTRING_INDEX(CPNAME,"#",1)+0)
+		FROM
+				CPINFO
+		WHERE CSID = #{csid}
+		
+	</select>
+	<!-- 增加桩 -->
+	<insert id = "insertChargePile" parameterType = "CPInfo">
+		INSERT
+		INTO
+				CPINFO
+				(
+				 CPID, 
+				 CPNAME,
+				 ADDRESSID,
+				 OPERATORID, 				 				 
+				 CSID,
+				 VALIDFLAG,
+				 MFRID, 
+				 MODEL,						 		 
+				 CREATETIME, 
+				 RATEID,
+				 PROTOCOLID,
+				 DEVICEID
+				)
+		VALUES
+				(
+				 #{CPID}, 
+				 #{CPNAME},
+				 #{ADDRESSID},
+				 #{OPERATORID},				  				 
+				 #{CSID},
+				 #{VALIDFLAG},
+				 #{MFRID}, 
+				 #{MODEL},				 				 
+				 #{CREATETIME}, 
+				 #{RATEID},
+				 #{PROTOCOLID},
+				 #{DEVICEID}
+				)
+	</insert>
+	
+		<!-- 根据区域ID模糊查询桩ID -->
+	<select id = "selectCPIdBeforeAdd" parameterType = "String" resultType = "String">
+		SELECT
+				MAX(SUBSTR(CPID,13,16))
+		FROM
+				CPINFO
+		WHERE
+				CPID LIKE '%${areaId}%'
+		
+	</select>
+	
+	<!--是否存在deviceid -->
+	<select id = "selectDeviceid" resultType = "int">
+		<!-- SELECT
+				MAX(SUBSTR(DEVICEID,10))
+		FROM
+				CPINFO -->
+		SELECT 
+				COUNT(1)
+		FROM
+				CPINFO
+		WHERE
+				DEVICEID = #{DEVICEID}
+		
+	</select>
+	
+	<!-- 根据cpid查询桩基本信息 -->
+	<select id = "selectCPById" parameterType = "String" resultType = "CPInfo">
+		SELECT 
+				CPID,
+				CPNAME,
+				ADDRESSID,
+				OPERATORID,
+				CSID,
+				VALIDFLAG,
+				MFRID,
+				MODEL,
+				RATEID,
+				PROTOCOLID,
+				DEVICEID,
+				chargePatternId			
+		FROM
+				CPINFO
+		WHERE
+				CPID = #{CPID}
+	</select>
+<!-- ******************************************************************************** -->
+<!-- ******************************************************************************** -->
+	<!-- 查询充电桩数量 -->
+	<select id="getCPCount" parameterType = "FindCPDto" resultType="Int" >
+		SELECT 
+				COUNT(*)
+		FROM
+				CPINFO CP,
+				PROVINCE PRO,
+				CITY,
+				AREA,
+				ADDRESS,
+				OPERATORINFO CO,
+				CSINFO CS,
+				CPMFRINFO MFR,
+				PROTOCOLINFO INFO
+		WHERE
+				CP.ADDRESSID = ADDRESS.ADDRESSID
+		AND
+				ADDRESS.AREAID = AREA.AREAID
+		AND
+				AREA.CITYID = CITY.CITYID
+		AND
+				CITY.PROVINCEID = PRO.PROVINCEID
+		AND
+				CP.CSID = CS.CSID
+		<!-- AND
+				CP.CPMID = CPM.CPMID -->
+		AND
+				CP.OPERATORID = CO.OPERATORID
+				
+		<!-- MODIFIED BY HANMJ 20170717 BEGIN -->
+		AND
+				CP.MFRID = MFR.MFRID
+		AND
+				INFO.PROTOCOLID = CP.PROTOCOLID
+		<!-- 
+		MODIFIED BY HANMJ 20170717 END
+		 -->
+		AND     FIND_IN_SET(CO.OPERATORID, GetChildInfo(#{OPERATORLOGINID}))
+		<if test="PROVINCEID!=null and PROVINCEID!=''">
+		AND  
+				PRO.PROVINCEID = #{PROVINCEID}
+		</if>
+		<if test="CITYID!=null and CITYID!=''">
+		AND 
+				CITY.CITYID = #{CITYID}
+		</if>
+		<if test="AREAID!=null and AREAID!=''">
+		AND 
+				AREA.AREAID = #{AREAID}
+		</if>
+		<if test="OPERATORID!=null and OPERATORID!=''">
+		AND  
+				CO.OPERATORID = #{OPERATORID}
+		</if>
+		<if test="CSID!=null and CSID!=''">
+		AND  
+				CS.CSID = #{CSID}
+		</if>
+		<if test="FROMDATE!=null and FROMDATE!=''">
+	    AND
+				 STR_TO_DATE(CP.CREATETIME, '%Y-%m-%d') &gt;= #{FROMDATE}
+		</if>
+		<if test="TODATE!=null and TODATE!=''">
+		AND
+				 STR_TO_DATE(CP.CREATETIME, '%Y-%m-%d') &lt;= #{TODATE}
+		</if>					
+	</select>
+				
+	<!-- 根据条件查询充电桩列表 -->
+	<select id="selectCPByPage" parameterType="FindCPDto" resultType="CPInfoDto">
+		SELECT 
+				CPID,
+				CPNAME,				
+				OPERATORNAME,
+				CS.CSNAME,
+				MFRNAME,
+				MODEL,
+				CASE CP.VALIDFLAG
+				     WHEN 0 THEN '不可用'
+				     ELSE '可用' END
+				VALIDFLAG,
+				RATEID,
+				PROTOCOLNAME,
+				LEFT(CP.CREATETIME,19) CREATETIME,
+				CONCAT(PRO.PROVINCENAME,CITY.CITYNAME,AREA.AREANAME,ADDRESS.ADDRESSNAME)LOCATION								
+		FROM
+				CPINFO CP,
+				OPERATORINFO CO,
+				CSINFO CS,
+				PROVINCE PRO,
+				CITY,
+				AREA,
+				ADDRESS,
+				CPMFRINFO MFR,
+				PROTOCOLINFO INFO
+		WHERE
+				CP.ADDRESSID = ADDRESS.ADDRESSID
+		AND
+				ADDRESS.AREAID = AREA.AREAID
+		AND
+				AREA.CITYID = CITY.CITYID
+		AND
+				CITY.PROVINCEID = PRO.PROVINCEID
+		AND
+				CP.CSID = CS.CSID
+		AND
+				CP.OPERATORID = CO.OPERATORID
+		AND
+				CP.MFRID = MFR.MFRID
+		AND
+				INFO.PROTOCOLID = CP.PROTOCOLID
+		AND    
+				CO.OPERATORID IN (
+				SELECT OPERATORID FROM OPERATORINFO WHERE OPERATORID = #{OPERATORLOGINID}
+			OR BOSSID = #{OPERATORLOGINID}
+			OR BOSSID IN 
+			(SELECT OPERATORID FROM OPERATORINFO WHERE BOSSID=#{OPERATORLOGINID})
+		)
+		<if test="PROVINCEID!=null and PROVINCEID!=''">
+		AND  
+				PRO.PROVINCEID = #{PROVINCEID}
+		</if>
+		<if test="CITYID!=null and CITYID!=''">
+		AND 
+				CITY.CITYID = #{CITYID}
+		</if>
+		<if test="AREAID!=null and AREAID!=''">
+		AND 
+				AREA.AREAID = #{AREAID}
+		</if>
+		<if test="OPERATORID!=null and OPERATORID!=''">
+		AND  
+				CO.OPERATORID = #{OPERATORID}
+		</if>
+		<if test="CSID!=null and CSID!=''">
+		AND  
+				CS.CSID = #{CSID}
+		</if>
+		<if test="FROMDATE!=null and FROMDATE!=''">
+	    AND
+				 STR_TO_DATE(CP.CREATETIME, '%Y-%m-%d') &gt;= #{FROMDATE}
+		</if>
+		<if test="TODATE!=null and TODATE!=''">
+		AND
+				 STR_TO_DATE(CP.CREATETIME, '%Y-%m-%d') &lt;= #{TODATE}
+		</if>					
+		ORDER
+		BY
+				CP.CPID
+		<!-- 取消注释增加分页查询功能  -->
+		
+	</select>
+		
+	
+	
+
+
+	
+	
+	
+	
+	<!-- 
+	<insert id = "addlist" parameterType="java.util.List">
+		INSERT
+		INTO
+				CPINFO
+				(
+				 CPID, 
+				 CPNAME,
+				 CPPROPERTY,
+				 ADDRESSID,
+				 OPERATORID, 				 				 
+				 CPMID, 
+				 CSID,
+				 IPADDRESS,
+				 PORT,
+				 COMMCYCLE,				 
+				 ALARMFLAG, 
+				 SAVEFLAG,
+				 VALIDFLAG,
+				 MFRID, 
+				 MODEL,						 		 
+				 CREATETIME, 
+				 SAVECYCLE,
+				 RATEID,
+				 PROTOCOLID,
+				 DEVICEID
+				)
+		VALUES
+				<foreach collection="list" item="item" index="index" separator="," >  
+        		(#{item.CPID},#{item.CPNAME},#{item.CPPROPERTY},#{item.ADDRESSID},#{item.OPERATORID},
+        			#{item.CPMID},#{item.CSID},#{item.IPADDRESS},#{item.PORT},
+        			#{item.COMMCYCLE},#{item.ALARMFLAG},#{item.SAVEFLAG},#{item.VALIDFLAG},
+        			#{item.MFRID},#{item.MODEL},#{item.CREATETIME},#{item.SAVECYCLE},
+        			#{item.RATEID},#{item.PROTOCOLID},#{item.DEVICEID})  
+   	 			</foreach>
+	</insert>
+	 -->
+	 <!--  MODEFIED BY HANMJ 20170717 BEGIN-->
+	 <insert id = "addlist" parameterType="CPInfo" useGeneratedKeys="true" keyProperty="CPID">
+		INSERT
+		INTO
+				CPINFO
+				(
+				 CPID, 
+				 CPNAME,
+				 ADDRESSID,
+				 OPERATORID, 				 				 
+				 CSID,
+				 VALIDFLAG,
+				 MFRID, 
+				 MODEL,						 		 
+				 CREATETIME, 
+				 RATEID,
+				 PROTOCOLID,
+				 DEVICEID
+				)
+		VALUES
+        		(#{CPID},#{CPNAME},#{ADDRESSID},#{OPERATORID},
+        			#{CSID},#{VALIDFLAG},
+        			#{MFRID},#{MODEL},#{CREATETIME},
+        			#{RATEID},#{PROTOCOLID},#{DEVICEID})  
+	</insert>
+	 <!--  MODEFIED BY HANMJ 20170717 END-->
+			
+	<!-- 按id删除充电桩 -->
+	<delete id="deleteCPById">
+		DELETE 
+		FROM
+				CPINFO
+		WHERE
+				CPID 
+		IN
+				<foreach item="cpId" index="index" collection="array" 
+                         open="(" separator="," close=")">
+                        #{cpId}
+                </foreach>
+	</delete>	
+	
+
+	
+	<!-- 导出充电桩信息 -->
+	<!-- MODIFIED BY HANMJ 20170717 BEGIN-->
+	<select id="selectCPDetailexport" parameterType = "FindCPDto" resultType="CPInfoDto">
+		SELECT 
+				CPID,
+				CPNAME,				
+				OPERATORNAME,
+				CS.CSNAME,
+				MFRNAME,
+				MODEL,
+				CP.VALIDFLAG,
+				RATEID,
+				PROTOCOLNAME,
+				LEFT(CP.CREATETIME,19) CREATETIME,
+				CONCAT(PRO.PROVINCENAME,CITY.CITYNAME,AREA.AREANAME,ADDRESS.ADDRESSNAME)LOCATION								
+		FROM
+				CPINFO CP,
+				OPERATORINFO CO,
+				CSINFO CS,
+				PROVINCE PRO,
+				CITY,
+				AREA,
+				ADDRESS,
+				CPMFRINFO MFR,
+				PROTOCOLINFO INFO
+		WHERE
+				CP.ADDRESSID = ADDRESS.ADDRESSID
+		AND
+				ADDRESS.AREAID = AREA.AREAID
+		AND
+				AREA.CITYID = CITY.CITYID
+		AND
+				CITY.PROVINCEID = PRO.PROVINCEID
+		AND
+				CP.CSID = CS.CSID
+		AND
+				CP.OPERATORID = CO.OPERATORID
+		AND
+				CP.MFRID = MFR.MFRID
+		AND
+				INFO.PROTOCOLID = CP.PROTOCOLID
+		AND     
+				CO.OPERATORID IN (
+				SELECT OPERATORID FROM OPERATORINFO WHERE OPERATORID = #{OPERATORLOGINID}
+				OR BOSSID = #{OPERATORLOGINID}
+				OR BOSSID IN 
+				(SELECT OPERATORID FROM OPERATORINFO WHERE BOSSID=#{OPERATORLOGINID})
+			)
+		<if test="CPID != null and CPID != ''">
+		AND
+				CP.CPID LIKE '%${CPID}%'
+		</if>
+		<if test="OPERATORID != null and OPERATORID != ''">
+		AND  
+				CO.OPERATORID LIKE '%${OPERATORID}%'
+		</if>
+		<if test="CSID != null and CSID != ''">
+		AND  
+				CS.CSID LIKE  '%${CSID}%'
+		</if>
+		<if test="LOCATION != null and LOCATION != ''">
+		AND
+				CONCAT(PRO.PROVINCENAME,CITY.CITYNAME,AREA.AREANAME,ADDRESS.ADDRESSNAME)  LIKE  '%${LOCATION}%'
+		</if>
+		<if test="FROMDATE != null and FROMDATE != ''">
+	    AND
+				 STR_TO_DATE(CP.CREATETIME, '%Y-%m-%d') &gt;= #{FROMDATE}
+		</if>
+		<if test="TODATE != null and TODATE != ''">
+		AND
+				 STR_TO_DATE(CP.CREATETIME, '%Y-%m-%d') &lt;= #{TODATE}
+		</if>					
+		ORDER  BY
+				CP.CPID
+	</select>
+	<!-- MODIFIED BY HANMJ 20170717 BEGIN-->
+	
+		
+	<!-- 更新充电桩 -->
+	<update id = "updateChargePile" parameterType = "CPInfo">
+		UPDATE
+				CPINFO
+		SET		
+				CPNAME = #{CPNAME},				
+				<!-- OPERATORID= #{OPERATORID}, -->				
+				CSID= #{CSID},				
+				MFRID= #{MFRID},
+				MODEL= #{MODEL},
+				RATEID= #{RATEID}
+				<!--  MODIFIED BY HANMJ 20170717 END-->
+		WHERE
+				CPID = #{CPID}
+	</update>
+		
+	<!-- 查询协议列表 -->
+	<select id = "selectProtocol" resultType = "ProtocolInfo">
+		SELECT
+				PROTOCOLID,
+				PROTOCOLNAME
+		FROM
+				PROTOCOLINFO
+	</select>
+	
+	
+	<!-- 查询充电桩信息详情 -->
+	<select id="selectCPDetail" parameterType = "FindCPDto" resultType="CPInfoDto">
+		SELECT
+				CP.CPID,
+				CPNAME,
+				CO.OPERATORNAME,
+					<!-- CASE CPM.CPMNAME
+					WHEN '0' THEN '无'
+					ELSE CPM.CPMNAME END
+				CPMNAME, -->
+				CS.CSNAME,								
+				MFR.MFRNAME,
+				CP.MODEL,
+				LEFT(CP.CREATETIME,19) CREATETIME,	
+				CP.IPADDRESS,
+				CP.PORT,		
+				COMMCYCLE,
+				SAVECYCLE,
+					CASE CP.ALARMFLAG
+					WHEN 0 THEN '禁用'
+					ELSE '启用'END
+				ALARMFLAG,
+					CASE CP.SAVEFLAG
+					WHEN 0 THEN '不入库'
+					ELSE '入库'END
+				SAVEFLAG,
+					CASE CP.VALIDFLAG
+					WHEN 0 THEN '不可用'
+					ELSE '可用' END
+				VALIDFLAG,
+				RATEID,
+					<!-- CASE CPCOMMSTATE
+					WHEN  0 THEN '离线'
+					ELSE  '在线'END
+				CPCOMMSTATE, -->
+				STATENAME CPCURRSTATE,
+				PROTOCOLNAME,
+				CONCAT(PRO.PROVINCENAME,CITY.CITYNAME,AREA.AREANAME,ADDRESS.ADDRESSNAME)LOCATION
+		FROM
+				PROVINCE PRO,
+				CITY,
+				AREA,
+				ADDRESS,
+				CPINFO CP,
+				OPERATORINFO CO,
+				<!-- CPMINFO
+				CPM, -->
+				CSINFO CS,
+				CPMFRINFO MFR,
+				PROTOCOLINFO INFO,
+				<!-- CPREALSTATE STATE, -->
+				CPSTATETYPE TYPE
+		WHERE		
+				<!-- TYPE.STATEID = STATE.CPSTATETYPE
+		AND
+				STATE.CPID = CP.CPID
+		AND -->
+				INFO.PROTOCOLID = CP.PROTOCOLID
+		AND
+				CP.OPERATORID = CO.OPERATORID
+		AND
+				PRO.PROVINCEID = CITY.PROVINCEID
+		AND
+				CITY.CITYID = AREA.CITYID
+		AND
+				AREA.AREAID = ADDRESS.AREAID
+		AND
+				CP.ADDRESSID=ADDRESS.ADDRESSID
+	<!-- 	AND
+				CP.CPMID=CPM.CPMID -->
+		AND
+				CP.CSID=CS.CSID
+		AND
+				CP.MFRID =MFR.MFRID
+		<if test="CPID!=null and CPID!=''">
+		AND
+				 CP.CPID = #{CPID}
+		</if>		
+	</select>	
+	
+	
+	<!-- 查询充电桩用户使用详细 -->
+	<select id = "selectCpCharge" parameterType = "FindCPDto" resultType = "UserChargeDto">
+		SELECT * FROM(SELECT
+						  CPINFO.CPUSERNAME,
+						  CPINFO.PLATENUMBER,
+						  CPINFO.TELEPHONE,
+						  LEFT(UCORD.CHARGESTARTTIME,19)CHARGESTARTTIME,
+						  FROM_UNIXTIME((UNIX_TIMESTAMP(UCORD.CHARGESTARTTIME)+UCORD.CHARGETIMESPAN),'%Y-%m-%d %H:%i:%S')    CHARGEENDTIME,
+						  CONCAT(SUBSTR(SEC_TO_TIME(UCORD.CHARGETIMESPAN),1,2),"小时", SUBSTR(SEC_TO_TIME(UCORD.CHARGETIMESPAN),4,2),"分",SUBSTR(SEC_TO_TIME(UCORD.CHARGETIMESPAN),7),"秒")CHARGETIMESPAN,
+						  UCORD.CHARGEQUANTITY,
+						  UCORD.CHARGEMONEY,
+						  UCORD.SERVICETIP
+						FROM USERCHARGERECORD UCORD,
+						  CPUSERINFO CPINFO
+						WHERE CPINFO.CPUSERID = UCORD.CPUSERID
+						AND UCORD.CPID = #{CPID}
+						AND UCORD.CHARGEMETHODID = 0
+						GROUP BY UCORD.CHARGESTARTTIME	
+					UNION ALL
+					SELECT
+							  CARD.CARDUSERNAME CPUSERNAME,
+							  CARD.PLATENUM PLATENUMBER ,
+							  CARD.TELEPHONE,
+							  LEFT(UCORD.CHARGESTARTTIME,19)CHARGESTARTTIME,
+							  FROM_UNIXTIME((UNIX_TIMESTAMP(UCORD.CHARGESTARTTIME)+UCORD.CHARGETIMESPAN),'%Y-%m-%d %H:%i:%S')    CHARGEENDTIME,
+							  CONCAT(SUBSTR(SEC_TO_TIME(UCORD.CHARGETIMESPAN),1,2),"小时", SUBSTR(SEC_TO_TIME(UCORD.CHARGETIMESPAN),4,2),"分",SUBSTR(SEC_TO_TIME(UCORD.CHARGETIMESPAN),7),"秒")CHARGETIMESPAN,
+							  UCORD.CHARGEQUANTITY,
+							  UCORD.CHARGEMONEY,
+							  UCORD.SERVICETIP
+							FROM USERCHARGERECORD UCORD,
+							  CARDUSERINFO CARD
+							WHERE CARD.CARDNUM = UCORD.CARDNUM
+							AND UCORD.CPID = #{CPID}
+							AND UCORD.CHARGEMETHODID = 1
+							GROUP BY UCORD.CHARGESTARTTIME
+					UNION ALL
+					SELECT
+							  WECHAT.USERID CPUSERNAME,
+							  "无" PLATENUMBER ,
+							  "无" TELEPHONE,
+							  LEFT(UCORD.CHARGESTARTTIME,19)CHARGESTARTTIME,
+							  FROM_UNIXTIME((UNIX_TIMESTAMP(UCORD.CHARGESTARTTIME)+UCORD.CHARGETIMESPAN),'%Y-%m-%d %H:%i:%S')    CHARGEENDTIME,
+							  CONCAT(SUBSTR(SEC_TO_TIME(UCORD.CHARGETIMESPAN),1,2),"小时", SUBSTR(SEC_TO_TIME(UCORD.CHARGETIMESPAN),4,2),"分",SUBSTR(SEC_TO_TIME(UCORD.CHARGETIMESPAN),7),"秒")CHARGETIMESPAN,
+							  UCORD.CHARGEQUANTITY,
+							  UCORD.CHARGEMONEY,
+							  UCORD.SERVICETIP
+							FROM USERCHARGERECORD UCORD,
+							  WECHATUSERINFO WECHAT
+							WHERE UCORD.CPUSERID = WECHAT.USERID
+							AND UCORD.CPID = #{CPID}
+							AND UCORD.CHARGEMETHODID = 3
+							GROUP BY UCORD.CHARGESTARTTIME	
+						)A
+							WHERE 1=1
+						<if test="FROMDATE!=null and FROMDATE!=''">
+					    AND
+								 STR_TO_DATE(A.CHARGESTARTTIME, '%Y-%m-%d %H:%i') &gt;= #{FROMDATE}
+						</if>
+						<if test="TODATE!=null and TODATE!=''">
+						AND
+								 STR_TO_DATE(A.CHARGESTARTTIME, '%Y-%m-%d %H:%i') &lt;= #{TODATE}
+						</if>
+						ORDER BY a.chargestarttime desc
+			
+	</select>
+	
+	<!-- 查询充电桩用户使用详细 -->
+	<select id = "selectexportChargeDetail" parameterType = "FindCPDto" resultType = "UserChargeDto">
+				SELECT * FROM(SELECT
+						  CPINFO.CPUSERNAME,
+						  CPINFO.PLATENUMBER,
+						  CPINFO.TELEPHONE,
+						  LEFT(UCORD.CHARGESTARTTIME,19)CHARGESTARTTIME,
+						  FROM_UNIXTIME((UNIX_TIMESTAMP(UCORD.CHARGESTARTTIME)+UCORD.CHARGETIMESPAN),'%Y-%m-%d %H:%i:%S')    CHARGEENDTIME,
+						  CONCAT(SUBSTR(SEC_TO_TIME(UCORD.CHARGETIMESPAN),1,2),"小时", SUBSTR(SEC_TO_TIME(UCORD.CHARGETIMESPAN),4,2),"分",SUBSTR(SEC_TO_TIME(UCORD.CHARGETIMESPAN),7),"秒")CHARGETIMESPAN,
+						  UCORD.CHARGEQUANTITY,
+						  UCORD.CHARGEMONEY,
+						  UCORD.SERVICETIP
+						FROM USERCHARGERECORD UCORD,
+						  CPUSERINFO CPINFO
+						WHERE CPINFO.CPUSERID = UCORD.CPUSERID
+						AND UCORD.CPID = #{CPID}
+						AND UCORD.CHARGEMETHODID = 0
+						GROUP BY UCORD.CHARGESTARTTIME	
+					UNION ALL
+					SELECT
+							  CARD.CARDUSERNAME CPUSERNAME,
+							  CARD.PLATENUM PLATENUMBER ,
+							  CARD.TELEPHONE,
+							  LEFT(UCORD.CHARGESTARTTIME,19)CHARGESTARTTIME,
+							  FROM_UNIXTIME((UNIX_TIMESTAMP(UCORD.CHARGESTARTTIME)+UCORD.CHARGETIMESPAN),'%Y-%m-%d %H:%i:%S')    CHARGEENDTIME,
+							  CONCAT(SUBSTR(SEC_TO_TIME(UCORD.CHARGETIMESPAN),1,2),"小时", SUBSTR(SEC_TO_TIME(UCORD.CHARGETIMESPAN),4,2),"分",SUBSTR(SEC_TO_TIME(UCORD.CHARGETIMESPAN),7),"秒")CHARGETIMESPAN,
+							  UCORD.CHARGEQUANTITY,
+							  UCORD.CHARGEMONEY,
+							  UCORD.SERVICETIP
+							FROM USERCHARGERECORD UCORD,
+							  CARDUSERINFO CARD
+							WHERE CARD.CARDNUM = UCORD.CARDNUM
+							AND UCORD.CPID = #{CPID}
+							AND UCORD.CHARGEMETHODID = 1
+							GROUP BY UCORD.CHARGESTARTTIME
+					UNION ALL
+					SELECT
+							    WECHAT.USERID CPUSERNAME,
+							  "无" PLATENUMBER ,
+							  "无" TELEPHONE,
+							  LEFT(UCORD.CHARGESTARTTIME,19)CHARGESTARTTIME,
+							  FROM_UNIXTIME((UNIX_TIMESTAMP(UCORD.CHARGESTARTTIME)+UCORD.CHARGETIMESPAN),'%Y-%m-%d %H:%i:%S')    CHARGEENDTIME,
+							  CONCAT(SUBSTR(SEC_TO_TIME(UCORD.CHARGETIMESPAN),1,2),"小时", SUBSTR(SEC_TO_TIME(UCORD.CHARGETIMESPAN),4,2),"分",SUBSTR(SEC_TO_TIME(UCORD.CHARGETIMESPAN),7),"秒")CHARGETIMESPAN,
+							  UCORD.CHARGEQUANTITY,
+							  UCORD.CHARGEMONEY,
+							  UCORD.SERVICETIP
+							FROM USERCHARGERECORD UCORD,
+							   WECHATUSERINFO WECHAT
+							WHERE UCORD.CPUSERID = WECHAT.USERID
+							AND UCORD.CPID = #{CPID}
+							AND UCORD.CHARGEMETHODID = 3
+							GROUP BY UCORD.CHARGESTARTTIME
+						
+						)A
+							WHERE 1=1
+						<if test="FROMDATE!=null and FROMDATE!=''">
+					    AND
+								 STR_TO_DATE(A.CHARGESTARTTIME, '%Y-%m-%d %H:%i') &gt;= #{FROMDATE}
+						</if>
+						<if test="TODATE!=null and TODATE!=''">
+						AND
+								 STR_TO_DATE(A.CHARGESTARTTIME, '%Y-%m-%d %H:%i') &lt;= #{TODATE}
+						</if>
+						ORDER BY a.chargestarttime desc
+	</select>
+	
+	<delete id="deleteInfo">
+		DELETE FROM CHARGEPROGRESSINFO WHERE DEDUCTIONSTATUS = '1'
+	</delete>
+</mapper>
