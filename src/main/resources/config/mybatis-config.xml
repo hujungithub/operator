@@ -1,0 +1,308 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE configuration PUBLIC "-//mybatis.org//DTD Config 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-config.dtd">
+<configuration>
+	<settings>
+		<setting name="logImpl" value="LOG4J2" />
+	</settings>
+
+	<typeAliases>
+		<!-- 公用 -->
+
+		<!-- -->
+		<!-- DPF -->
+		<typeAlias alias="CPStateType_DPF" type="cn.com.start.DPF.entity.CPStateType_DPF" />
+		<typeAlias alias="CPRealState_DPF" type="cn.com.start.DPF.entity.CPRealState_DPF" />
+		<typeAlias alias="CPInfo_DPF" type="cn.com.start.DPF.entity.CPInfo_DPF" />
+		<typeAlias alias="ProtocolInfo_DPF" type="cn.com.start.DPF.entity.ProtocolInfo_DPF" />
+		<typeAlias alias="YCPointList_DPF" type="cn.com.start.DPF.entity.YCPointList_DPF" />
+		<typeAlias alias="YXPointList_DPF" type="cn.com.start.DPF.entity.YXPointList_DPF" />
+		<typeAlias alias="ChargeMode_DPF" type="cn.com.start.DPF.entity.ChargeMode_DPF" />
+		<typeAlias alias="BillModelInfo_DPF" type="cn.com.start.DPF.entity.BillModelInfo_DPF" />
+		<typeAlias alias="ModifyPINResult"
+			type="cn.com.start.DPF.entity.carddata.ModifyPINResult" />
+		<typeAlias alias="PretreatmentCardType"
+			type="cn.com.start.DPF.entity.carddata.PretreatmentCardType" />
+		<typeAlias alias="PretreatmentResult"
+			type="cn.com.start.DPF.entity.carddata.PretreatmentResult" />
+		<typeAlias alias="ReadBalanceResult"
+			type="cn.com.start.DPF.entity.carddata.ReadBalanceResult" />
+		<typeAlias alias="ReadUserCardNumResult"
+			type="cn.com.start.DPF.entity.carddata.ReadUserCardNumResult" />
+		<typeAlias alias="RechargeResult"
+			type="cn.com.start.DPF.entity.carddata.RechargeResult" />
+		<typeAlias alias="ReloadPINResult"
+			type="cn.com.start.DPF.entity.carddata.ReloadPINResult" />
+		<typeAlias alias="RemoveGreyResult"
+			type="cn.com.start.DPF.entity.carddata.RemoveGreyResult" />
+		<typeAlias alias="CPModel_DPF" type="cn.com.start.DPF.entity.CPModel_DPF" />
+		<typeAlias alias="CPMLinkCP_DPF" type="cn.com.start.DPF.entity.CPMLinkCP_DPF" />
+		<typeAlias alias="AuthorityFailCause_DPF"
+			type="cn.com.start.DPF.entity.AuthorityFailCause_DPF" />
+		<typeAlias alias="ChargeEndCause_DPF"
+			type="cn.com.start.DPF.entity.ChargeEndCause_DPF" />
+		<typeAlias alias="BillModelSendRecord"
+			type="cn.com.start.DPF.entity.BillModelSendRecord" />
+		<typeAlias alias="CardIssueRecord" type="cn.com.start.DPF.entity.CardIssueRecord" />
+		<typeAlias alias="ESAMCardData" type="cn.com.start.DPF.entity.ESAMCardData" />
+		<typeAlias alias="ESAMCardIssueRecord"
+			type="cn.com.start.DPF.entity.ESAMCardIssueRecord" />
+		<typeAlias alias="ISAMCardData" type="cn.com.start.DPF.entity.ISAMCardData" />
+		<typeAlias alias="ISAMCardIssueRecord"
+			type="cn.com.start.DPF.entity.ISAMCardIssueRecord" />
+		<typeAlias alias="ReadCardNumRecord" type="cn.com.start.DPF.entity.ReadCardNumRecord" />
+		<typeAlias alias="ChangePINRecord" type="cn.com.start.DPF.entity.ChangePINRecord" />
+		<typeAlias alias="PretreatmentRecord"
+			type="cn.com.start.DPF.entity.PretreatmentRecord" />
+		<typeAlias alias="ReadBalanceRecord" type="cn.com.start.DPF.entity.ReadBalanceRecord" />
+		<typeAlias alias="RechargeRecord" type="cn.com.start.DPF.entity.RechargeRecord" />
+		<typeAlias alias="ReloadPINRecord" type="cn.com.start.DPF.entity.ReloadPINRecord" />
+		<typeAlias alias="UnlockGreyRecord" type="cn.com.start.DPF.entity.UnlockGreyRecord" />
+
+		<typeAlias alias="SerialPortConfig" type="cn.com.start.DPF.entity.SerialPortConfig" />
+		<typeAlias alias="SocketLinkRecord" type="cn.com.start.DPF.entity.SocketLinkRecord" />
+		<typeAlias alias="ChargeRecord_DPF" type="cn.com.start.DPF.entity.ChargeRecord_DPF" />
+		<typeAlias alias="CPYXRunRecord_104" type="cn.com.start.DPF.entity.CPYXRunRecord_104" />
+		<typeAlias alias="CPYCRunRecord_104" type="cn.com.start.DPF.entity.CPYCRunRecord_104" />
+		<typeAlias alias="AuthorityFailCause_DPF"
+			type="cn.com.start.DPF.entity.AuthorityFailCause_DPF" />
+		<typeAlias alias="SwipeCardAutRecord"
+			type="cn.com.start.DPF.entity.SwipeCardAutRecord" />
+		<typeAlias alias="CardUserInfo" type="cn.com.start.DPF.entity.CardUserInfo" />
+		<typeAlias alias="StartChargeGunRecord"
+			type="cn.com.start.DPF.entity.StartChargeGunRecord" />
+		<typeAlias alias="UserDeductMoneyRecord"
+			type="cn.com.start.DPF.entity.UserDeductMoneyRecord" />
+		<typeAlias alias="ChargeChangeRecord"
+			type="cn.com.start.DPF.entity.ChargeChangeRecord" />
+		<typeAlias alias="CardShortMessage"
+			type="cn.com.start.DPF.entity.carddata.CardShortMessage" />
+
+		<typeAlias alias="ChargeOver_DPF" type="cn.com.start.DPF.dto.DeductInfoDto" />
+		<typeAlias alias="DeductInfoDto" type="cn.com.start.DPF.dto.ChargeOver_DPF" />
+		<typeAlias alias="CSLinkCP_DPF" type="cn.com.start.DPF.entity.CSLinkCP_DPF" />
+		<typeAlias alias="WebAlarmRecord" type="cn.com.start.DPF.entity.WebAlarmRecord" />
+		<typeAlias alias="DCYxRunRecord" type="cn.com.start.DPF.entity.DCYxRunRecord" />
+		<typeAlias alias="DCYcRunRecord" type="cn.com.start.DPF.entity.DCYcRunRecord" />
+		<!-- car -->
+		<typeAlias alias="CarInfo" type="cn.com.start.DPF.entity.car.CarInfo" />
+		<typeAlias alias="CarStateType" type="cn.com.start.DPF.entity.car.CarStateType" />
+		<typeAlias alias="ChargeProgressDto" type="cn.com.start.DPF.dto.ChargeProgressDto" />
+
+
+		<!-- DPF -->
+
+		<!-- AppAPI -->
+		<typeAlias alias="MapSMDto" type="cn.com.start.AppAPI.dto.MapSMDto" />
+		<typeAlias alias="ListSMDto" type="cn.com.start.AppAPI.dto.ListSMDto" />
+		<typeAlias alias="CPInfoDto_API" type="cn.com.start.AppAPI.dto.CPInfoDto_API" />
+		<typeAlias alias="MapCPDto" type="cn.com.start.AppAPI.dto.MapCPDto" />
+		<typeAlias alias="SelectMapDto" type="cn.com.start.AppAPI.dto.SelectMapDto" />
+		<typeAlias alias="ScanChargeDto" type="cn.com.start.AppAPI.dto.ScanChargeDto" />
+		<typeAlias alias="DeviceInfoDto_API" type="cn.com.start.AppAPI.dto.DeviceInfoDto_API" />
+		<typeAlias alias="RegisterUserDto" type="cn.com.start.AppAPI.dto.RegisterUserDto" />
+		<typeAlias alias="ChargeRecorder" type="cn.com.start.AppAPI.dto.ChargeRecorder" />
+		<typeAlias alias="UserChargeRecorder"
+			type="cn.com.start.AppAPI.dto.UserChargeRecorder" />
+		<typeAlias alias="CpuserInfoDto" type="cn.com.start.AppAPI.dto.CpuserInfoDto" />
+		<typeAlias alias="WechatResultDto" type="cn.com.start.AppAPI.dto.WechatResultDto" />
+		<typeAlias alias="UserProfileInfoDto"
+			type="cn.com.start.AppAPI.dto.UserProfileInfoDto" />
+		<typeAlias alias="SmsDto" type="cn.com.start.AppAPI.dto.SmsDto" />
+		<typeAlias alias="CscpIdDto" type="cn.com.start.AppAPI.dto.CscpIdDto" />
+		<typeAlias alias="AppointRecorderDto"
+			type="cn.com.start.AppAPI.dto.AppointRecorderDto" />
+		<typeAlias alias="BillModelInfo_API"
+			type="cn.com.start.AppAPI.entity.BillModelInfo_API" />
+		<typeAlias alias="AppointmentCarDto" type="cn.com.start.AppAPI.dto.AppointmentCarDto" />
+		<typeAlias alias="CarlistInfoDto" type="cn.com.start.AppAPI.dto.CarlistInfoDto" />
+		<typeAlias alias="CarRecordDto" type="cn.com.start.AppAPI.dto.CarRecordDto" />
+
+        <typeAlias alias="CPFAI" type="cn.com.start.AppAPI.entity.CPFAI" />
+        <typeAlias alias="FaultOrder" type="cn.com.start.AppAPI.entity.FaultOrder" />
+
+		<!-- AppAPI -->
+
+		<!-- webBack -->
+
+		<typeAlias alias="FindIndexDto" type="cn.com.start.webBack.dto.FindIndexDto" />
+		<typeAlias alias="IndexDto" type="cn.com.start.webBack.dto.IndexDto" />
+		<typeAlias alias="AppUserChargeRecordDto"
+			type="cn.com.start.webBack.dto.AppUserChargeRecordDto" />
+		<typeAlias alias="ModifyMoneyRecord"
+			type="cn.com.start.webBack.dto.ModifyMoneyRecord" />
+		<typeAlias alias="AddressDto" type="cn.com.start.webBack.dto.AddressDto" />
+		<typeAlias alias="CpUserDto" type="cn.com.start.webBack.dto.CpUserDto" />
+		<typeAlias alias="OperatorInfoDto" type="cn.com.start.webBack.dto.OperatorInfoDto" />
+		<typeAlias alias="UserInfoDto" type="cn.com.start.webBack.dto.UserInfoDto" />
+		<typeAlias alias="CPInfoDto" type="cn.com.start.webBack.dto.CPInfoDto" />
+		<typeAlias alias="FullLocDto" type="cn.com.start.webBack.dto.FullLocDto" />
+		<typeAlias alias="CSInfoDto" type="cn.com.start.webBack.dto.CSInfoDto" />
+		<typeAlias alias="FindCSDto" type="cn.com.start.webBack.dto.FindCSDto" />
+		<typeAlias alias="FindAddressDto" type="cn.com.start.webBack.dto.FindAddressDto" />
+		<typeAlias alias="FindCPDto" type="cn.com.start.webBack.dto.FindCPDto" />
+		<typeAlias alias="FindCpUserDto" type="cn.com.start.webBack.dto.FindCpUserDto" />
+		<typeAlias alias="FindOperatorDto" type="cn.com.start.webBack.dto.FindOperatorDto" />
+		<typeAlias alias="FindCSInfoDto" type="cn.com.start.webBack.dto.FindCSInfoDto" />
+		<typeAlias alias="FindUserInfoDto" type="cn.com.start.webBack.dto.FindUserInfoDto" />
+		<typeAlias alias="CpRealTimeDto" type="cn.com.start.webBack.dto.CpRealTimeDto" />
+		<typeAlias alias="CpyxchangeRecordDto"
+			type="cn.com.start.webBack.dto.CpyxchangeRecordDto" />
+		<typeAlias alias="FindARDto" type="cn.com.start.webBack.dto.FindARDto" />
+		<typeAlias alias="RateInfoDto" type="cn.com.start.webBack.dto.RateInfoDto" />
+		<typeAlias alias="BillModelDto" type="cn.com.start.webBack.dto.BillModelDto" />
+		<typeAlias alias="FindreportsDto" type="cn.com.start.webBack.dto.FindreportsDto" />
+		<typeAlias alias="reportsDto" type="cn.com.start.webBack.dto.reportsDto" />
+		<typeAlias alias="userReportsDto" type="cn.com.start.webBack.dto.userReportsDto" />
+		<typeAlias alias="FindCardUserDto" type="cn.com.start.webBack.dto.FindCardUserDto" />
+		<typeAlias alias="CardUserDto" type="cn.com.start.webBack.dto.CardUserDto" />
+		<typeAlias alias="OperInfoDto" type="cn.com.start.webBack.dto.OperInfoDto" />
+		<typeAlias alias="UserChargeDto" type="cn.com.start.webBack.dto.UserChargeDto" />
+		<typeAlias alias="CSoperInfoDto" type="cn.com.start.webBack.dto.CSoperInfoDto" />
+		<typeAlias alias="ManufDto" type="cn.com.start.webBack.dto.ManufDto" />
+		<typeAlias alias="FindManufDto" type="cn.com.start.webBack.dto.FindManufDto" />
+		<typeAlias alias="FindUserCardIssueRecordDto"
+			type="cn.com.start.webBack.dto.FindUserCardIssueRecordDto" />
+		<typeAlias alias="UserCardIssueRecordDto"
+			type="cn.com.start.webBack.dto.UserCardIssueRecordDto" />
+		<typeAlias alias="FindUserCardChargeDto"
+			type="cn.com.start.webBack.dto.FindUserCardChargeDto" />
+		<typeAlias alias="UserCardChargeDto"
+			type="cn.com.start.webBack.dto.UserCardChargeDto" />
+		<typeAlias alias="FindBillModelDto" type="cn.com.start.webBack.dto.FindBillModelDto" />
+		<typeAlias alias="UserCardCountData"
+			type="cn.com.start.webBack.dto.UserCardCountData" />
+		<typeAlias alias="UserCardRechargeDto"
+			type="cn.com.start.webBack.dto.UserCardRechargeDto" />
+		<typeAlias alias="FindRechargeRecordDto"
+			type="cn.com.start.webBack.dto.FindRechargeRecordDto" />
+		<typeAlias alias="ReportLostDto" type="cn.com.start.webBack.dto.ReportLostDto" />
+		<typeAlias alias="mapDto" type="cn.com.start.webBack.dto.mapDto" />
+
+		<typeAlias alias="WeChatPayDto" type="cn.com.start.webBack.dto.WeChatPayDto" />
+		<typeAlias alias="WeChatDto" type="cn.com.start.webBack.dto.WeChatDto" />
+
+		<typeAlias alias="BillModelInfo" type="cn.com.start.webBack.entity.BillModelInfo" />
+		<typeAlias alias="RateInfo" type="cn.com.start.webBack.entity.RateInfo" />
+		<typeAlias alias="AlarmRecord" type="cn.com.start.webBack.entity.AlarmRecord" />
+		<typeAlias alias="CSInfo" type="cn.com.start.webBack.entity.CSInfo" />
+		<typeAlias alias="OperatorInfo" type="cn.com.start.webBack.entity.OperatorInfo" />
+		<typeAlias alias="Province" type="cn.com.start.webBack.entity.Province" />
+		<typeAlias alias="City" type="cn.com.start.webBack.entity.City" />
+		<typeAlias alias="Area" type="cn.com.start.webBack.entity.Area" />
+		<typeAlias alias="Address" type="cn.com.start.webBack.entity.Address" />
+		<typeAlias alias="CpUser" type="cn.com.start.webBack.entity.CpUser" />
+		<typeAlias alias="UserInfo" type="cn.com.start.webBack.entity.UserInfo" />
+		<typeAlias alias="RoleInfo" type="cn.com.start.webBack.entity.RoleInfo" />
+		<typeAlias alias="CPInfo" type="cn.com.start.webBack.entity.CPInfo" />
+		<typeAlias alias="CPMfrInfo" type="cn.com.start.webBack.entity.CPMfrInfo" />
+		<typeAlias alias="CPStateType" type="cn.com.start.webBack.entity.CPStateType" />
+		<typeAlias alias="CPRealState" type="cn.com.start.webBack.entity.CPRealState" />
+		<typeAlias alias="RateInfo" type="cn.com.start.webBack.entity.RateInfo" />
+		<typeAlias alias="ProtocolInfo" type="cn.com.start.webBack.entity.ProtocolInfo" />
+		<typeAlias alias="WebAlarmRecordDto"
+			type="cn.com.start.webBack.dto.WebAlarmRecordDto" />
+		<typeAlias alias="CPYCRunRecordDto" type="cn.com.start.webBack.dto.CPYCRunRecordDto" />
+		<typeAlias alias="LoggerInfoDto" type="cn.com.start.webBack.dto.LoggerInfoDto" />
+
+		<typeAlias alias="reportsDtoNew" type="cn.com.start.webBack.dto.reportsDtoNew" />
+		<typeAlias alias="TotalDto" type="cn.com.start.webBack.dto.TotalDto" />
+
+		<!-- MODIFIED BY HANMJ 20170721 BEGIN -->
+		<typeAlias alias="AbnormalReports"
+			type="cn.com.start.webBack.entity.AbnormalReports" />
+		<typeAlias alias="StartChargeGunRecordDto"
+			type="cn.com.start.webBack.dto.StartChargeGunRecordDto" />
+
+		<typeAlias alias="CarInfoDto" type="cn.com.start.webBack.dto.CarInfoDto" />
+
+		<typeAlias alias="FindCarInfoDto" type="cn.com.start.webBack.dto.FindCarInfoDto" />
+
+		<typeAlias alias="AppointInfoDto" type="cn.com.start.webBack.dto.AppointInfoDto" />
+
+		<typeAlias alias="FindAppointInfoDto"
+			type="cn.com.start.webBack.dto.FindAppointInfoDto" />
+
+		<typeAlias alias="FindOrderInfoDto" type="cn.com.start.webBack.dto.FindOrderInfoDto" />
+
+		<typeAlias alias="OrderInfoDto" type="cn.com.start.webBack.dto.OrderInfoDto" />
+
+		<typeAlias alias="FindChargeProgressDto"
+			type="cn.com.start.webBack.dto.FindChargeProgressDto" />
+	
+		<typeAlias alias="Electrician" type="cn.com.start.webBack.entity.Electrician" />
+		<typeAlias alias="ElecOrder" type="cn.com.start.webBack.entity.ElecOrder" />				
+		<typeAlias alias="WebAlarmOperation" type="cn.com.start.webBack.entity.WebAlarmOperation"/>
+	</typeAliases>
+
+	<mappers>
+		<!-- DPF -->
+		<mapper resource="cn/com/start/DPF/mapper/xml/getBasicDataMapper.xml" />
+		<mapper resource="cn/com/start/DPF/mapper/xml/cardOperationMapper.xml" />
+		<mapper resource="cn/com/start/DPF/mapper/xml/savePileDataMapper.xml" />
+		<mapper resource="cn/com/start/DPF/mapper/xml/updateDataMapper.xml" />
+		<mapper resource="cn/com/start/DPF/mapper/xml/getCardDataMapper.xml" />
+		<mapper resource="cn/com/start/DPF/mapper/xml/selectDataMapper.xml" />
+		<mapper resource="cn/com/start/DPF/mapper/xml/saveCardDataMapper.xml" />
+		<mapper resource="cn/com/start/DPF/mapper/xml/carOperationMapper.xml" />
+
+		<!-- DPF -->
+
+		<!-- AppAPI -->
+		<mapper resource="cn/com/start/AppAPI/mapper/xml/mapSPMapper.xml" />
+		<mapper resource="cn/com/start/AppAPI/mapper/xml/scanChargeMapper.xml" />
+		<mapper resource="cn/com/start/AppAPI/mapper/xml/userManagerMapper.xml" />
+		<mapper resource="cn/com/start/AppAPI/mapper/xml/rentCarMapper.xml" />
+		
+		<mapper resource="cn/com/start/AppAPI/mapper/xml/faultPileMapper.xml" />
+		<!-- AppAPI -->
+
+		<!-- webBack -->
+		<mapper resource="cn/com/start/webBack/mapper/xml/chargePileDetailMapper.xml" />
+		<mapper resource="cn/com/start/webBack/mapper/xml/chargePileMapper.xml" />
+		<mapper resource="cn/com/start/webBack/mapper/xml/loginMapper.xml" />
+		<mapper resource="cn/com/start/webBack/mapper/xml/locationMapper.xml" />
+		<mapper resource="cn/com/start/webBack/mapper/xml/cpUserMapper.xml" />
+		<mapper resource="cn/com/start/webBack/mapper/xml/addressMapper.xml" />
+		<mapper resource="cn/com/start/webBack/mapper/xml/operatorMapper.xml" />
+		<mapper resource="cn/com/start/webBack/mapper/xml/userMapper.xml" />
+		<mapper resource="cn/com/start/webBack/mapper/xml/chargeStationMapper.xml" />
+		<mapper resource="cn/com/start/webBack/mapper/xml/cpFaiMapper.xml" />
+		<mapper resource="cn/com/start/webBack/mapper/xml/basicDataMapper.xml" />
+		<mapper resource="cn/com/start/webBack/mapper/xml/roleactionMapper.xml" />
+		<mapper resource="cn/com/start/webBack/mapper/xml/chargeReportsMapper.xml" />
+		<mapper resource="cn/com/start/webBack/mapper/xml/userReportsMapper.xml" />
+		<mapper resource="cn/com/start/webBack/mapper/xml/userCardManageMapper.xml" />
+		<mapper resource="cn/com/start/webBack/mapper/xml/cpRealTimeMapper.xml" />
+		<mapper resource="cn/com/start/webBack/mapper/xml/manufactureMapper.xml" />
+		<mapper resource="cn/com/start/webBack/mapper/xml/webAlarmMapper.xml" />
+		<mapper resource="cn/com/start/webBack/mapper/xml/indexMapper.xml" />
+		<mapper resource="cn/com/start/webBack/mapper/xml/statisticsUserMapper.xml" />
+		<mapper resource="cn/com/start/webBack/mapper/xml/statisticsCpMapper.xml" />
+		<mapper resource="cn/com/start/webBack/mapper/xml/statisticsCsMapper.xml" />
+		<mapper resource="cn/com/start/webBack/mapper/xml/statisticsOperMapper.xml" />
+		<mapper resource="cn/com/start/webBack/mapper/xml/mapMapper.xml" />
+
+		<mapper resource="cn/com/start/webBack/mapper/xml/abnormalReportsMapper.xml" />
+
+		<mapper resource="cn/com/start/webBack/mapper/xml/weChatMapper.xml" />
+
+		<mapper resource="cn/com/start/webBack/mapper/xml/chargeCarMapper.xml" />
+
+		<mapper resource="cn/com/start/webBack/mapper/xml/chargeAppointMapper.xml" />
+
+		<mapper resource="cn/com/start/webBack/mapper/xml/chargeOrderMapper.xml" />
+
+		<mapper resource="cn/com/start/webBack/mapper/xml/loggerInfoMapper.xml" />
+
+		<mapper resource="cn/com/start/webBack/mapper/xml/systemMapper.xml" />
+		<mapper resource="cn/com/start/webBack/mapper/xml/chargeProgressMapper.xml" />
+
+		<mapper resource="cn/com/start/webBack/mapper/xml/elecMapper.xml"/>
+		<mapper resource="cn/com/start/webBack/mapper/xml/elecOrderMapper.xml"/>
+		<mapper resource="cn/com/start/webBack/mapper/xml/jsonMapper.xml"/>
+		<!-- webBack -->
+	</mappers>
+
+
+</configuration>

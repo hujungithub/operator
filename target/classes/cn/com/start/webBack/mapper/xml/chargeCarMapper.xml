@@ -1,0 +1,260 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.com.start.webBack.mapper.ChargeCarMapper">
+
+	<select id="selectCarInfoByPage" resultType= "CarInfoDto">
+		SELECT 
+			CARID,
+			CARPLATE,
+			APPOINTID,
+			CARSTATE,
+			CARMODEL,
+			CARSOC,
+			PRICEID,
+			RANK,
+			MILEAGE,
+			LONGITUDE,
+			LATITUDE
+		FROM 
+		CARINFO
+		LIMIT 1,10
+	
+	</select>
+	
+	<select id="selectCarInfoByPage_1" resultType= "CarInfoDto" parameterType="FindCarInfoDto">
+		SELECT 
+			CARID,
+			CARPLATE,
+			APPOINTID,
+			CARSTATE,
+			CARMODEL,
+			CARSOC,
+			PRICEID,
+			RANK,
+			MILEAGE,
+			LONGITUDE,
+			LATITUDE
+		FROM 
+		CARINFO INFO
+		WHERE
+		1=1 
+		<if test="APPOINTID!=null and APPOINTID!=''">
+			AND
+			INFO.APPOINTID = #{APPOINTID}
+		</if>
+		
+		<if test="CARPLATE!=null and CARPLATE!=''">
+			AND
+			INFO.CARPLATE = #{CARPLATE}
+		</if>
+		
+		<if test="CARSTATE!=null and CARSTATE!=''">
+			AND
+			INFO.CARSTATE = #{CARSTATE}
+		</if>
+		
+		<if test="CARMODEL!=null and CARMODEL!=''">
+			AND
+			INFO.CARMODEL = #{CARMODEL}
+		</if>
+		
+		LIMIT #{startPos}, #{pageSize}
+	
+	</select>
+	
+	<!-- selectCarInfoCount -->
+	<select id="selectCarInfoCount" resultType= "String">
+		SELECT 
+			COUNT(*)
+		FROM 
+		CARINFO
+		
+		WHERE
+		1=1 
+	
+	</select>
+	
+	<select id="selectCarInfoCount_1" resultType= "String" parameterType="FindCarInfoDto">
+		SELECT 
+			COUNT(*)
+		FROM 
+		CARINFO AS INFO
+		
+		WHERE
+		1=1 
+		<if test="APPOINTID!=null and APPOINTID!=''">
+			AND
+			INFO.APPOINTID = #{APPOINTID}
+		</if>
+		
+		<if test="CARPLATE!=null and CARPLATE!=''">
+			AND
+			INFO.CARPLATE = #{CARPLATE}
+		</if>
+		
+		<if test="CARSTATE!=null and CARSTATE!=''">
+			AND
+			INFO.CARSTATE = #{CARSTATE}
+		</if>
+		
+		<if test="CARMODEL!=null and CARMODEL!=''">
+			AND
+			INFO.CARMODEL = #{CARMODEL}
+		</if>
+	
+	</select>
+	
+	<!-- selectCarStateInfo -->
+	<select id="selectCarStateInfo" resultType= "String">
+		SELECT 
+		DISTINCT CARSTATE AS CARSTATE
+		FROM 
+		CARINFO
+	
+	</select>
+	
+	<!-- selectCarModelInfo -->
+	<select id="selectCarModelInfo" resultType= "String">
+		SELECT 
+		DISTINCT CARMODEL AS CARMODEL
+		FROM 
+		CARINFO
+	
+	</select>
+	
+	<!-- selectCarRankInfo -->
+	<select id="selectCarRankInfo" resultType= "String">
+		SELECT 
+		DISTINCT RANK AS RANK
+		FROM 
+		CARINFO
+	
+	</select>
+	
+	<!-- deleteCarById -->
+	<!-- 按id删除充电桩 -->
+	<delete id="deleteCarById">
+		DELETE 
+		FROM
+				CARINFO
+		WHERE
+				CARID 
+		IN
+				<foreach item="carId" index="index" collection="array" 
+                         open="(" separator="," close=")">
+                        #{carId}
+                </foreach>
+	</delete>
+	
+	<!-- selectCarInfoById 
+	-->	
+	<select id="selectCarInfoById" parameterType = "String" resultType = "CarInfoDto">
+		SELECT 
+			CARID,
+			CARPLATE,
+			APPOINTID,
+			CARSTATE,
+			CARMODEL,
+			CARSOC,
+			PRICEID,
+			RANK,
+			MILEAGE,
+			LONGITUDE,
+			LATITUDE
+		FROM 
+			CARINFO CAR
+		WHERE 
+			1=1
+		
+		AND  
+				CAR.CARID = #{carId}
+	</select>
+	
+	<!-- selectCarPriceInfo -->
+	<select id="selectCarPriceInfo" resultType= "Int">
+		SELECT 
+		DISTINCT SN  AS SN 
+		FROM CARPRICE
+	
+	</select>
+	
+	<!-- updateChargeCarInfo -->
+	<update id = "updateChargeCarInfo" parameterType = "CarInfoDto">
+		
+		UPDATE 
+			CARINFO 
+		SET
+			CARPLATE=#{CARPLATE},
+			CARMODEL=#{CARMODEL},
+			PRICEID=#{PRICEID}
+			
+		WHERE CARID=#{CARID}
+		
+	</update>
+	
+	<!-- selectMaxCarId -->
+	<select id="selectMaxCarId" resultType= "String">
+		
+		SELECT 
+			MAX(CARID) 
+		FROM 
+			CARINFO
+	
+	</select>
+	
+	<insert id ="insertCarInfo" parameterType = "CarInfoDto" >
+		INSERT 
+			INTO 
+		CARINFO
+		(
+			CARID,
+			CARPLATE,
+			APPOINTID,
+			CARSTATE,
+			CARMODEL,
+			CARSOC,
+			PRICEID,
+			RANK,
+			MILEAGE,
+			LONGITUDE,
+			LATITUDE
+		) 
+		VALUES 
+		(
+			#{CARID},
+			#{CARPLATE},
+			#{APPOINTID},
+			#{CARSTATE},
+			#{CARMODEL},
+			#{CARSOC},
+			#{PRICEID},
+			#{RANK},
+			#{MILEAGE},
+			#{LONGITUDE},
+			#{LATITUDE}
+		)
+	</insert>
+	
+	<select id="selectCarInfo" resultType="CarInfoDto">
+		SELECT 
+			APPOINTID, 
+			CP.DESP AS CARSTATE,
+			CF.CARPLATE,CF.CARID,
+			CM.CARMODEL,
+			CF.CARSOC,
+			CR.DESC AS PRICEID,
+			CF.RANK,
+			CF.MILEAGE,
+			CF.LONGITUDE,
+			CF.LATITUDE
+		FROM 
+			CARINFO CF,CARSTATETYPE CP,CARMODEL CM,CARPRICE CR 
+		WHERE 
+			CF.CARSTATE = CP.ID 
+		AND 
+			CF.CARMODEL=CM.ID
+		AND 
+			CF.PRICEID=CR.ID
+	</select>
+</mapper>

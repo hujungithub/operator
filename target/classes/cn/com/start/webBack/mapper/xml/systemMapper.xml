@@ -1,0 +1,171 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.com.start.webBack.mapper.SystemMapper">
+
+<!-- 查询所有用户信息 -->
+<select id="querySysUser" parameterType = "cn.com.start.webBack.entity.SysUser" resultType="cn.com.start.webBack.entity.SysUser">
+		SELECT A.ID,A.USERNAME,A.USERCODE,A.PASSWORD,LEFT(A.LOGINTIME,19) LOGINTIME,A.SALT,A.OPERATORID,D.OPERATORNAME
+		FROM SYS_USER A,OPERATORINFO D 
+		WHERE  A.OPERATORID=D.OPERATORID  
+			  <if test="ID!=null and ID!=''">
+				 AND A.ID=#{ID}
+			  </if>
+			  <!-- AND A.OPERATORID 
+			  IN (
+			      SELECT OPERATORID FROM OPERATORINFO WHERE OPERATORID = #{OPERATORID}
+				  OR BOSSID = #{OPERATORID}
+				  OR BOSSID IN 
+				  (SELECT OPERATORID FROM OPERATORINFO WHERE BOSSID=#{OPERATORID})
+		         ) -->
+</select>
+
+<!-- 根据用户id查询用户所有角色 -->
+<select id="queryRoleByUserId" parameterType = "String" resultType="cn.com.start.webBack.entity.SysRole">
+	SELECT B.ID,B.NAME,B.DESP FROM SYS_USER_ROLE A,SYS_ROLE B WHERE A.SYS_ROLE_ID = B.ID AND A.SYS_USER_ID = #{ID}
+</select>
+
+<!-- 根据用户id查询用户没有的角色 -->
+<select id="queryNotRoleByUserId" parameterType = "String" resultType="cn.com.start.webBack.entity.SysRole">
+	select * FROM sys_role WHERE id NOT IN 
+		(
+		SELECT B.ID FROM SYS_USER_ROLE A,SYS_ROLE B WHERE A.SYS_ROLE_ID = B.ID AND A.SYS_USER_ID = #{ID}
+		)
+</select>
+
+<!-- 给用户添加角色 -->
+<insert id="addUserRole" parameterType = "cn.com.start.webBack.entity.SysRole">
+	INSERT INTO SYS_USER_ROLE(SYS_USER_ID,SYS_ROLE_ID) VALUES(#{USERID},#{ID})
+</insert>
+
+<!-- 根据用户id和角色id删除用户角色中间表的数据 -->
+<delete id="deleteSysUserRole" parameterType = "cn.com.start.webBack.entity.SysRole">
+	DELETE FROM SYS_USER_ROLE 
+	WHERE SYS_USER_ID = #{USERID}
+	AND SYS_ROLE_ID = #{ID}
+</delete>
+
+<!-- 根据id删除用户 -->
+<delete id="deleteSysUserByIds" parameterType = "cn.com.start.webBack.entity.SysUser">
+	DELETE 
+		FROM
+				SYS_USER
+		WHERE
+				ID
+		IN
+				<foreach item="ID" index="index" collection="array" open="(" separator="," close=")">
+						#{ID,jdbcType=VARCHAR}
+				</foreach>
+</delete>
+
+<!-- 添加用户 -->
+<insert id="addSysUser" parameterType = "cn.com.start.webBack.entity.SysUser">
+	INSERT INTO SYS_USER(USERNAME,USERCODE,PASSWORD,SALT,LOCKED,LOGINTIME,OPERATORID) 
+				  VALUES(#{USERNAME},#{USERCODE},#{PASSWORD},#{SALT},#{LOCKED},#{LOGINTIME},#{OPERATORID})
+</insert>
+
+<!-- 修改用户信息 -->
+<update id="updateSysUser" parameterType = "cn.com.start.webBack.entity.SysUser">
+	UPDATE SYS_USER
+	<set>
+		<if test="USERNAME!=null and USERNAME!=''">
+			USERNAME = #{USERNAME},
+		</if>
+		<if test="USERCODE!=null and USERCODE!=''">
+			USERCODE = #{USERCODE},
+		</if>
+		<if test="PASSWORD!=null and PASSWORD!=''">
+			PASSWORD = #{PASSWORD},
+		</if>
+		<if test="LOCKED!=null and LOCKED!=''">
+			LOCKED = #{LOCKED},
+		</if>
+		<if test="OPERATORID!=null and OPERATORID!=''">
+			OPERATORID = #{OPERATORID}
+		</if>
+	</set>
+	WHERE ID = #{ID}
+</update>
+
+
+<!-- 查询所有的角色信息 -->
+<select id="querySysRole" parameterType="cn.com.start.webBack.entity.SysRole" resultType="cn.com.start.webBack.entity.SysRole">
+		SELECT ID,NAME,DESP
+		FROM SYS_ROLE
+		where 1=1
+		<if test="ID!=null and ID!=''">
+		 and ID=#{ID}
+		</if>
+</select>
+
+
+<!-- 根据id删除角色-->
+	<delete id="deleteSysRoleByIds" parameterType="String">
+		DELETE 
+		FROM
+				SYS_ROLE
+		WHERE
+				ID
+		IN
+				<foreach item="ID" index="index" collection="array" open="(" separator="," close=")">
+						#{ID,jdbcType=VARCHAR}
+				</foreach>
+	</delete>
+	
+	
+	
+
+<!-- 添加角色 -->
+<insert id="addSysRole" parameterType = "cn.com.start.webBack.entity.SysRole">
+	INSERT INTO SYS_ROLE(NAME,DESP) 
+				  VALUES(#{NAME},#{DESP})
+</insert>
+
+<!-- 修改角色信息 -->
+<update id="updateSysRole" parameterType = "cn.com.start.webBack.entity.SysRole">
+	UPDATE SYS_ROLE SET 
+	NAME = #{NAME},
+	DESP = #{DESP}
+	WHERE ID = #{ID}
+</update>
+
+<!-- 查询所有权限 -->
+<select id="queryAllPermission" resultType="cn.com.start.webBack.entity.Permission">
+	SELECT * FROM SYS_PERMISSION ORDER BY ID
+</select>
+
+<!-- 根据用户id查询用户权限 -->
+<select id="queryPermissionByUserId"  parameterType="cn.com.start.webBack.entity.SysUser" resultType="cn.com.start.webBack.entity.Permission">
+  SELECT 
+	  * 
+	FROM
+	  SYS_PERMISSION 
+	WHERE  ID IN 
+	  (SELECT 
+	    SYS_PERMISSION_ID 
+	  FROM
+	    SYS_ROLE_PERMISSION 
+	  WHERE SYS_ROLE_ID = #{ID})
+	  ORDER BY ID
+</select>
+<!-- 根据角色id删除用户的所有权限 -->
+<delete id="deletePermission" parameterType="cn.com.start.webBack.entity.SysRole">
+	DELETE FROM SYS_ROLE_PERMISSION WHERE SYS_ROLE_ID = #{ID}
+</delete>
+
+<!-- 添加权限 -->
+<insert id="addPermission" parameterType="java.util.List">
+	insert into sys_role_permission
+             (sys_role_id,sys_permission_id)
+             values
+             <foreach collection ="list" item="reddemCode" index= "index" separator =",">
+                 (
+                 #{reddemCode.ROLEID},
+                 #{reddemCode.PERMISSIONID}
+                 )
+             </foreach >
+</insert>
+			
+
+
+</mapper>

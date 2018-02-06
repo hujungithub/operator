@@ -1,0 +1,589 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.com.start.AppAPI.mapper.MapSPMapper">
+	
+	
+	<!-- 根据经纬度查询附近站列表 -->
+	<select id = "selectNearCS" parameterType = "SelectMapDto" resultType = "MapSMDto">
+		SELECT 
+				A.*,
+				CASE 
+				WHEN B.CPCOUNT IS NULL THEN 0
+				WHEN B.CPCOUNT = 0 THEN 0
+				ELSE 1 END 
+				CURRSTATE
+		FROM
+				(
+				SELECT
+						*
+				FROM
+						(
+						SELECT
+								DISTINCT(CSID) CSID,
+								LONGITUDE,
+								LATITUDE,
+								LEFT(GETDISTANCE(#{LATITUDE},#{LONGITUDE},LATITUDE,LONGITUDE),6)DISTANCE
+						FROM 
+								CSINFO,
+								ADDRESS
+						WHERE
+								CSINFO.ADDRESSID = ADDRESS.ADDRESSID
+						)ZZ
+				WHERE
+					1=1
+<!-- 						DISTANCE &lt; 20 -->
+				)A
+		LEFT 
+		JOIN				
+				(
+				SELECT 
+						CSID,
+						COUNT(*) CPCOUNT
+				FROM
+						CPINFO CP
+				WHERE
+				 	CSID &lt;&gt; 0
+				GROUP BY 		
+						CSID
+				)B
+		ON 
+				A.CSID = B.CSID		
+	</select>	
+	
+	<!-- 根据经纬度查询附近CPM列表 -->
+	<select id = "selectNearCPM" parameterType = "SelectMapDto" resultType = "MapSMDto">
+		SELECT 
+				A.*,
+				CASE 
+				WHEN B.CPCOUNT IS NULL THEN 0
+				WHEN B.CPCOUNT = 0 THEN 0
+				ELSE 1 END 
+				CURRSTATE
+		FROM	
+				(
+				SELECT
+						*
+				FROM
+						(
+						SELECT
+								DISTINCT(CPMID) CPMID,
+								LONGITUDE,
+								LATITUDE,
+								LEFT(GETDISTANCE(#{LATITUDE},#{LONGITUDE},LATITUDE,LONGITUDE),6)DISTANCE
+						FROM 
+								CPMINFO,
+								ADDRESS
+						WHERE
+								CPMINFO.ADDRESSID = ADDRESS.ADDRESSID
+						)ZZ
+				WHERE
+						DISTANCE &lt; 20
+				)A
+		LEFT 
+		JOIN				
+				(
+				SELECT 
+						CPMID,
+						COUNT(*) CPCOUNT
+				FROM
+						CPINFO CP
+				WHERE
+				 	CPMID &lt;&gt; 0
+				GROUP BY 		
+						CPMID
+				)B
+		ON 
+				A.CPMID = B.CPMID		
+	</select>	
+	
+	<!-- 根据经纬度查询附近散桩 -->
+	<!--  
+	<select id = "selectNearCP" parameterType = "SelectMapDto" resultType = "MapSMDto">
+		SELECT
+				A.*
+		FROM	
+				(
+				SELECT
+						CP.CPID,
+						LONGITUDE,
+						LATITUDE,
+						CASE CPSTATETYPE
+							WHEN 0 THEN 1
+							ELSE 0 END
+						VALIDFLAG,
+						LEFT(GETDISTANCE(#{LATITUDE},#{LONGITUDE},LATITUDE,LONGITUDE),6)DISTANCE
+				FROM 
+						CPINFO CP,
+						ADDRESS,
+						CPREALSTATE STATE
+				WHERE
+						CP.ADDRESSID = ADDRESS.ADDRESSID
+				AND
+						STATE.CPID = CP.CPID
+				AND
+						CSID = 0 
+				AND
+						CPMID = 0
+				)A
+		WHERE 
+				DISTANCE &lt; 20
+	</select>
+	-->
+	
+	<!-- 列表找站cslist  地图给ID找站信息csinfo-->
+	<select id = "selectCSList" parameterType = "SelectMapDto" resultType = "ListSMDto">
+		select *
+		from(
+		SELECT
+				A.*,
+				IFNULL(B.DCNUM,0)DCNUM,
+				IFNULL(D.ACNUM,0)ACNUM,
+				H.SERVICETIP
+		FROM
+				(
+				SELECT
+						*
+				FROM
+						(
+						SELECT
+								DISTINCT(CS.CSID),
+								CSNAME NAME,
+								LONGITUDE,
+								LATITUDE,
+								CASE CS.VALIDFLAG
+									WHEN 0 THEN '不可用'
+									ELSE '实测可用' END
+								VALIDFLAG,
+								OPENTIME,	
+								CS.OPERATORID,
+								Cast(GetDistance(#{LATITUDE},#{LONGITUDE},latitude,Longitude) as decimal(10, 1))DISTANCE, 
+								CONCAT(PROVINCENAME,CITYNAME,AREANAME,ADDRESSNAME)LOCATION						
+						FROM
+								CSINFO CS,
+								CPINFO CP,
+								ADDRESS,
+								AREA,
+								CITY,
+								PROVINCE PRO
+						WHERE
+								CP.CSID = CS.CSID
+						AND
+								CS.ADDRESSID = ADDRESS.ADDRESSID
+						AND
+								ADDRESS.AREAID = AREA.AREAID
+						AND
+								AREA.CITYID = CITY.CITYID
+						AND
+								CITY.PROVINCEID = PRO.PROVINCEID
+						)ZZ
+				WHERE 
+						1=1
+<!-- 						DISTANCE &lt; 20 -->
+				<if test="CSID!=null and CSID!=''">
+				AND
+				 		CSID = #{CSID}
+				 		
+				ORDER BY DISTANCE
+				</if>
+				)A
+		LEFT
+		JOIN
+				(
+				SELECT 
+						COUNT(*)DCNUM,
+						CSID
+				FROM
+						CPINFO,
+						CPMODEL
+				WHERE 
+						CSID &lt;&gt; 0
+				AND 
+						CPMODEL.MODEL = CPINFO.MODEL
+				AND 
+						CPMODEL.CPTYPE = 0
+				GROUP BY 
+						CSID 
+				)B
+		ON
+				A.CSID = B.CSID
+		
+		LEFT
+		JOIN
+				(
+				SELECT
+						COUNT(*)ACNUM,
+						CSID
+				FROM
+						CPINFO,
+						CPMODEL
+				WHERE 
+						CSID &lt;&gt; 0
+				AND 
+						CPMODEL.MODEL = CPINFO.MODEL
+				AND 
+						CPMODEL.CPTYPE = 1
+				GROUP 
+				BY 	
+						CSID
+				)D
+		ON
+				A.CSID = D.CSID
+		
+		LEFT
+		JOIN
+				(SELECT 									
+						CSID
+				FROM
+						CPINFO INFO
+				WHERE 
+						CSID &lt;&gt; 0
+				GROUP 
+				BY 
+						CSID
+				)F
+		ON 
+				A.CSID = F.CSID
+				
+				
+				LEFT
+		JOIN
+				(
+				SELECT 
+						CS.CSID,
+						SERVICETIP
+				FROM
+						BILLMODELINFO BILL,
+						CSINFO CS,
+						CPINFO CP
+				WHERE
+						CP.CSID = CS.CSID
+				AND
+						CP.RATEID = BILL.RATEID
+				AND
+						CS.OPERATORID = BILL.OPERATORID
+				AND
+						CS.OPERATORID = CP.OPERATORID
+				AND 
+						BILL.BILLMODELID = #{MONTH}
+				AND
+						CS.CSID &lt;&gt; 0
+				GROUP BY 
+						CS.CSID
+				)H
+		ON
+				A.CSID = H.CSID
+				
+	) TY 
+	where 
+		1 = 1
+		ORDER BY TY.DISTANCE
+	</select>
+	
+	<!-- 列表找CPM 地图根据ID找基础信息也是 -->
+	<select id = "selectCPMList" parameterType = "SelectMapDto" resultType = "ListSMDto">
+		SELECT
+				A.*,
+				IFNULL(B.DCNUM,0)DCNUM,
+				IFNULL(C.DCISNUM,0)DCISNUM,
+				IFNULL(D.ACNUM,0)ACNUM,
+				IFNULL(E.ACISNUM,0)ACISNUM,
+				IFNULL(LEFT(G.APPOINTFEE,4),0)APPOINTFEE,
+				IFNULL(LEFT(G.SERVICEFEE,4),0)SERVICEFEE,
+				IFNULL(LEFT(G.PARKFEE,4),0)PARKFEE,
+				IFNULL(G.RATEID,0)RATEID				
+		FROM
+				(
+				SELECT
+						DISTINCT(CPM.CPMID),
+						CPMNAME NAME,
+						LONGITUDE,
+						LATITUDE,
+						CASE FIELD
+							WHEN 0 THEN '私有桩'
+							ELSE '公共桩' END
+						FIELD,
+						CASE CPM.VALIDFLAG
+							WHEN 0 THEN '不可用'
+							ELSE '实测可用' END
+						VALIDFLAG,
+						OPENTIME,
+						LEFT(GetDistance(#{LATITUDE},#{LONGITUDE},LATITUDE,LONGITUDE),6)DISTANCE,
+						CONCAT(PROVINCENAME,CITYNAME,AREANAME,ADDRESSNAME)LOCATION						
+				FROM
+						CPMINFO CPM,
+						CPINFO CP,
+						ADDRESS,
+						AREA,
+						CITY,
+						PROVINCE PRO
+				WHERE
+						CP.CPMID = CPM.CPMID
+				AND
+						CPM.ADDRESSID = ADDRESS.ADDRESSID
+				AND
+						ADDRESS.AREAID = AREA.AREAID
+				AND
+						AREA.CITYID = CITY.CITYID
+				AND
+						CITY.PROVINCEID = PRO.PROVINCEID
+				<if test="CPMID!=null and CPMID!=''">
+				AND
+				 		CPM.CPMID = #{CPMID}
+				</if>
+				)A
+		LEFT
+		JOIN
+				(
+				SELECT 
+						COUNT(*)DCNUM,
+						CPMID
+				FROM
+						CPINFO,
+						CPMODEL
+				WHERE 
+						CPMID &lt;&gt; 0
+				AND 
+						CPMODEL.MODEL = CPINFO.MODEL
+				AND 
+						CPMODEL.CPTYPE = 0
+				GROUP BY 
+						CPMID 
+				)B
+		ON
+				A.CPMID = B.CPMID
+		LEFT
+		JOIN
+				(
+				SELECT 					
+						CPMID,
+						COUNT(*) DCISNUM
+				FROM
+						CPINFO,
+						CPMODEL
+				WHERE 
+						CPMID &lt;&gt; 0
+				AND 
+						CPMODEL.MODEL = CPINFO.MODEL	
+				AND 
+						CPMODEL.CPTYPE = 0
+				GROUP 
+				BY 
+						CPMID
+				)C
+		ON
+				A.CPMID = C.CPMID
+		LEFT
+		JOIN
+				(
+				SELECT
+						COUNT(*)ACNUM,
+						CPMID
+				FROM
+						CPINFO,
+						CPMODEL
+				WHERE 
+						CPMID &lt;&gt; 0
+				AND 
+						CPMODEL.MODEL = CPINFO.MODEL
+				AND 
+						CPMODEL.CPTYPE = 1
+				GROUP 
+				BY 	
+						CPMID
+				)D
+		ON
+				A.CPMID = D.CPMID
+		LEFT
+		JOIN
+				(
+				SELECT 					
+						CPMID,
+						COUNT(*) ACISNUM
+						FROM
+						CPINFO,
+						CPMODEL
+				WHERE 
+						CPMID &lt;&gt; 0
+				AND 
+						CPMODEL.MODEL = CPINFO.MODEL					
+				AND 
+						CPMODEL.CPTYPE = 1						
+				GROUP 
+				BY 
+						CPMID
+				)E
+		ON
+				A.CPMID = E.CPMID
+		LEFT
+		JOIN
+				(SELECT 									
+						CPMID
+				FROM
+						CPINFO INFO
+				WHERE 
+						CPMID &lt;&gt; 0
+				GROUP 
+				BY 
+						CPMID
+				)F
+		ON 
+				A.CPMID = F.CPMID
+		LEFT
+		JOIN
+				(
+				SELECT 
+						AVG(APPOINTFEE)APPOINTFEE,
+						AVG(SERVICEFEE)SERVICEFEE,
+						AVG(PARKFEE)PARKFEE,
+						RATEID,
+						CPMID
+				FROM
+						CPINFO,
+						CPAPPOINTPARA
+				WHERE
+						CPINFO.CPID = CPAPPOINTPARA.CPID
+				AND
+						CPMID &lt;&gt; 0
+				GROUP BY 
+						CPMID
+				)G
+		ON
+				A.CPMID = G.CPMID
+	</select>
+		
+	<!-- 列表找散桩  -->
+	<!--  
+	<select id = "selectCPList" parameterType = "SelectMapDto" resultType = "MapCPDto">
+		SELECT 
+				A.*
+		FROM
+				(
+				SELECT
+						CP.CPID,
+						CPNAME NAME,
+						LEFT(GETDISTANCE(#{LATITUDE},#{LONGITUDE},LATITUDE,LONGITUDE),6)DISTANCE,
+						CONCAT(PROVINCENAME,CITYNAME,AREANAME,ADDRESSNAME)LOCATION,
+						CPRANK,
+						CPTYPE,
+						CPSTATETYPE,
+						APPOINTFEE,
+						SERVICEFEE,
+						PARKFEE,
+						RATEID											
+				FROM
+						CPINFO CP,
+						ADDRESS,
+						AREA,
+						CITY,
+						PROVINCE PRO,
+						CPREALSTATE,
+						CPMODEL,
+						CPAPPOINTPARA
+				WHERE
+						CP.ADDRESSID = ADDRESS.ADDRESSID
+				AND
+						ADDRESS.AREAID = AREA.AREAID
+				AND
+						AREA.CITYID = CITY.CITYID
+				AND
+						CITY.PROVINCEID = PRO.PROVINCEID
+				AND
+						CPREALSTATE.CPID = CP.CPID
+				AND
+						CPMODEL.MFRID = CP.MFRID
+				AND
+						CPMODEL.MODEL = CP.MODEL
+				AND
+						CP.CPID = CPAPPOINTPARA.CPID
+				)A
+		WHERE
+				DISTANCE &lt; 20
+		<if test="CPID!=null and CPID!=''">
+		AND
+				A.CPID = #{CPID}
+		</if>				
+	</select>
+	-->
+	
+	<!-- 根据站ID查询桩列表 -->
+	<select id = "selectCPInfoByCSId" parameterType = "String" resultType = "CPInfoDto_API">
+		SELECT
+				CP.CPID,
+				CPNAME,
+				CASE CPTYPE
+					WHEN 0 THEN '直流'
+					ELSE '交流' END
+				CPTYPE,
+				RATEDPOWER,
+				CASE INTERFACECOUNT
+					WHEN 0 THEN '单枪'
+					ELSE '双枪' END
+				INTERFACECOUNT,
+				CP.MODEL
+		FROM
+				CPINFO CP,
+				CPMODEL
+		WHERE
+				CP.MFRID = CPMODEL.MFRID
+		AND
+				CP.MODEL = CPMODEL.MODEL
+		AND
+				CP.CSID = #{CSID} 
+	</select>
+
+	<!-- 根据cpmID查询桩列表 -->
+	<select id = "selectCPInfoByCPMId" parameterType = "String" resultType = "CPInfoDto_API">
+		SELECT
+				CP.CPID,
+				CPNAME,
+				CASE CPTYPE
+					WHEN 0 THEN '直流'
+					ELSE '交流' END
+				CPTYPE,
+				RATEDPOWER,
+				CASE INTERFACECOUNT
+					WHEN 0 THEN '单枪'
+					ELSE '双枪' END
+				INTERFACECOUNT,
+				CP.MODEL
+		FROM
+				CPINFO CP,
+				CPMODEL
+		WHERE
+				CP.MFRID = CPMODEL.MFRID
+		AND
+				CP.MODEL = CPMODEL.MODEL
+		AND
+				CP.CPMID = #{CPMID}
+	</select>
+	
+	<!-- 查询CPID -->
+	<select id = "selectCpId" parameterType = "String" resultType = "String">
+		SELECT
+			CPID
+		FROM
+		    CPINFO
+		WHERE
+			CSID = #{CSID} 
+	
+	</select>
+	
+	
+	<select id="selectCpIdList" resultType = "CscpIdDto">
+		SELECT
+			CSID,
+			CPID
+		FROM
+			CPINFO
+		WHERE
+			CSID
+		IN
+			<foreach item="csId" index="index" collection="array" 
+                        open="(" separator="," close=")">
+                       #{csId}
+               </foreach>
+	</select>	
+	
+	
+</mapper>

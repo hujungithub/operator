@@ -1,0 +1,340 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.com.start.webBack.mapper.CpUserMapper">
+	<!-- 查询app用户充值条数 -->
+	<select id = "getAppUCCount" parameterType = "FindCpUserDto" resultType = "int">
+		SELECT 
+				COUNT(*)
+		FROM
+				APPUSERRECHARGERECORD APP,
+				CPUSERINFO USER
+		WHERE
+				APP.CPUSERID = USER.CPUSERID
+		<if test="CPUSERNAME != null and CPUSERNAME != ''">
+				and CPUSERNAME like '%${CPUSERNAME}%'
+		</if>
+		<if test="TELEPHONE != null and TELEPHONE != '' ">
+			and TELEPHONE like '%${TELEPHONE}%'
+		</if>
+		<if test="FROMDATE != null and FROMDATE != '' ">
+			and RECHARGETIME &gt;= #{FROMDATE}
+		</if>
+		<if test="TODATE != null and TODATE != ''">
+			and RECHARGETIME &lt;= #{TODATE}
+		</if>	
+	</select>
+	
+	<!-- 查询app用户充值记录 -->
+	<select id = "selectAppUCRecord" parameterType = "FindCpUserDto" resultType = "AppUserChargeRecordDto">
+		SELECT
+				CPUSERNAME,
+				TELEPHONE,
+				LEFT(RECHARGETIME,19)RECHARGETIME,
+				RECHARGEMONEY,
+				CASE PAYRESULTFLAG
+				WHEN 0 THEN RECHARGEMONEY+PREACCOUNTSUM
+				ELSE PREACCOUNTSUM END
+				BALANCE,
+				MODE.PAYMENTMODENAME,
+				CASE PAYRESULTFLAG 
+				WHEN 0 THEN '成功'
+				ELSE APP.FAILDESP END				
+				PAYRESULT
+		FROM	
+				APPUSERRECHARGERECORD APP,
+				PAYMENTMODE MODE,
+				CPUSERINFO USER
+		WHERE
+				APP.PAYMENTMODEID = MODE.PAYMENTMODEID
+		AND
+				APP.CPUSERID = USER.CPUSERID
+		<if test="CPUSERNAME != null and CPUSERNAME != ''">
+				and CPUSERNAME like '%${CPUSERNAME}%'
+		</if>
+		<if test="TELEPHONE != null and TELEPHONE != '' ">
+			and TELEPHONE like '%${TELEPHONE}%'
+		</if>
+		<if test="FROMDATE != null and FROMDATE != '' ">
+			and RECHARGETIME &gt;= #{FROMDATE}
+		</if>
+		<if test="TODATE != null and TODATE != ''">
+			and RECHARGETIME &lt;= #{TODATE}
+		</if>		
+			
+	</select>
+	
+	<!-- 导出app用户 -->
+	<select id = "selectapplist" parameterType = "FindCpUserDto" resultType = "AppUserChargeRecordDto">
+		SELECT
+				CPUSERNAME,
+				TELEPHONE,
+				LEFT(RECHARGETIME,19)RECHARGETIME,
+				RECHARGEMONEY,
+				CASE PAYRESULTFLAG
+				WHEN 0 THEN RECHARGEMONEY+PREACCOUNTSUM
+				ELSE PREACCOUNTSUM END
+				BALANCE,
+				MODE.PAYMENTMODENAME,
+				CASE PAYRESULTFLAG 
+				WHEN 0 THEN '成功'
+				ELSE APP.FAILDESP END				
+				PAYRESULT
+		FROM	
+				APPUSERRECHARGERECORD APP,
+				PAYMENTMODE MODE,
+				CPUSERINFO USER
+		WHERE
+				APP.PAYMENTMODEID = MODE.PAYMENTMODEID
+		AND
+				APP.CPUSERID = USER.CPUSERID
+		<if test="CPUSERNAME != null and CPUSERNAME != ''">
+				and CPUSERNAME like '%${CPUSERNAME}%'
+		</if>
+		<if test="TELEPHONE != null and TELEPHONE != '' ">
+			and TELEPHONE like '%${TELEPHONE}%'
+		</if>
+		<if test="FROMDATE != null and FROMDATE != '' ">
+			and RECHARGETIME &gt;= #{FROMDATE}
+		</if>
+		<if test="TODATE != null and TODATE != ''">
+			and RECHARGETIME &lt;= #{TODATE}
+		</if>		
+	</select>
+	<!-- 分页,条件查询用户 -->
+	<select id="selectUserByPage" resultType="CpUserDto" parameterType = "FindCpUserDto">
+				SELECT 
+						A.*
+				FROM 
+						(SELECT CPUSERID,
+							  CPUSERNAME,
+							  SEX,
+							  HEADIMGURL,
+							  PASSWORD,
+							  ACCOUNTSUM,
+							  CHARGESTATE,
+							  CREDITLEVEL,
+							  PLATENUMBER,
+							  VIN,
+							  TELEPHONE,
+							  EMAIL,
+							  ADDRESS,
+							  LEFT(REGTIME,19)REGTIME,
+							  VALIDFLAG
+						  FROM 
+						  	   CPUSERINFO 
+						  ORDER BY REGTIME DESC
+						)A   
+<<<<<<< .mine
+                
+=======
+				WHERE 
+				     1=1
+					<if test="CPUSERNAME != null and CPUSERNAME != '' ">
+						and A.CPUSERNAME like '%${CPUSERNAME}%'
+					</if>
+					<if test="TELEPHONE != null and TELEPHONE != '' ">
+						and A.TELEPHONE like '%${TELEPHONE}%'
+					</if>
+					<if test="MEMBERCARDID != null and MEMBERCARDID != '' ">
+						and A.MEMBERCARDID like '%${MEMBERCARDID}%'
+					</if>
+					<if test="PLATENUMBER != null and PLATENUMBER != ''">
+						and A.PLATENUMBER like '%${PLATENUMBER}%'
+					</if>
+					<if test="CREDITLEVEL != null and CREDITLEVEL != '' ">
+						and A.CREDITLEVEL like '%${CREDITLEVEL}%'
+					</if>
+					<if test="FROMDATE != null and FROMDATE != '' ">
+						and A.REGTIME &gt;= #{FROMDATE}
+					</if>
+					<if test="TODATE != null and TODATE != ''">
+						and A.REGTIME &lt;= #{TODATE}
+					</if>		
+>>>>>>> .r910
+
+	</select>
+	<!-- 查询总记录数 -->
+	<select id = "getUserCount" resultType = "Int" parameterType = "FindCpUserDto">
+					SELECT 
+							COUNT(*) 
+					FROM 
+							CPUSERINFO 
+					WHERE 
+					        1=1
+					<if test="CPUSERNAME != null and CPUSERNAME != '' ">
+						and CPUSERNAME like '%${CPUSERNAME}%'
+					</if>
+					<if test="TELEPHONE != null and TELEPHONE != '' ">
+						and TELEPHONE like '%${TELEPHONE}%'
+					</if>
+					<if test="MEMBERCARDID != null and MEMBERCARDID != '' ">
+						and MEMBERCARDID like '%${MEMBERCARDID}%'
+					</if>
+					<if test="PLATENUMBER != null and PLATENUMBER != ''">
+						and PLATENUMBER like '%${PLATENUMBER}%'
+					</if>
+					<if test="CREDITLEVEL != null and CREDITLEVEL != '' ">
+						and CREDITLEVEL like '%${CREDITLEVEL}%'
+					</if>
+					<if test="FROMDATE != null and FROMDATE != '' ">
+						and STR_TO_DATE(REGTIME,'%Y-%m-%d %H:%i:%s') &gt;= #{FROMDATE}
+					</if>
+					<if test="TODATE != null and TODATE != ''">
+						and STR_TO_DATE(REGTIME,'%Y-%m-%d %H:%i:%s') &lt;= #{TODATE}
+					</if>		
+	</select>
+	
+	<!-- 用户详细 -->
+	<select id="findUserById" resultType="CpUser" parameterType = "String">
+                SELECT CPUSERID,CPUSERNAME,ADDRESS,TELEPHONE,PLATENUMBER,EMAIL,left(REGTIME,19)REGTIME
+                FROM CPUSERINFO
+                WHERE CPUSERID=#{CPUSERID}
+	
+	</select>
+	
+	<!-- 分页,详细 -->
+	<select id="selectCpuserCharge" resultType="userReportsDto" parameterType = "FindCpUserDto">
+				SELECT
+				  CPUSER.CPUSERNAME,
+				  CPUSER.CPUSERID,
+				  CP.CPNAME,
+				  CP.CPID,
+				  CO.operatorname,
+				  cs.csname,
+				  UCORD.RECORDTIME,
+				  UCORD.CHARGEQUANTITY,
+				  UMCORD.CHARGEMONEY,
+				  UMCORD.SERVICETIP,
+				  UMCORD.DEDUCTMONEY,
+				  LEFT(UCORD.CHARGESTARTTIME,19)    CHARGESTARTTIME,
+				  FROM_UNIXTIME((UNIX_TIMESTAMP(UCORD.CHARGESTARTTIME)+UCORD.CHARGETIMESPAN),'%Y-%m-%d %H:%i:%S')    CHARGEENDTIME,
+				  CONCAT(SUBSTR(SEC_TO_TIME(UCORD.CHARGETIMESPAN),1,2),"小时", SUBSTR(SEC_TO_TIME(UCORD.CHARGETIMESPAN),4,2),"分",SUBSTR(SEC_TO_TIME(UCORD.CHARGETIMESPAN),7),"秒")    CHARGETIMESPAN,
+				  COUNT(CPUSER.CPUSERNAME)CPUSERCOUNT
+				FROM CPUSERINFO CPUSER,
+				  USERCHARGERECORD UCORD,
+				  USERDEDUCTMONEYRECORD UMCORD,
+				  CPINFO CP,
+				  OPERATORINFO CO,
+				  CSINFO CS
+				WHERE CPUSER.CPUSERID = UCORD.CPUSERID
+				    AND UCORD.TRANSATIONID = UMCORD.TRANSATIONID
+				    AND CP.CPID = UCORD.CPID
+				    AND CP.CSID = CS.CSID
+				   	AND CP.OPERATORID = CO.OPERATORID
+				    AND CPUSER.CPUSERID = #{CPUSERID}
+					<if test="FROMDATE!=null and FROMDATE!=''">
+				    AND
+							 STR_TO_DATE(UCORD.CHARGESTARTTIME, '%Y-%m-%d %H:%i') &gt;= #{FROMDATE}
+					</if>
+					<if test="TODATE!=null and TODATE!=''">
+					AND
+							 STR_TO_DATE(UCORD.CHARGESTARTTIME, '%Y-%m-%d %H:%i') &lt;= #{TODATE}
+					</if>	
+				GROUP BY UCORD.CHARGESTARTTIME
+				ORDER BY CP.CPID
+	</select>
+	
+	<!-- 导出详细信息 -->
+	<select id="selectCpuserMQ" resultType="userReportsDto" parameterType = "FindCpUserDto">
+				SELECT
+				  CO.operatorname,
+				  cs.csname,
+				  CPUSER.CPUSERNAME,
+				  CPUSER.CPUSERID,
+				  CP.CPNAME,CP.CPID,
+				  UCORD.RECORDTIME,
+				  UCORD.CHARGEQUANTITY,
+				  UMCORD.CHARGEMONEY,
+				  UMCORD.SERVICETIP,
+				  UMCORD.DEDUCTMONEY,
+				  LEFT(UCORD.CHARGESTARTTIME,19)    CHARGESTARTTIME,
+				  FROM_UNIXTIME((UNIX_TIMESTAMP(UCORD.CHARGESTARTTIME)+UCORD.CHARGETIMESPAN),'%Y-%m-%d %H:%i:%S')    CHARGEENDTIME,
+				  CONCAT(SUBSTR(SEC_TO_TIME(UCORD.CHARGETIMESPAN),1,2),"小时", SUBSTR(SEC_TO_TIME(UCORD.CHARGETIMESPAN),4,2),"分",SUBSTR(SEC_TO_TIME(UCORD.CHARGETIMESPAN),7),"秒")    CHARGETIMESPAN,
+				  COUNT(CPUSER.CPUSERNAME)CPUSERCOUNT
+				FROM CPUSERINFO CPUSER,
+				  USERCHARGERECORD UCORD,
+				  USERDEDUCTMONEYRECORD UMCORD,
+				  CPINFO CP,
+				  operatorinfo co,
+				  csinfo cs
+				WHERE CPUSER.CPUSERID = UCORD.CPUSERID
+				    AND UCORD.TRANSATIONID = UMCORD.TRANSATIONID
+				    AND CP.CPID = UCORD.CPID
+				    and cp.operatorid = co.operatorid
+				    and cp.csid = cs.csid
+				    AND CPUSER.CPUSERID = #{CPUSERID}
+					<if test="FROMDATE!=null and FROMDATE!=''">
+				    AND
+							 STR_TO_DATE(UCORD.CHARGESTARTTIME, '%Y-%m-%d %H:%i') &gt;= #{FROMDATE}
+					</if>
+					<if test="TODATE!=null and TODATE!=''">
+					AND
+							 STR_TO_DATE(UCORD.CHARGESTARTTIME, '%Y-%m-%d %H:%i') &lt;= #{TODATE}
+					</if>	
+				GROUP BY UCORD.CHARGESTARTTIME
+				ORDER BY CP.CPID
+	</select>
+	<!-- 查询总记录数 -->
+	<select id = "getCpuserChargeCount" resultType = "Int" parameterType = "FindCpUserDto">
+					SELECT 
+							COUNT(*) 
+					FROM (SELECT
+						  CPUSER.CPUSERNAME,CPUSER.CPUSERID,
+						  CP.CPNAME,CP.CPID,
+						  UCORD.RECORDTIME,
+						  UMCORD.CHARGEMONEY,
+						  UMCORD.SERVICETIP,
+						  UMCORD.DEDUCTMONEY,
+						  LEFT(UCORD.CHARGESTARTTIME,19)    CHARGESTARTTIME,
+						  FROM_UNIXTIME((UNIX_TIMESTAMP(UCORD.CHARGESTARTTIME)+UCORD.CHARGETIMESPAN),'%Y-%m-%d %H:%i:%S')    CHARGEENDTIME,
+						  CONCAT(SUBSTR(SEC_TO_TIME(UCORD.CHARGETIMESPAN),1,2),"小时", SUBSTR(SEC_TO_TIME(UCORD.CHARGETIMESPAN),4,2),"分",SUBSTR(SEC_TO_TIME(UCORD.CHARGETIMESPAN),7),"秒")    CHARGETIMESPAN
+						FROM CPUSERINFO CPUSER,
+						  USERCHARGERECORD UCORD,
+						  USERDEDUCTMONEYRECORD UMCORD,
+						  CPINFO CP
+						WHERE CPUSER.CPUSERID = UCORD.CPUSERID
+						    AND UCORD.TRANSATIONID = UMCORD.TRANSATIONID
+						    AND CP.CPID = UCORD.CPID
+						    AND CPUSER.CPUSERID = #{CPUSERID}) A
+					WHERE 1=1		
+					<if test="FROMDATE!=null and FROMDATE!=''">
+				    AND
+							 STR_TO_DATE(A.CHARGESTARTTIME, '%Y-%m-%d %H:%i') &gt;= #{FROMDATE}
+					</if>
+					<if test="TODATE!=null and TODATE!=''">
+					AND
+							 STR_TO_DATE(A.CHARGESTARTTIME, '%Y-%m-%d %H:%i') &lt;= #{TODATE}
+					</if>	
+	</select>
+	
+	
+    <!-- 删除用户 -->
+	<delete id="deleteById" parameterType="String">
+		DELETE 
+		FROM
+				CPUSERINFO
+		WHERE
+				CPUSERID 
+		IN
+				<foreach item="userid" index="index" collection="array" 
+                         open="(" separator="," close=")">
+                        #{userid}
+                </foreach>
+	</delete>
+	
+	<!-- 根据Id修改用户信息 -->
+	<update id="updateById" parameterType="CpUser" >
+		UPDATE 
+				CPUSERINFO 
+		SET 
+				CPUSERNAME=#{CPUSERNAME},
+				TELEPHONE=#{TELEPHONE},
+				ADDRESS=#{ADDRESS},
+				EMAIL=#{EMAIL},
+				CREDITLEVEL=#{CREDITLEVEL}
+		WHERE 
+				CPUSERID=#{CPUSERID,jdbcType=VARCHAR}
+	</update>
+
+</mapper>

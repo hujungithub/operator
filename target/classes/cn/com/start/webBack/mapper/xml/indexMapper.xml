@@ -1,0 +1,307 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.com.start.webBack.mapper.IndexMapper">
+	<!-- 统计充电收入 -->
+	<select id = "selectIncomeStatistic" parameterType = "FindIndexDto" resultType = "FindIndexDto">
+		SELECT
+				SUBSTRING(CHARGESTARTTIME,9,2)DAY,
+				CHARGEMONEY
+		FROM
+				(
+				SELECT
+						CHARGESTARTTIME,
+						ROUND(SUM(CHARGEMONEY+SERVICETIP),1)CHARGEMONEY
+				FROM
+						(SELECT 
+								*
+						FROM
+								USERCHARGERECORD USER
+						WHERE
+								USER.CPID 
+						IN
+								(
+								SELECT 
+										CPID 
+								FROM 
+										CPINFO
+								WHERE
+										OPERATORID = #{OPERATORID}
+								)
+						)A		
+				GROUP BY 
+						LEFT(CHARGESTARTTIME,10)
+			)B
+	WHERE
+			LEFT(B.CHARGESTARTTIME,10) &gt;= #{FROMDATE}
+	AND
+			LEFT(B.CHARGESTARTTIME,10) &lt;= #{TODATE}	
+	</select>
+	
+	<!-- 统计充电次数 画图 -->
+	<select id = "selectCountStatistic" parameterType = "FindIndexDto" resultType = "FindIndexDto">
+		SELECT
+				SUBSTRING(CHARGESTARTTIME,9,2)DAY,
+				CHARGECOUNT
+		FROM
+				(
+				SELECT
+						CHARGESTARTTIME,
+						COUNT(*)CHARGECOUNT
+				FROM
+						(SELECT 
+								*
+						FROM
+								USERCHARGERECORD USER
+						WHERE
+								USER.CPID 
+						IN
+								(
+								SELECT 
+										CPID 
+								FROM 
+										CPINFO
+								WHERE
+										OPERATORID = #{OPERATORID}										
+								)
+						)A		
+				GROUP BY 
+						LEFT(CHARGESTARTTIME,10)
+			)B
+	WHERE
+			LEFT(B.CHARGESTARTTIME,10) &gt;= #{FROMDATE}
+	AND
+			LEFT(B.CHARGESTARTTIME,10) &lt;= #{TODATE}
+	</select>
+	<!-- 统计充电电量 画图 -->
+	<select id = "selectChargeStatistic" parameterType = "FindIndexDto" resultType = "FindIndexDto">
+		SELECT
+				SUBSTRING(CHARGESTARTTIME,9,2)DAY,
+				CHARGEQUANTITY
+		FROM
+				(
+				SELECT
+						CHARGESTARTTIME,
+						ROUND(SUM(CHARGEQUANTITY),1)CHARGEQUANTITY
+				FROM
+						(SELECT 
+								*
+						FROM
+								USERCHARGERECORD USER
+						WHERE
+								USER.CPID 
+						IN
+								(
+								SELECT 
+										CPID 
+								FROM 
+										CPINFO
+								WHERE
+										OPERATORID = #{OPERATORID}
+								)
+						)A		
+				GROUP BY 
+						LEFT(CHARGESTARTTIME,10)
+			)B
+	WHERE
+			LEFT(B.CHARGESTARTTIME,10) &gt;= #{FROMDATE}
+	AND
+			LEFT(B.CHARGESTARTTIME,10) &lt;= #{TODATE}
+		
+	</select>
+	<!-- 统计app用户数据 -->
+	<select id = "selectAppStatistic" resultType = "IndexDto">
+		SELECT
+				COUNT(*)APPCOUNT
+		FROM
+				CPUSERINFO			
+	</select>
+	
+	<!-- 统计卡用户数据 -->
+	<select id = "selectCardStatistic" resultType = "IndexDto">
+		SELECT 
+				COUNT(*)CARDCOUNT
+		FROM
+				CARDUSERINFO
+	</select>
+	
+	<select id = "selectCSStatistic" parameterType = "String" resultType = "IndexDto">
+		SELECT 
+				
+				COUNT(*) CSCOUNT
+		FROM
+				CSINFO
+		WHERE						
+				1=1
+		AND
+				<!-- FIND_IN_SET(OPERATORID, GetChildInfo(#{OPERATORID})) -->
+				OPERATORID IN (
+				SELECT OPERATORID FROM OPERATORINFO WHERE OPERATORID =#{OPERATORID}
+				OR BOSSID = #{OPERATORID}
+				OR BOSSID IN 
+				(SELECT OPERATORID FROM OPERATORINFO WHERE BOSSID=#{OPERATORID})
+				)
+	</select>
+	<select id = "selectCPStatistic" parameterType = "String" resultType = "IndexDto">
+		SELECT
+				COUNT(*) CPCOUNT
+		FROM
+				CPINFO
+		WHERE
+				1 = 1
+		AND
+				<!-- FIND_IN_SET(OPERATORID, GetChildInfo(#{OPERATORID})) -->
+				OPERATORID IN (
+				SELECT OPERATORID FROM OPERATORINFO WHERE OPERATORID =#{OPERATORID}
+				OR BOSSID = #{OPERATORID}
+				OR BOSSID IN 
+				(SELECT OPERATORID FROM OPERATORINFO WHERE BOSSID=#{OPERATORID})
+				)
+	</select>
+	<select id = "selectDCPStatistic" parameterType = "String" resultType = "IndexDto">
+		SELECT 
+				COUNT(*) DCPCOUNT
+		FROM
+				CPINFO,
+				CPMODEL
+		WHERE
+				CPINFO.MODEL = CPMODEL.MODEL
+		AND
+				CPINFO.MFRID = CPMODEL.MFRID
+		AND
+				CPMODEL.CPTYPE = 0
+		AND
+				<!-- FIND_IN_SET(OPERATORID, GetChildInfo(#{OPERATORID})) -->	
+				OPERATORID IN (
+				SELECT OPERATORID FROM OPERATORINFO WHERE OPERATORID =#{OPERATORID}
+				OR BOSSID = #{OPERATORID}
+				OR BOSSID IN 
+				(SELECT OPERATORID FROM OPERATORINFO WHERE BOSSID=#{OPERATORID})
+				)
+	</select>
+	<select id = "selectACPStatistic" parameterType = "String" resultType = "IndexDto">
+		SELECT
+				COUNT(*) ACPCOUNT
+		FROM
+				CPINFO,
+				CPMODEL
+		WHERE
+				CPINFO.MODEL = CPMODEL.MODEL
+		AND
+				CPINFO.MFRID = CPMODEL.MFRID
+		AND
+				CPMODEL.CPTYPE = 1
+		AND
+				<!-- FIND_IN_SET(OPERATORID, GetChildInfo(#{OPERATORID})) -->
+				OPERATORID IN (
+				SELECT OPERATORID FROM OPERATORINFO WHERE OPERATORID =#{OPERATORID}
+				OR BOSSID = #{OPERATORID}
+				OR BOSSID IN 
+				(SELECT OPERATORID FROM OPERATORINFO WHERE BOSSID=#{OPERATORID})
+				)
+	</select>
+	
+	
+	<!-- 根据运营商id统计桩和桩信息 -->
+	<!--  
+	<select id = "selectCPStatistic" parameterType = "String" resultType = "IndexDto">
+		SELECT
+				A.OPERATORID,
+				IFNULL(A.CSCOUNT,0)CSCOUNT, 
+				IFNULL(B.CPCOUNT,0)CPCOUNT,
+				IFNULL(C.DCPCOUNT,0)DCPCOUNT,
+				IFNULL(D.ACPCOUNT,0)ACPCOUNT
+		FROM
+				(
+				SELECT 
+						OPERATORID,
+						COUNT(*) CSCOUNT
+				FROM
+						CSINFO
+				WHERE
+						1 = 1
+				AND
+						FIND_IN_SET(OPERATORID, GetChildInfo(#{OPERATORID}))
+				)A
+				LEFT
+				JOIN
+				(
+				SELECT
+						OPERATORID,
+						COUNT(*) CPCOUNT
+				FROM
+						CPINFO
+				WHERE
+							1 = 1
+				AND
+						FIND_IN_SET(OPERATORID, GetChildInfo(#{OPERATORID}))
+				)B
+				ON A.OPERATORID = B.OPERATORID
+				LEFT JOIN
+				(
+					SELECT 
+							OPERATORID,
+							COUNT(*) DCPCOUNT
+					FROM
+							CPINFO,
+							CPMODEL
+					WHERE
+							CPINFO.MODEL = CPMODEL.MODEL
+					AND
+							CPINFO.MFRID = CPMODEL.MFRID
+					AND
+							CPMODEL.CPTYPE = 0
+					AND
+							FIND_IN_SET(OPERATORID, GetChildInfo(#{OPERATORID}))		
+				)C
+				ON A.OPERATORID = C.OPERATORID
+				LEFT JOIN
+				(
+					SELECT
+							OPERATORID,
+							COUNT(*) ACPCOUNT
+					FROM
+							CPINFO,
+							CPMODEL
+					WHERE
+							CPINFO.MODEL = CPMODEL.MODEL
+					AND
+							CPINFO.MFRID = CPMODEL.MFRID
+					AND
+							CPMODEL.CPTYPE = 1
+					AND
+							FIND_IN_SET(OPERATORID, GetChildInfo(#{OPERATORID}))
+				)D
+				ON A.OPERATORID = D.OPERATORID
+	</select>
+	-->
+	
+	<!-- 根据运营商id统计收入信息 -->
+	<select id = "selectMoneyStatistic" parameterType = "String" resultType = "IndexDto">
+		SELECT
+				ROUND(IFNULL(SUM(CHARGEQUANTITY),0),2) CHARGECOUNT,
+				ROUND(IFNULL(SUM(CHARGEMONEY),0),2)MONEYCOUNT,
+				ROUND(IFNULL(SUM(SERVICETIP),0),2)SERVICECOUNT
+		FROM
+				USERCHARGERECORD
+		WHERE
+				CPID IN
+				(
+				SELECT
+						CPID
+				FROM
+						CPINFO
+				WHERE
+						1 = 1
+				AND 
+						<!-- FIND_IN_SET(OPERATORID, GetChildInfo(#{OPERATORID})) -->
+						OPERATORID IN (
+				SELECT OPERATORID FROM OPERATORINFO WHERE OPERATORID =#{OPERATORID}
+				OR BOSSID = #{OPERATORID}
+				OR BOSSID IN 
+				(SELECT OPERATORID FROM OPERATORINFO WHERE BOSSID=#{OPERATORID})
+				)
+				)
+	</select>
+	
+</mapper>

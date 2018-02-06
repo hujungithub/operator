@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+ 
+<mapper namespace="cn.com.start.webBack.mapper.ChargeProgressMapper">
+	
+	
+	<!-- 查询故障 -->
+	<select id="findChargeProgressList" parameterType="FindChargeProgressDto" 
+				resultType="ChargeProgressDto">
+		SELECT  		
+					CPI.CPID,
+					CPUSERID,
+					LEFT(CHARGESTARTTIME,19) CHARGESTARTTIME,
+					CASE CHARGESTATUS
+					WHEN '1' THEN '成功'
+					ELSE '失败' END
+					CHARGESTATUS,
+					LEFT(STARTCHARGETIME,19) STARTCHARGETIME,
+					CASE STARTCHARGEREPLYSTATUS
+					WHEN '0' THEN '成功'
+					ELSE '失败' END
+					STARTCHARGEREPLYSTATUS,
+					LEFT(ENDCHARGETIME,19) ENDCHARGETIME,
+					CASE ENDCHARGESTATUS
+					WHEN '1' THEN '成功'
+					ELSE '失败' END
+					ENDCHARGESTATUS,
+					LEFT(RECEIVEENDREPLYTIME,19) RECEIVEENDREPLYTIME,
+					CASE ENDSTATUS
+					WHEN '0' THEN '成功'
+					ELSE '失败' END
+					ENDSTATUS,
+					LEFT(RECEIVECHARGERECORDTIME,19) RECEIVECHARGERECORDTIME,
+					CASE RECEIVECHARGERECORDSTATUS
+					WHEN '1' THEN '成功'
+					ELSE '失败' END
+					RECEIVECHARGERECORDSTATUS,
+					LEFT(DEDUCTIONTIME,19) DEDUCTIONTIME,
+					CASE DEDUCTIONSTATUS
+					WHEN '1' THEN '成功'
+					ELSE '失败' END
+					DEDUCTIONSTATUS,
+					CASE CHARGEMETHODID
+					WHEN '0' THEN '扫码'
+					ELSE '刷卡' END
+					CHARGEMETHODID,
+					CASE CHARGEMODEID
+					WHEN '0' THEN '自动充满'
+					WHEN '1' THEN '按电量'
+					WHEN '2' THEN '按时间'
+					ELSE '按金额'
+					END CHARGEMODEID
+					
+		FROM 
+					CHARGEPROGRESSINFO CPI,CPINFO CP,CSINFO CS
+		WHERE 		
+					CPI.CPID = CP.CPID
+		AND
+		
+					CP.CSID = CS.CSID
+		
+		AND
+					CS.OPERATORID IN (
+							SELECT OPERATORID FROM OPERATORINFO WHERE OPERATORID = #{OPERATORLOGINID}
+							OR BOSSID = #{OPERATORLOGINID}
+							OR BOSSID IN 
+							(SELECT OPERATORID FROM OPERATORINFO WHERE BOSSID=#{OPERATORLOGINID})
+						)
+					
+	</select>
+</mapper>	

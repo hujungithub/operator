@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.com.start.webBack.mapper.LocationMapper">
+	
+	 <!-- 查询所有省份 -->
+	<select id="selectProvince" resultType="Province">
+		SELECT 
+				PROVINCENAME,
+				PROVINCEID 
+		FROM
+				PROVINCE
+	</select>
+	
+	<!-- 查询省份下的城市 -->
+	<select id="selectCityByPro"  parameterType="Int" resultType="City" >
+		SELECT 
+				CITYNAME,
+				CITYID
+		FROM	
+				CITY
+		WHERE
+				PROVINCEID = #{provinceId}
+	</select>
+	
+	<!-- 查询市区下的所有区县 -->
+
+	<select id="selectAreaByCity"  parameterType="Int" resultType="Area" >
+		SELECT 
+				AREANAME,
+				AREAID
+		FROM 
+				AREA
+		WHERE
+				CITYID = #{cityId}
+	</select>
+	
+	<!-- 查询区县下的所有详细地址 -->
+
+	<select id = "selectAddressByArea"  parameterType = "Int" resultType = "Address">
+		SELECT 
+				ADDRESSNAME,
+				ADDRESSID
+		FROM 
+				ADDRESS
+		WHERE
+				AREAID = #{areaId}
+	</select>
+	
+	
+	<!-- 经纬度需要 根据地址ID查询 -->
+	<select id = "selectLocById" parameterType = "Int" resultType = "FullLocDto">
+		SELECT 
+ 				PRO.PROVINCENAME,
+ 				PRO.PROVINCEID,
+ 				CITY.CITYNAME,
+ 				CITY.CITYID,
+ 				AREA.AREANAME,
+ 				AREA.AREAID,
+ 				ADDRESS.ADDRESSNAME,
+ 				ADDRESS.ADDRESSID
+ 		FROM	
+ 				PROVINCE PRO,
+ 				CITY,
+ 				AREA,
+ 				ADDRESS					
+		WHERE
+		    		PRO.PROVINCEID = CITY.PROVINCEID
+		AND
+		    		CITY.CITYID = AREA.CITYID
+		AND
+		    		AREA.AREAID = ADDRESS.AREAID
+		AND
+		    		ADDRESS.ADDRESSID = #{addressId}
+	</select>
+	
+</mapper>

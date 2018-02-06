@@ -1,0 +1,470 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.com.start.webBack.mapper.OperatorMapper"> 
+<!-- ***************************************************************************************** -->	
+<!-- ***************************************************************************************** -->
+	<!-- 查询所有运营商 -->	
+	<select id="selectNewOperator" resultType="OperatorInfo">
+	    SELECT 
+	        	OPERATORID,
+	        	OPERATORNAME       	
+	    FROM 
+	            OPERATORINFO
+	    WHERE
+	    	    FIND_IN_SET(OPERATORID, GetChildInfo(#{operatorloginid}))	
+	</select>
+	
+	<!-- 根据运营商找充电站 -->
+	<select id = "selectCSByOper" parameterType = "Int" resultType = "CSInfo">
+		SELECT
+				*
+		FROM
+				CSINFO
+		WHERE
+				OPERATORID = #{OPERATORID}
+	</select>
+<!-- ***************************************************************************************** -->	
+<!-- ***************************************************************************************** -->	
+	<!-- 分页查询 -->
+	<select id="selectOperatorByPage" parameterType = "String" resultType="OperatorInfoDto">
+		SELECT 
+				OPERATORID,
+				OPERATORNAME,
+				TELEPHONE,
+				EMAIL,
+				ADDRESS,
+				CONTACTNAME,
+					CASE VALIDFLAG
+					WHEN 0 THEN '不可用' 
+					ELSE '可用' END
+				VALIDFLAG
+		FROM
+				OPERATORINFO CO
+		WHERE FIND_IN_SET(CO.OPERATORID, GetChildInfo(#{OPERATORLOGINID}))		
+	</select>
+	
+	<!-- 查询总记录数 -->
+	<select id = "getOperatorCount" resultType = "Int" parameterType="FindOperatorDto">
+		SELECT 
+				COUNT(*) 
+		FROM 
+				OPERATORINFO CO
+		WHERE 
+			 FIND_IN_SET(CO.OPERATORID, GetChildInfo(#{OPERATORLOGINID}))				
+		<if test="OPERATORNAME!=null and OPERATORNAME!=''">
+			AND
+				 OPERATORNAME like '%${OPERATORNAME}%'
+		</if>
+		<if test="TELEPHONE!=null and TELEPHONE!=''">
+			AND
+				TELEPHONE like '%${TELEPHONE}%'
+		</if>
+		<if test="VALIDFLAG!=null and VALIDFLAG!=''">
+		    AND
+				 CO.VALIDFLAG = #{VALIDFLAG}
+		</if>
+	</select>
+	
+	<!-- 查询所有运营商 -->	
+	<select id="selectOperator" resultType="OperatorInfo">
+	    SELECT 
+	        	OPERATORID,
+	        	OPERATORNAME       	
+	    FROM 
+	            OPERATORINFO
+	    WHERE
+	        	OPERATORINFO.VALIDFLAG = 1  	
+	</select>
+	
+	
+	
+	<!-- 查询运营商详细 -->
+	<select id = "selectOperatorDetail" resultType = "CSoperInfoDto" parameterType="FindOperatorDto">
+		SELECT
+		  B.CSID,
+		  B.CSNAME,
+		  A.CSCOUNT,
+		  A.CHARGETIMESPAN,
+		  A.CHARGEQUANTITY,
+		  A.CHARGEMONEY,
+		  A.SERVICETIP,
+		  A.MONEYCOUNT,
+		  LEFT(B.CREATETIME,19)CREATETIME
+		FROM (SELECT
+		        CP.CSID,
+		        COUNT(CP.CSID)       CSCOUNT,
+		        CONCAT(SUBSTR(SEC_TO_TIME(SUM(CHARGETIMESPAN)),1,2),"小时", SUBSTR(SEC_TO_TIME(SUM(CHARGETIMESPAN)),4,2),"分",SUBSTR(SEC_TO_TIME(SUM(CHARGETIMESPAN)),7),"秒")    CHARGETIMESPAN,
+		        ROUND(SUM(CHARGEQUANTITY),4)    CHARGEQUANTITY,
+		        ROUND( SUM(CHARGEMONEY),4)    CHARGEMONEY,
+		        ROUND(SUM(SERVICETIP),4)    SERVICETIP,
+		        ROUND(SUM(CHARGEMONEY+SERVICETIP),4)    MONEYCOUNT
+		      FROM USERCHARGERECORD UCORD,
+		        CPINFO CP
+		      WHERE CP.CPID = UCORD.CPID
+		      GROUP BY CP.CSID) A
+		  RIGHT JOIN (SELECT *
+		              FROM CSINFO CS
+		              WHERE CS.OPERATORID = #{OPERATORID}
+		                <if test="FROMDATE!=null and FROMDATE!=''">
+					    AND STR_TO_DATE(CS.CREATETIME, '%Y-%m-%d %H:%i') &gt;= #{FROMDATE}
+						</if>
+						<if test="TODATE!=null and TODATE!=''">
+						AND STR_TO_DATE(CS.CREATETIME, '%Y-%m-%d %H:%i') &lt;= #{TODATE}
+						</if>
+						LIMIT #{startPos},#{pageSize}) B
+		    ON A.CSID = B.CSID
+	</select>
+	
+	<!-- 详细导出 -->
+	<select id = "selectOperatorExport" resultType = "CSoperInfoDto" parameterType="FindOperatorDto">
+		SELECT
+		  B.CSID,
+		  B.CSNAME,
+		  A.CSCOUNT,
+		  A.CHARGETIMESPAN,
+		  A.CHARGEQUANTITY,
+		  A.CHARGEMONEY,
+		  A.SERVICETIP,
+		  A.MONEYCOUNT,
+		  LEFT(B.CREATETIME,19)CREATETIME
+		FROM (SELECT
+		        CP.CSID,
+		        COUNT(CP.CSID)       CSCOUNT,
+		        CONCAT(SUBSTR(SEC_TO_TIME(SUM(CHARGETIMESPAN)),1,2),"小时", SUBSTR(SEC_TO_TIME(SUM(CHARGETIMESPAN)),4,2),"分",SUBSTR(SEC_TO_TIME(SUM(CHARGETIMESPAN)),7),"秒")    CHARGETIMESPAN,
+		        ROUND(SUM(CHARGEQUANTITY),4)    CHARGEQUANTITY,
+		        ROUND( SUM(CHARGEMONEY),4)    CHARGEMONEY,
+		        ROUND(SUM(SERVICETIP),4)    SERVICETIP,
+		        ROUND(SUM(CHARGEMONEY+SERVICETIP),4)    MONEYCOUNT
+		      FROM USERCHARGERECORD UCORD,CSINFO CS,
+		        CPINFO CP,OPERATORINFO OPER
+		      WHERE CP.CPID = UCORD.CPID
+		      AND
+		      		CP.CSID = CS.CSID
+		      AND
+		      		CS.OPERATORID = OPER.OPERATORID
+		      <if test="OPERATORNAME != null and OPERATORNAME != ''">
+		      AND
+		      		OPER.OPERATORNAME LIKE '%${OPERATORNAME}%'
+		      </if>
+		      <if test="TELEPHONE != null and TELEPHONE != ''">
+		      AND
+		      		UCORD.TELEPHONE LIKE '%${TELEPHONE}%'
+		      </if>
+		      GROUP BY CP.CSID) A
+		  RIGHT JOIN (SELECT *
+		              FROM CSINFO CS
+		              WHERE CS.OPERATORID = #{OPERATORLOGINID}
+						) B
+		    ON A.CSID = B.CSID
+	</select>
+	
+	<!-- 查询运营商详细总数-->
+	<select id = "getCount" resultType = "int" parameterType="FindOperatorDto">
+		SELECT COUNT(*) FROM(SELECT
+		  B.CSID,
+		  B.CSNAME,
+		  A.CSCOUNT,
+		  A.CHARGETIMESPAN,
+		  A.CHARGEQUANTITY,
+		  A.CHARGEMONEY,
+		  A.SERVICETIP,
+		  A.MONEYCOUNT,
+		  LEFT(B.CREATETIME,19)CREATETIME
+		FROM (SELECT
+		        CP.CSID,
+		        COUNT(CP.CSID)       CSCOUNT,
+		        CONCAT(SUBSTR(SEC_TO_TIME(SUM(CHARGETIMESPAN)),1,2),"小时", SUBSTR(SEC_TO_TIME(SUM(CHARGETIMESPAN)),4,2),"分",SUBSTR(SEC_TO_TIME(SUM(CHARGETIMESPAN)),7),"秒")    CHARGETIMESPAN,
+		        ROUND(SUM(CHARGEQUANTITY),4)    CHARGEQUANTITY,
+		        ROUND( SUM(CHARGEMONEY),4)    CHARGEMONEY,
+		        ROUND(SUM(SERVICETIP),4)    SERVICETIP,
+		        ROUND(SUM(CHARGEMONEY+SERVICETIP),4)    MONEYCOUNT
+		      FROM USERCHARGERECORD UCORD,
+		        CPUSERINFO CPUSER,
+		        CPINFO CP
+		      WHERE UCORD.CPUSERID = CPUSER.CPUSERID
+		          AND CP.CPID = UCORD.CPID
+		      GROUP BY CP.CSID) A
+		  RIGHT JOIN (SELECT *
+		              FROM CSINFO CS
+		              WHERE CS.OPERATORID = #{OPERATORID}
+		               <if test="FROMDATE!=null and FROMDATE!=''">
+					    AND STR_TO_DATE(CS.CREATETIME, '%Y-%m-%d %H:%i') &gt;= #{FROMDATE}
+						</if>
+						<if test="TODATE!=null and TODATE!=''">
+						AND STR_TO_DATE(CS.CREATETIME, '%Y-%m-%d %H:%i') &lt;= #{TODATE}
+						</if>) B
+		    ON A.CSID = B.CSID) A
+	</select>
+	
+	<!-- 显示详情 根据ID查询 -->
+	<select id="selectOperatorById" resultType="OperatorInfo" parameterType="String">
+		SELECT 
+				* 
+		FROM 
+				OPERATORINFO 
+		WHERE 
+				OPERATORID=#{operatorid}
+	</select>
+	
+	<!-- 运营商运营信息 -->
+	<select id = "findMQCount" resultType = "CSoperInfoDto" parameterType="FindOperatorDto">
+		SELECT
+		  CP.CSID,
+		  COUNT(CP.CSID)    CSCOUNT,
+		  ROUND(SUM(CHARGEQUANTITY),4)    CHARGEQUANTITY,
+		  ROUND( SUM(CHARGEMONEY),4)    CHARGEMONEY,
+		  ROUND(SUM(SERVICETIP),4)    SERVICETIP,
+		  ROUND(SUM(CHARGEMONEY+SERVICETIP),4)    MONEYCOUNT
+		FROM CSINFO CS,
+		  USERCHARGERECORD UCORD,
+		  CPUSERINFO CPUSER,
+		  CPINFO CP
+		WHERE UCORD.CPUSERID = CPUSER.CPUSERID
+		    AND CP.CPID = UCORD.CPID
+		    AND CS.CSID = CP.CSID
+		    AND CS.OPERATORID = #{OPERATORID}
+		<if test="FROMDATE!=null and FROMDATE!=''">
+	    AND STR_TO_DATE(CS.CREATETIME, '%Y-%m-%d %H:%i') &gt;= #{FROMDATE}
+		</if>
+		<if test="TODATE!=null and TODATE!=''">
+		AND STR_TO_DATE(CS.CREATETIME, '%Y-%m-%d %H:%i') &lt;= #{TODATE}
+		</if>
+		GROUP BY CP.CSID
+	</select>
+	
+	 
+	<!-- *************************************************************** -->
+	<!-- ***************************************************************** -->	
+	<!-- ***************************************************************** -->		
+	<!-- ***************************************************************** -->		
+	<!-- ***************************************************************** -->		
+	<!-- ***************************************************************** -->		
+		
+	<!-- 根据cpId查询OPERATORID-->
+	<select id = "selectOPERATORIDByCP" parameterType = "String" resultType = "String">
+		SELECT
+				OPERATORID
+		FROM
+				CPINFO
+		WHERE
+				CPID = #{cpId}
+	</select>
+	
+	<!-- 根据cpId查询cpmId -->	
+	<select id = "selectCpmIdByCP" parameterType = "String" resultType = "String">
+		SELECT
+				CPMID
+		FROM
+				CPINFO
+		WHERE
+				CPID = #{CPID}
+	</select>
+	
+		
+	<!-- 显示详情 根据ID查询 -->
+	<select id="findOperatorById" resultType="OperatorInfo" parameterType="Int">
+		SELECT 
+				* 
+		FROM 
+				OPERATORINFO 
+		WHERE 
+				OPERATORID = #{OPERATORID}
+	</select>
+	
+		<!-- 查询运营商 -->
+	<select id="findOperatorBy" resultType="OperatorInfoDto" parameterType="FindOperatorDto">
+	    SELECT 
+	        	* 
+	    FROM 
+	            OPERATORINFO 	
+	</select>
+	
+	<!-- 运营商下是否有站 -->
+	<select id="selectcheck" resultType="int">
+	    <!-- SELECT
+		  COUNT(*)
+		FROM CSINFO CS,
+		  OPERATORINFO OPERA
+		WHERE CS.OPERATORID = OPERA.OPERATORID
+        WHERE 
+			OPERA.OPERATORID
+		IN
+				<foreach item="OPERATORID" index="index" collection="array" 
+                         open="(" separator="," close=")">
+                        #{OPERATORID,jdbcType=VARCHAR}
+                </foreach>	 -->
+		SELECT
+				COUNT(*)
+		FROM
+				CSINFO
+		WHERE
+				OPERATORID
+		IN
+				<foreach item="OPERATORID" index="index" collection="array" 
+                         open="(" separator="," close=")">
+                        #{OPERATORID}
+                </foreach>
+	</select>
+	
+	<!-- 根据ID删除运营商 -->
+	<delete id="deleteById">
+		DELETE FROM
+					OPERATORINFO 		
+		WHERE 
+					OPERATORID
+		IN
+				<foreach item="OPERATORID" index="index" collection="array" open="(" separator="," close=")">
+                        #{OPERATORID}
+                </foreach>
+	</delete>
+	
+	<!-- 新增运营商 -->
+	<insert id="insertOperator" parameterType="OperatorInfo">
+		INSERT 
+		INTO
+					 OPERATORINFO
+					 (
+					 	OPERATORID,
+					 	BOSSID,
+					 	OPERATORNAME,
+					 	TELEPHONE,
+					 	EMAIL,
+					 	ADDRESS,
+					 	VALIDFLAG,
+					 	CONTACTNAME
+					 ) 
+		VALUES
+					 (
+					 	#{OPERATORID},
+					 	#{BOSSID},
+					 	#{OPERATORNAME},
+					 	#{TELEPHONE},
+					 	#{EMAIL},
+					 	#{ADDRESS},
+					 	#{VALIDFLAG},
+					 	#{CONTACTNAME}
+					 )
+	</insert>
+	
+	<!-- 修改运营商信息 -->
+	<update id="updateById"  parameterType="OperatorInfo">
+		UPDATE 
+				OPERATORINFO 
+		SET 
+				OPERATORNAME = #{OPERATORNAME},
+				TELEPHONE = #{TELEPHONE},
+				EMAIL = #{EMAIL},
+				ADDRESS = #{ADDRESS},
+				VALIDFLAG = #{VALIDFLAG},
+				CONTACTNAME = #{CONTACTNAME}				
+		WHERE 
+				OPERATORID = #{OPERATORID}
+	</update>
+	
+	<!-- 修改充电桩是否可用 -->
+	<update id="updateCPHE_VALIDFLAG" parameterType="String">
+	   UPDATE 
+	   			CPINFO
+	   SET
+	   			VALIDFLAG = 0
+	   WHERE
+	   			OPERATORID			
+	   IN
+				<foreach item="OPERATORID" index="index" collection="array" 
+                         open="(" separator="," close=")">
+                        #{OPERATORID}
+                </foreach>
+	 </update> 
+	 
+	 <!-- 修改充电站是否可用 -->
+	 <update id="updateCS_INVALIDFLG" parameterType="String">
+	  UPDATE
+	  			CSINFO
+	  SET
+	            VALIDFLAG=0
+	  WHERE
+	  			OPERATORID 	  			
+	  IN
+				<foreach item="OPERATORID" index="index" collection="array" 
+                         open="(" separator="," close=")">
+                         #{OPERATORID}
+                </foreach>         			
+	 </update>
+	 
+	 
+	
+	
+	<!-- 根据充电站查找充电桩 -->
+	<select id="selectCPHEByCS" parameterType="Int" resultType="CPInfo">
+	    SELECT 
+	    		* 
+	    FROM
+	    		CPINFO
+	    WHERE
+	    		CSID = #{CSID,jdbcType=VARCHAR}				
+	</select>
+	
+	<!-- 根据CPM查找充电桩 -->
+	<select id="selectCPByCPM" parameterType="Int" resultType="CPInfo">
+	    SELECT 
+	    		* 
+	    FROM
+	    		CPINFO
+	    WHERE
+	    		CPMID = #{CPMID,jdbcType=VARCHAR}		
+	</select>
+	
+	<!--查找最大id -->
+	<select id="selectMaxid" resultType="String">
+	    SELECT MAX(OPERATORID) FROM OPERATORINFO
+	</select>
+	
+	<!-- 新增费率模板 -->
+	<insert id="addBill" parameterType="java.util.List">
+		INSERT 
+		INTO
+					 BILLMODELINFO
+					 (
+					 	OPERATORID, 
+					 	CSID,
+						RATEID, 
+						BILLMODELID, 
+						VALIDTIME, 
+						INVALIDTIME, 
+						TIMEINTERVALCOUNT, 
+						JPRICE, 
+						FPRICE, 
+						PPRICE, 
+						GPRICE, 
+						SERVICETIP, 
+						TI_1_START, 
+						TI_1_ID, 
+						TI_2_START, 
+						TI_2_ID, 
+						TI_3_START, 
+						TI_3_ID, 
+						TI_4_START, 
+						TI_4_ID, 
+						TI_5_START, 
+						TI_5_ID, 
+						TI_6_START, 
+						TI_6_ID, 
+						TI_7_START, 
+						TI_7_ID, 
+						TI_8_START, 
+						TI_8_ID
+					 ) 
+		VALUES
+			 <foreach collection="list" item="item" index="index" separator="," >  
+        		(#{item.OPERATORID},#{item.CSID},#{item.RATEID},#{item.BILLMODELID},#{item.VALIDTIME},
+        		#{item.INVALIDTIME},#{item.TIMEINTERVALCOUNT},#{item.JPRICE},#{item.FPRICE},
+        		#{item.PPRICE},#{item.GPRICE},#{item.SERVICETIP},#{item.TI_1_START},
+        		#{item.TI_1_ID},#{item.TI_2_START},#{item.TI_2_ID},#{item.TI_3_START},
+        		#{item.TI_3_ID},#{item.TI_4_START},#{item.TI_4_ID},#{item.TI_5_START},
+        		#{item.TI_5_ID},#{item.TI_6_START},#{item.TI_6_ID},#{item.TI_7_START},
+        		#{item.TI_7_ID},#{item.TI_8_START},#{item.TI_8_ID})  
+   	 		</foreach>
+	</insert>
+
+</mapper>

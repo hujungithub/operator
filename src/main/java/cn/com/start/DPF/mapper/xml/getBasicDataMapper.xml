@@ -1,0 +1,175 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.com.start.DPF.mapper.GetBasicDataMapper">
+	<!-- 查询cs和cp对应关系 -->
+	<select id = "selectCSLinkCP" resultType = "CSLinkCP_DPF">
+		SELECT
+				CS.CSID,
+				CP.CPID
+		FROM
+				CSINFO CS,
+				CPINFO CP
+		WHERE
+				CS.CSID = CP.CSID
+		ORDER BY CSID	
+	</select>
+	<!-- 查询用户卡数据 -->
+	<select id = "selectCardUser" resultType = "CardUserInfo">
+		SELECT
+				*
+		FROM
+				CARDUSERINFO
+	</select>
+	
+	<!-- 查询充电失败原因 -->
+	
+	<select id = "selectChargeEndCause" resultType = "ChargeEndCause_DPF">
+		SELECT
+				*
+		FROM
+				CHARGEENDCAUSE
+	</select>
+	<!-- 查询鉴权失败原因 -->
+	<select id = "selectACFailCause" resultType = "AuthorityFailCause_DPF">
+		SELECT
+				*
+		FROM
+				AUTHORITYFAILCAUSE
+	</select>
+	
+	<!-- 查询cpm和cp对应关系 -->
+	<select id = "selectCPMLinkCP" resultType = "CPMLinkCP_DPF">
+		SELECT
+				*
+		FROM
+				CPMLINKCP
+		order 
+		by 
+				CPMID
+	</select>
+	<!-- 查询型号信息 -->
+	<select id = "selectCPModel" resultType = "CPModel_DPF">
+		SELECT
+				*
+		FROM
+				CPMODEL
+	</select>
+	
+	<!-- 查询计费信息 -->
+	<select id = "selectBillModel" resultType = "BillModelInfo_DPF">
+		SELECT 
+				OPERATORID,
+				RATEID,
+				BILLMODELID,
+				LEFT(VALIDTIME,19)VALIDTIME,
+				LEFT(INVALIDTIME,19)INVALIDTIME,
+				TIMEINTERVALCOUNT,
+				JPRICE,
+				FPRICE,
+				PPRICE,
+				GPRICE,
+				SERVICETIP,
+				TI_1_START,
+				TI_1_ID,
+				TI_2_START,
+				TI_2_ID,
+				TI_3_START,
+				TI_3_ID,
+				TI_4_START,
+				TI_4_ID,
+				TI_5_START,
+				TI_5_ID,
+				TI_6_START,
+				TI_6_ID,
+				TI_7_START,
+				TI_7_ID,
+				TI_8_START,
+				TI_8_ID
+		FROM
+				BILLMODELINFO		
+	</select>
+
+	<select id = "selectCPStateType" resultType = "CPStateType_DPF">
+		SELECT
+				*
+		FROM
+				CPSTATETYPE
+	</select>
+	
+	<!-- 查询桩基础 -->
+	<select id = "selectCPInfo" resultType = "CPInfo_DPF">
+		SELECT 
+				A.*,
+				B.RATEDPOWER,
+				B.CPTYPE,
+				B.CPPHASE,
+				B.INTERFACECOUNT
+		FROM
+				(SELECT * FROM CPINFO)A
+		LEFT JOIN 
+				(SELECT * FROM CPMODEL
+				)B
+		ON 
+			A.MFRID = B.MFRID 
+		AND 
+			A.MODEL = B.MODEL		
+	</select>
+	
+	<!-- 交流遥测 -->
+	<select id = "selectYcPoint" resultType = "YCPointList_DPF">
+		SELECT
+				*
+		FROM
+				YCPOINTLIST
+	</select>
+	
+	<!-- 交流遥信 -->
+	<select id = "selectYxPoint" resultType = "YXPointList_DPF">
+		SELECT
+				*
+		FROM
+				YXPOINTLIST
+	</select>
+	
+	<!-- 交流遥测 -->
+	<select id = "selectDCYcPoint" resultType = "YCPointList_DPF">
+		SELECT
+				*
+		FROM
+				YCDCPOINTLIST
+	</select>
+	
+	<!-- 交流遥信 -->
+	<select id = "selectDCYxPoint" resultType = "YXPointList_DPF">
+		SELECT
+				*
+		FROM
+				YXDCPOINTLIST
+	</select>
+	
+	<!-- 协议 -->
+	<select id = "selectProtoInfo" resultType = "ProtocolInfo_DPF">
+		SELECT
+				*
+		FROM
+				PROTOCOLINFO
+	</select>
+	
+	<!-- 桩的状态 -->
+	<select id = "selectCPRealState" resultType = "CPRealState_DPF">
+		SELECT
+				*
+		FROM
+				CPREALSTATE				
+	</select>
+
+	
+	<!-- 充电方式 -->
+	<select id = "selectChargeMode" resultType = "ChargeMode_DPF">
+		SELECT
+				*
+		FROM
+				CHARGEMODE
+	</select>
+</mapper>

@@ -1,0 +1,141 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.com.start.webBack.mapper.WebAlarmMapper">
+	
+	<!-- 分页查询数据库 -->
+	<select id = "selectCountAjax" parameterType = "String" resultType = "int">
+		SELECT 
+				COUNT(*)
+		FROM
+				WEBALARMRECORD RECORD,
+				OPERATORINFO CO,
+				CPINFO CP
+		WHERE
+				CP.CPID = RECORD.CPID
+		AND
+				CP.OPERATORID = CO.OPERATORID
+		AND     RECORD.CHECKSTATE = 0
+		AND FIND_IN_SET(CP.OPERATORID, GetChildInfo(#{OPERATORID}))
+	</select>
+	<!-- 分页查询数据 -->
+	<select id="selectSaveWebData" resultType="WebAlarmRecordDto" parameterType="FindARDto">
+		SELECT 	
+				RECORD.ID,
+				left(RECORDTIME,19)RECORDTIME,
+				RECORD.CPID,
+				CASE GUN
+				WHEN 0 THEN 'A'
+				ELSE  'B' END
+				GUN,
+				CASE CHARGETYPE
+				WHEN 0 THEN CPUSERID
+				ELSE CARDNUM END
+				APPCARDID,
+				CASE CHECKSTATE
+				WHEN 0 THEN '未确认'
+				ELSE '已确认' END STATENAME,
+				CASE CHECKMODE
+				WHEN 0 THEN '自动'
+				ELSE '手动' END MODENAME,
+				CASE CHARGETYPE
+				WHEN 0 THEN 'APP'
+				ELSE '刷卡' END CHARGETYPENAME,
+				CHECKSTATE,				
+				CHECKMODE,
+				ALARMDESP
+		FROM
+				WEBALARMRECORD RECORD,
+				WEBALARMTYPE ATYPE,
+				CPINFO CP
+		WHERE
+				ATYPE.ALARMID = RECORD.ALARMTYPE
+		AND CP.CPID = RECORD.CPID
+		AND FIND_IN_SET(CP.OPERATORID, GetChildInfo(#{OPERATORLOGINID}))
+		ORDER BY RECORDTIME DESC		
+	</select>
+	
+	
+	<!-- 根据条件查询数量 -->
+	<select id="selectAlramCount" resultType="int" parameterType= "FindARDto">
+		SELECT 	
+				COUNT(*)
+		FROM 
+				WEBALARMRECORD RECORD,CPINFO CP 
+		WHERE CP.CPID = RECORD.CPID
+		AND FIND_IN_SET(CP.OPERATORID, GetChildInfo(#{OPERATORLOGINID}))
+		<if test="STATE!=null and STATE!=''">
+		AND 
+				CHECKSTATE=#{STATE}
+		</if>
+		<if test="STARTTIME!=null and STARTTIME!=''">
+	    AND
+				STR_TO_DATE(RECORDTIME, '%Y-%m-%d') &gt;= #{STARTTIME}
+		</if>
+		<if test="ENDTIME!=null and ENDTIME!=''">
+		AND
+				STR_TO_DATE(RECORDTIME, '%Y-%m-%d') &lt;= #{ENDTIME}
+		</if>		
+	</select>
+	
+	<!--查询未确认状态-->
+	<select id="selectNoCheckCount" resultType="int" parameterType="FindARDto" >
+		SELECT 	
+				COUNT(*)
+		FROM 
+				WEBALARMRECORD RECORD,CPINFO CP 
+		WHERE 
+				CHECKSTATE = 0
+		AND CP.CPID = RECORD.CPID
+		AND FIND_IN_SET(CP.OPERATORID, GetChildInfo(#{OPERATORLOGINID}))
+	</select>
+	
+	<!-- 查询已确认状态 -->
+	<select id="selectCheckedCount" resultType="int" parameterType="FindARDto" >
+		SELECT 	
+				COUNT(*)
+		FROM 
+				WEBALARMRECORD RECORD,CPINFO CP
+		WHERE 
+				CHECKSTATE = 1
+		AND CP.CPID = RECORD.CPID
+		AND FIND_IN_SET(CP.OPERATORID, GetChildInfo(#{OPERATORLOGINID}))
+	</select>
+	
+	<!-- 查询数据总条数 -->
+	<select id="selectTotalCount" resultType="int" parameterType="FindARDto" >
+		SELECT 	
+				COUNT(*)
+		FROM 
+				WEBALARMRECORD RECORD,CPINFO CP
+		WHERE CP.CPID = RECORD.CPID
+		AND FIND_IN_SET(CP.OPERATORID, GetChildInfo(#{OPERATORLOGINID}))
+	</select>
+	
+	<update id="updateAlarmRecord" parameterType="FindARDto" >
+		UPDATE 
+				WEBALARMRECORD 
+		SET 
+				CHECKSTATE =#{CHECKSTATE},
+				CHECKMODE =#{CHECKMODE}
+		WHERE 
+				ID = #{ID}
+	</update>
+	
+	<update id="updateAllAlarmRecord" parameterType="FindARDto" >
+		UPDATE 
+				WEBALARMRECORD 
+		SET 
+				CHECKSTATE = #{CHECKSTATE},
+				CHECKMODE = #{CHECKMODE}
+		WHERE CPID 
+		IN 
+		(SELECT A.* FROM (SELECT RECORD.CPID
+			FROM 
+				WEBALARMRECORD RECORD,CPINFO CP 
+			WHERE RECORD.CPID = CP.CPID
+			AND FIND_IN_SET(CP.OPERATORID, GetChildInfo(#{OPERATORLOGINID})))A)
+	</update>
+	
+	
+</mapper>

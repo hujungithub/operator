@@ -1,0 +1,151 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.com.start.AppAPI.mapper.ScanChargeMapper">
+
+	<!-- -->
+	<select id="selectDeviceInfo" parameterType="String" resultType="DeviceInfoDto_API">
+		SELECT
+		CPNAME,
+		DEVICEID
+		FROM
+		CPINFO
+		WHERE
+		DEVICEID = #{deviceId}
+	</select>
+
+
+
+	<select id="chargeRecorder" parameterType="String" resultType="ChargeRecorder">
+		SELECT
+				DISTINCT(TRANSATIONID),
+				CPID,
+				LEFT(CHARGESTARTTIME,19) CHARGESTARTTIME,
+				CHARGETIMESPAN,
+				CHARGEQUANTITY,
+				CHARGEMONEY,
+				LEFT(CHARGESTARTTIME,19) RECORDTIME,
+				SERVICETIP,
+				ROUND((CHARGEMONEY + SERVICETIP),2)TOTALFEE
+		FROM
+				USERCHARGERECORD
+		WHERE
+				TRANSATIONID =  #{serialNo}
+				GROUP BY TRANSATIONID
+			    ORDER BY CHARGESTARTTIME DESC
+	</select>
+
+
+	<!-- 查询充电桩基础信息 -->
+	<select id="selectChargeInfo" parameterType="String" resultType="ScanChargeDto">
+		SELECT
+			CPID,
+			CPNAME,
+			RATEID,
+			CASE CPTYPE
+			WHEN 0 THEN '直流'
+			ELSE '交流' END
+			CPTYPE,
+			CASE CPPHASE
+			WHEN 0 THEN '单相'
+			ELSE '三相' END
+			CPPHASE,
+			CONCAT(AREANAME,ADDRESSNAME)LOCATION
+
+		FROM
+			CPINFO CP,
+			CPMODEL,
+			PROVINCE PRO,
+			CITY,
+			AREA,
+			ADDRESS
+		WHERE
+			CP.MFRID = CPMODEL.MFRID
+			AND
+			CP.MODEL = CPMODEL.MODEL
+			AND
+			CP.ADDRESSID = ADDRESS.ADDRESSID
+			AND
+			ADDRESS.AREAID = AREA.AREAID
+			AND
+			AREA.CITYID = CITY.CITYID
+			AND
+			CITY.PROVINCEID = PRO.PROVINCEID
+			AND
+			CPID = #{CPID}
+	</select>
+
+
+
+	<!-- 根据价格Id查找费率信息 -->
+	<select id="selectBillByRateId" parameterType="String"
+		resultType="BillModelInfo_API">
+		SELECT
+		*
+		FROM
+		BILLMODELINFO
+		WHERE
+		RATEID = #{RATEID}
+		AND
+		BILLMODELID = #{MONTH}
+		and 
+		OPERATORID = #{OPERATORID}
+	</select>
+
+<!--     用户正在充电状态 -->
+	<update id="updateUserStateBusy" parameterType="String">
+		UPDATE
+			CPUSERINFO
+		SET		
+			CHARGESTATE = 1
+		WHERE
+			CPUSERID = #{USERID}
+	</update>
+
+<!--     用户不在充电 -->
+	<update id="updateUserStateIdle" parameterType="String">
+		UPDATE
+			CPUSERINFO
+		SET		
+			CHARGESTATE = 0
+		WHERE
+			CPUSERID = #{USERID}
+	</update>
+
+<!-- 	发送短信给用户的信息 -->
+	<select id="selectUserInfo" parameterType="String"
+		resultType="smsDto">
+		SELECT
+			TELEPHONE,
+			LEFT(CHARGESTARTTIME,19) CHARGESTARTTIME,
+			ROUND((CHARGEMONEY + SERVICETIP),2)TOTALFEE,
+			ACCOUNTSUM
+		FROM
+			USERCHARGERECORD,
+			CPUSERINFO
+		WHERE
+			TRANSATIONID = #{SERIALNO}
+		AND
+			USERCHARGERECORD.CPUSERID = CPUSERINFO.CPUSERID
+			LIMIT 1
+	</select>
+
+	<!--刷卡  -->
+	<select id="selectCardUserInfo" parameterType="String"
+		resultType="smsDto">
+		SELECT
+			TELEPHONE,
+			LEFT(CHARGESTARTTIME,19) CHARGESTARTTIME,
+			ROUND((CHARGEMONEY + SERVICETIP),2)TOTALFEE,
+			ACCOUNTSUM
+		FROM
+			USERCHARGERECORD,
+			CARDUSERINFO
+		WHERE
+			TRANSATIONID = #{SERIALNO}
+		AND
+			USERCHARGERECORD.CARDNUM = CARDUSERINFO.CARDNUM
+			LIMIT 1
+	</select>
+
+</mapper>

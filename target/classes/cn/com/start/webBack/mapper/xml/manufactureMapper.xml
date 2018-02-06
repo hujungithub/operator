@@ -1,0 +1,193 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.com.start.webBack.mapper.ManufacturersMapper">
+	<!-- ********************************************************************************** -->
+	<!-- ********************************************************************************** -->
+	<!-- 获取厂商总数量 -->
+	<select id="getManufCount" resultType="int" parameterType= "FindManufDto">
+		SELECT
+			  COUNT(*)
+		FROM CPMFRINFO MFR,
+		  CPMODEL MODEL
+		WHERE MFR.MFRID = MODEL.MFRID
+		<if test="MFRNAME!=null and MFRNAME!=''">
+	    AND
+			  MFR.MFRNAME LIKE '%${MFRNAME}%'
+		</if>
+		<if test="MODEL!=null and MODEL!=''">
+	    AND
+			  MODEL.MODEL LIKE '%${MODEL}%'
+		</if>
+	</select>
+	
+	<!-- 获取厂商信息 -->
+	<select id="selectManufByPage" resultType="ManufDto" parameterType= "FindManufDto">
+		SELECT
+			  MFR.MFRNAME,
+			  MFR.MFRID,
+			  MODEL.MODEL,
+			  CASE MODEL.CPTYPE
+			  WHEN 0 THEN '直流'
+			  WHEN 1 THEN '交流' END CPTYPE,
+			  CASE MODEL.INTERFACECOUNT
+			  WHEN 0 THEN '单枪'
+			  WHEN 1 THEN '双枪' END INTERFACECOUNT,
+			  CASE MODEL.CPPHASE
+			  WHEN 0 THEN '单相'
+			  WHEN 1 THEN '三相' END CPPHASE
+		FROM CPMFRINFO MFR,
+		  CPMODEL MODEL
+		WHERE MFR.MFRID = MODEL.MFRID
+		<!-- LIMIT #{startPos}, #{pageSize} -->
+	</select>
+	
+	<!-- update厂商 -->
+	<update id = "updateManuf" parameterType = "ManufDto">
+		UPDATE CPMFRINFO
+		SET		MFRNAME = #{MFRNAME},
+				MFRABBR= #{MFRABBR}
+		WHERE MFRID = #{MFRID}
+	</update>
+	
+	<update id = "updateModel" parameterType = "ManufDto">
+		UPDATE
+				CPMODEL
+		SET		
+				CPTYPE= #{CPTYPE},
+				INTERFACECOUNT= #{INTERFACECOUNT},
+				CPPHASE= #{CPPHASE},
+				RATEDPOWER= #{RATEDPOWER},
+				MODEL = #{MODEL} 	
+		WHERE
+				MFRID = #{MFRID}
+			AND MODEL = #{oldMODEL}	
+	</update>
+	<!-- modefied by niehy 20170824 end-->
+	
+	<!-- add厂商 -->
+	<insert id="insertManuf" parameterType="ManufDto" useGeneratedKeys="true" keyProperty="MFRID">
+		INSERT INTO CPMFRINFO
+				(MFRNAME,MFRABBR)
+		VALUES  (#{MFRNAME},#{MFRABBR})
+	
+	</insert>
+	
+	<!-- 获取递增id -->
+	<select id="selectMaxid" resultType="String" >
+		SELECT
+			  MAX(MFRID)
+		FROM CPMFRINFO
+	</select>
+	
+	<!-- add型号 -->
+	<insert id="insertModel" parameterType="ManufDto">
+		INSERT INTO CPMODEL
+				(MFRID,MODEL,CPTYPE,CPPHASE,INTERFACECOUNT,RATEDPOWER)
+		VALUES  (#{MFRID},#{MODEL},#{CPTYPE},#{CPPHASE},#{INTERFACECOUNT},#{RATEDPOWER})
+	
+	</insert>
+	
+	<!-- 查询厂商信息 -->
+	<select id="selectManuf" resultType="ManufDto" parameterType= "String" >
+		SELECT
+			  MFR.MFRNAME,
+			  MFR.MFRID,
+			  MFR.MFRABBR,
+			  MODEL.MODEL,
+			  MODEL.CPTYPE,
+			  MODEL.INTERFACECOUNT,
+			  MODEL.CPPHASE,
+			  MODEL.RATEDPOWER
+		FROM CPMFRINFO MFR,
+		  CPMODEL MODEL
+		WHERE MFR.MFRID = MODEL.MFRID
+		AND MFR.MFRID = #{mfrid}
+		AND MODEL.MODEL = #{model}
+	</select>
+	
+	<!-- 删除厂商 -->
+	<delete id="deleteManuf">
+		DELETE 
+		FROM
+				CPMFRINFO
+		WHERE
+				MFRID 
+		IN
+				<foreach item="mfrids" index="index" collection="array" open="(" separator="," close=")">
+                        #{mfrids}
+                </foreach>
+	</delete>	
+	
+	<!-- 删除厂商 -->
+	<delete id="deleteModel">
+		DELETE 
+		FROM
+				CPMODEL
+		WHERE
+				CONCAT(MFRID,MODEL) 
+		IN
+				<foreach item="mids" index="index" collection="array" open="(" separator="," close=")">
+                        #{mids}
+                </foreach>
+	</delete>
+
+	<!-- 增加厂商model -->
+	<insert id="addMfrModel" parameterType="manufDto">
+		INSERT 
+		INTO 	CPMODEL 
+			(MFRID,MODEL,RATEDPOWER,CPTYPE,CPPHASE,INTERFACECOUNT)
+		VALUES
+			(#{MFRID},#{MODEL},#{RATEDPOWER},#{CPTYPE},#{CPPHASE},#{INTERFACECOUNT})
+	</insert>
+	<!-- ********************************************************************************** -->
+	<!-- ********************************************************************************** -->
+	<!-- 根据费率ID查询费率信息 -->
+	<select id = "selectPriceByRateId" parameterType = "String" resultType = "RateInfo">
+		SELECT
+				*
+		FROM
+				RATEINFO
+		WHERE
+				RATEID = #{rateId}
+	</select>
+	
+	<!-- 查询所有充电桩生产厂商 -->
+	<select id="selectCPMfr" resultType = "CPMfrInfo">
+		SELECT 
+				MFRID,
+				MFRNAME
+		FROM
+				CPMFRINFO
+	</select>
+	
+	<!--根据厂商ID查询型号 -->
+	<select id = "selectModelByMfr" parameterType = "String" resultType = "String">
+		SELECT
+				MODEL
+		FROM 
+				CPMODEL
+		WHERE
+				MFRID = #{mfrId}
+	</select>
+	
+	<delete id="deleteMfr" parameterType="String">
+		<!-- DELETE FROM 
+					CPMFRINFO 
+		WHERE 
+				MFRID NOT IN 
+				(SELECT DISTINCT(MFRID) FROM CPMODEL) -->
+				
+		DELETE FROM CPMODEL WHERE MFRID = #{id} AND MODEL = #{model}
+	</delete>
+	
+	<!-- 查询运营商名称 -->
+	<select id="findMfrname" resultType="CPMfrInfo">
+		SELECT * FROM cpmfrinfo
+	</select>
+	
+</mapper>
+	
+	
+	
+	

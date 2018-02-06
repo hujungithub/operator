@@ -1,0 +1,177 @@
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.com.start.AppAPI.mapper.FaultPileMapper">
+	<!-- 查询附近故障桩列表 -->
+	<select id = "selectFaultPile" parameterType = "String" resultType = "CPFAI">
+		SELECT 
+			      FAI.CPID,
+			      CP.LONGITUDE,
+	              CP.LATITUDE
+		FROM
+			      CPFAI_TBL FAI,
+			      CPHE_MST CP,
+			      PROVINCE PRO,
+			      CITY CITY,
+			      AREA AREA,
+			      ADDRESS ADDRESS
+		WHERE
+     			  CP.ADDRESSID = ADDRESS.ADDRESSID
+	    AND
+	    		  ADDRESS.FATHER = AREA.AREAID
+	    AND
+	     		  AREA.FATHER = CITY.CITYID
+	    AND
+	    		  CITY.FATHER = PRO.PROVINCEID
+	    AND
+	      		  CP.CPID = FAI.CPID
+	    AND
+	      		  GETDISTANCE(#{latitude},#{longitude}, CP.LATITUDE, CP.LONGITUDE) &lt; 10
+	    AND
+	    		  FAI.VALIDFLAG = 0
+         
+	</select>
+	<!-- '31.230416', '121.473701' -->
+	<!-- 新增修理订单 -->
+	<insert id = "insertFaulOrder" parameterType = "FaultOrder">
+		INSERT 
+		INTO
+				FAULTORDER
+				(ID,
+				BEGINTIME,
+				CPID,
+				REPAIRMANID,
+				STATE
+				)
+				VALUES(
+				#{ID},
+				#{BEGINTIME},
+				#{CPID},
+				#{REPAIRMANID},
+				#{STATE}
+				)
+	</insert>
+	
+	<!-- 有人接单之后 修改故障表的状态 -->
+	<update id = "updateFAIById" parameterType = "String">
+		UPDATE
+				CPFAI_TBL
+		SET
+				VALIDFLAG = 1
+		WHERE
+				CPID = #{cpId}		
+	</update>
+	<!-- 查询我正在做的任务 -->
+	<select id = "selectReadyList" parameterType = "String" resultType = "CPFAI">
+		SELECT 
+	            FAULT.CPID,
+	            DECODE(STATE,0,'准备维修',1,'待审核',2,'已完成')STATE,
+	            (PROVINCE||CITY||AREA||ADDRESS)LOCATION,
+	            FAULT.ID,
+	            FAULT.AUDITSTATE	          
+    	FROM
+	            FAULTORDER FAULT,
+	            CPHE_MST CP,
+	            CS_MST CS,
+	            PROVINCE PRO,
+	            CITY CITY,
+	            AREA AREA,
+	            ADDRESS ADDRESS
+	    WHERE
+	            CP.ADDRESSID = ADDRESS.ADDRESSID
+	      AND
+	            ADDRESS.FATHER = AREA.AREAID
+	      AND
+	            AREA.FATHER = CITY.CITYID
+	      AND
+	            CITY.FATHER = PRO.PROVINCEID
+	      AND
+	            CP.CPID = FAULT.CPID
+	      AND
+	            CS.CSID = CP.CSID
+	      AND
+	      		STATE = 0
+	      AND
+	      		REPAIRMANID = #{rmId}
+				
+	</select>
+	
+	<!-- 查询已完成等待审核的任务 -->
+	<select id = "selectIsList" parameterType = "String" resultType = "CPFAI">
+		SELECT 
+	            FAULT.CPID,
+	            DECODE(STATE,0,'准备维修',1,'待审核',2,'已完成')STATE,
+	            CSNM,
+	            (PROVINCE||CITY||AREA||ADDRESS)LOCATION,
+	            FAULT.ID
+    	FROM
+	            FAULTORDER FAULT,
+	            CPHE_MST CP,
+	            CS_MST CS,
+	            HAT_PROVINCE PRO,
+	            HAT_CITY CITY,
+	            HAT_AREA AREA,
+	            HAT_ADDRESS ADDRESS
+	    WHERE
+	            CP.ADDRESSID = ADDRESS.ADDRESSID
+	      AND
+	            ADDRESS.FATHER = AREA.AREAID
+	      AND
+	            AREA.FATHER = CITY.CITYID
+	      AND
+	            CITY.FATHER = PRO.PROVINCEID
+	      AND
+	            CP.CPID = FAULT.CPID
+	      AND
+	            CS.CSID = CP.CSID
+	      AND
+	      		STATE = 1
+	      AND
+	      		REPAIRMANID = #{rmId}				
+	</select>
+	
+	<!-- 查询已完成的订单 -->
+	<select id = "selectDoneList" parameterType = "String" resultType = "CPFAI">
+		SELECT 
+	            FAULT.CPID,
+	            DECODE(STATE,0,'准备维修',1,'待审核',2,'已完成')STATE,
+	            CSNM,
+	            (PROVINCE||CITY||AREA||ADDRESS)LOCATION,
+	            FAULT.ID
+    	FROM
+	            FAULTORDER FAULT,
+	            CPHE_MST CP,
+	            CS_MST CS,
+	            HAT_PROVINCE PRO,
+	            HAT_CITY CITY,
+	            HAT_AREA AREA,
+	            HAT_ADDRESS ADDRESS
+	    WHERE
+	            CP.ADDRESSID = ADDRESS.ADDRESSID
+	      AND
+	            ADDRESS.FATHER = AREA.AREAID
+	      AND
+	            AREA.FATHER = CITY.CITYID
+	      AND
+	            CITY.FATHER = PRO.PROVINCEID
+	      AND
+	            CP.CPID = FAULT.CPID
+	      AND
+	            CS.CSID = CP.CSID
+	      AND
+	      		STATE = 2
+	      AND
+	      		REPAIRMANID = #{rmId}
+				
+	</select>
+	
+	<!-- 已经修理 等待确认 -->
+	<update id = "updateOrderFirst" parameterType = "String">
+		UPDATE
+				FAULTORDER
+		SET	
+				STATE = 1,
+				CONTENT = #{content}		
+		WHERE
+				ORDERID = #{orderId}				
+	</update>
+</mapper>

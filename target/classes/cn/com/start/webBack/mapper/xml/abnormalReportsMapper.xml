@@ -1,0 +1,242 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.com.start.webBack.mapper.AbnormalReportsMapper">
+	
+	<!-- 根据充电站ID查询地址selectReportsCount-->
+	<select id = "selectCPYCRunRecord" resultType = "AbnormalReports">
+		SELECT 
+			ID,
+			CPID,
+			LEFT(RECORDTIME,19)RECORDTIME, 
+			GUNA_E,
+			GUNA_F,
+			GUNA_M,
+			GUNA_STATE 
+		FROM CPYCRUNRECORD
+	</select>
+	<select id = "selectCPYCRunRecordByID" parameterType = "String" resultType = "CPYCRunRecordDto">
+		SELECT 
+			ID,
+			CPID,
+			LEFT(RECORDTIME,19)RECORDTIME, 
+			GUNA_E,
+			GUNA_F,
+			GUNA_M,
+			GUNA_STATE 
+		FROM CPYCRUNRECORD
+		WHERE ID=#{ID}
+	</select>
+	
+	<select id = "selectReportsCount" resultType = "Int">
+		SELECT 
+			COUNT(*)
+		FROM CPYCRUNRECORD
+	</select>
+	
+	<!-- 根据充电站ID查询地址selectStartChargeGunRecord-->
+	<select id = "selectStartChargeGunRecord" parameterType = "String" resultType = "StartChargeGunRecordDto">
+
+		SELECT 
+			SN,
+			DEVICEID,
+			INTERFACEID,
+			LEFT(SENDSTARTCMDTIME,19)SENDSTARTCMDTIME, 
+			LEFT(CHARGEMODEID,1)CHARGEMODEID, 
+			ACCOUNTBALANCE,
+			CHARGEPARA,
+			LEFT(STARTCHARGEFLAG,1)STARTCHARGEFLAG,
+			STARTCHARGEFAILDESP,
+			CPUSERID,
+			LEFT(SENDENDCMDTIME,19)SENDENDCMDTIME, 
+			LEFT(ENDCHARGEFLAG,1)ENDCHARGEFLAG
+ 		FROM STARTCHARGEGUNRECORD 
+ 		WHERE DEVICEID=(
+ 			SELECT DEVICEID FROM CPINFO WHERE CPID=#{cpId}
+ 		)
+ 		LIMIT 0,10
+ 	</select>
+ 	
+ 	<select id = "selectStartChargeGunRecordBySN" parameterType = "String" resultType = "StartChargeGunRecordDto">
+
+		SELECT 
+			SN,
+			DEVICEID,
+			INTERFACEID,
+			LEFT(SENDSTARTCMDTIME,19)SENDSTARTCMDTIME, 
+			LEFT(CHARGEMODEID,1)CHARGEMODEID, 
+			ACCOUNTBALANCE,
+			CHARGEPARA,
+			LEFT(STARTCHARGEFLAG,1)STARTCHARGEFLAG, 
+			STARTCHARGEFAILDESP,
+			CPUSERID,
+			SENDENDCMDTIME,
+			LEFT(ENDCHARGEFLAG,1)ENDCHARGEFLAG
+ 		FROM STARTCHARGEGUNRECORD 
+ 		WHERE SN=#{SN}
+ 	</select>
+ 	
+ 	<!-- 查询cpUserInfo -->
+ 	<select id = "selectCpUserInfoByCpUserId" parameterType = "String" resultType = "CpUser">
+
+		SELECT 
+			CPUSERID,
+			CPUSERNAME,
+			SEX,
+			PASSWORD, 
+			ACCOUNTSUM, 
+			CHARGESTATE,
+			CREDITLEVEL,
+			PLATENUMBER, 
+			VIN,
+			TELEPHONE,
+			EMAIL,
+			ADDRESS,
+			REGTIME,
+			VALIDFLAG
+ 		FROM CPUSERINFO 
+ 		WHERE CPUSERID=#{cpUserId}
+ 	</select>
+ 	
+ 	<update id = "updateAccountSumByCpUserId" parameterType = "CpUser">
+
+		UPDATE CPUSERINFO
+		SET ACCOUNTSUM = #{ACCOUNTSUM}
+ 		WHERE CPUSERID=#{CPUSERID}
+ 	</update>
+ 	
+ 	<!-- 
+ 	<insert id ="insertAddress" parameterType = "AddressDto" >
+		INSERT 
+		INTO
+				ADDRESS
+				(
+				AREAID,
+				ADDRESSID,
+				ADDRESSNAME,
+				LONGITUDE,
+				LATITUDE				
+				)
+		VALUES
+				(
+				#{AREAID},
+				#{ADDRESSID},
+				#{ADDRESSNAME},
+				#{LONGITUDE},
+				#{LATITUDE}
+				)
+	</insert>
+ 	 -->
+ 	 <insert id ="insertUserChargeRecord" parameterType = "ChargeRecord_DPF" >
+		INSERT 
+		INTO
+				USERCHARGERECORD
+				(
+				CPID,
+				INTERFACEID,
+				CHARGEMETHODID,
+				CHARGEMODEID,
+				CHARGEPARA,
+				RECORDTIME,
+				CHARGESTARTTIME,
+				CHARGETIMESPAN,
+				TRANSATIONID,
+				CARDNUM,
+				CPUSERID,
+				DEVICEID,
+				CHARGEFINISHEDFLAG,
+				CHARGEQUANTITY,
+				BEFORECHARGEBALANCE,
+				CHARGEMONEY,
+				SERVICETIP,
+				CHARGEENDCAUSE,
+				BILLMODELID,
+				JQ,
+				FQ,
+				PQ,
+				GQ,
+				JT,
+				FT,
+				PT,
+				GT,
+				JF,
+				FF,
+				PF,
+				GF			
+				)
+		VALUES
+				(
+				#{CPID},
+				#{INTERFACEID},
+				#{CHARGEMETHODID},
+				#{CHARGEMODEID},
+				#{CHARGEPARA},
+				#{RECORDTIME},
+				#{CHARGESTARTTIME},
+				#{CHARGETIMESPAN},
+				#{TRANSATIONID},
+				#{CARDNUM},
+				#{CPUSERID},
+				#{DEVICEID},
+				#{CHARGEFINISHEDFLAG},
+				#{CHARGEQUANTITY},
+				#{BEFORECHARGEBALANCE},
+				#{CHARGEMONEY},
+				#{SERVICETIP},
+				#{CHARGEENDCAUSE},
+				#{BILLMODELID},
+				0,0,0,0,
+				0,0,0,0,
+				0,0,0,0
+				)
+	</insert>
+	
+	<insert id ="insertUserDeductMoneyRecord" parameterType = "UserDeductMoneyRecord" >
+		INSERT 
+		INTO
+				USERDEDUCTMONEYRECORD
+				(
+				INTERFACEID,
+				RECORDTIME,
+				CPID,
+				DEVICEID,
+				PHYSICALCARDNUM,
+				CPUSERID,
+				CHARGEMONEY,
+				SERVICETIP,
+				DEDUCTMONEY,
+				REMAINMONEY,
+				DEDUCTSUCCESSFLAG,
+				DEDUCTFAILREASON,
+				DEDUCTMILE,
+				REMAINMILE,
+				DEDUCTQUANTITY,
+				REMAINQUANTITY,
+				DEDUCTTIMES,
+				REMAINTIMES,
+				TRANSATIONID
+				)
+		VALUES
+				(
+				#{INTERFACEID},
+				#{RECORDTIME},
+				#{CPID},
+				#{DEVICEID},
+				#{PHYSICALCARDNUM},
+				#{CPUSERID},
+				#{CHARGEMONEY},
+				#{SERVICETIP},
+				#{DEDUCTMONEY},
+				#{REMAINMONEY},
+				#{DEDUCTSUCCESSFLAG},
+				#{DEDUCTFAILREASON},
+				#{DEDUCTMILE},
+				#{REMAINMILE},
+				#{DEDUCTQUANTITY},
+				#{REMAINQUANTITY},
+				#{DEDUCTTIMES},
+				#{REMAINTIMES},
+				#{TRANSATIONID}
+				)
+	</insert>
+</mapper>

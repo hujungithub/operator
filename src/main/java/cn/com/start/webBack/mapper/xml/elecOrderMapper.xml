@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.com.start.webBack.mapper.ElecOrderMapper">
+	<select id="findAll" resultType="ElecOrder">
+		SELECT 
+			EM.ELECID,
+			EM.ORDERID,
+			EM.STARTTIME,
+			EM.ENDTIME,
+			EM.TYPE,
+			CASE EM.STATUS 
+			WHEN 0 THEN '已接单未完成'
+			WHEN 1 THEN '已完成未审核'
+			WHEN 2 THEN '已审核'
+			ELSE '审核失败'
+			END STATUS,
+			EM.IMGURL,
+			ET.TELEPHONE,
+			ET.ELECNAME,
+			ET.AREA ,
+			EM.CPID,
+			EM.ADDRESS
+		FROM 
+			ELECORDERMANAGE EM,
+			ELECTRICIANMANAGE ET 
+		WHERE 
+			EM.ELECID = ET.ELECID
+	</select>
+	
+	<delete id="deleteOrderById" parameterType="String">
+		DELETE FROM ELECORDERMANAGE WHERE ORDERID IN 
+				<foreach item="orderId" index="index" collection="array" 
+                        open="(" separator="," close=")">
+                       #{orderId}
+                </foreach>
+	</delete>
+	
+	<select id="findInfoByOrderId" resultType="ElecOrder" parameterType="String">
+		SELECT 
+			EM.ELECID,
+			EM.ORDERID,
+			EM.STARTTIME,
+			EM.ENDTIME,
+			EM.TYPE,
+			EM.STATUS,
+			EM.IMGURL,
+			ET.TELEPHONE,
+			ET.ELECNAME,
+			ET.AREA 
+		FROM 
+			ELECORDERMANAGE EM,
+			ELECTRICIANMANAGE ET 
+		WHERE 
+			EM.ELECID = ET.ELECID
+		AND 
+			EM.ORDERID = #{ORDERID}
+	</select>
+	
+	<update id="updateOrderInfo" parameterType="String">
+		UPDATE ELECORDERMANAGE SET 
+			STATUS = "2"
+		WHERE 
+			ORDERID = #{ORDERID}
+	</update>
+	
+</mapper>

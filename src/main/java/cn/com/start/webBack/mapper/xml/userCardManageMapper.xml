@@ -1,0 +1,664 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.com.start.webBack.mapper.UserCardManageMapper">
+	
+	<select id="getCount" parameterType="FindCardUserDto" resultType="Int">
+		SELECT
+				COUNT(*)
+		FROM
+				CARDUSERINFO LEFT JOIN USERINFO ON CARDUSERINFO.USERID = USERINFO.USERID
+		WHERE
+				FIND_IN_SET(USERINFO.OPERATORID, GetChildInfo(#{OPERATORLOGINID}))
+		<if test="CARDNUM!=null and CARDNUM!=''">
+		AND  
+				CARDNUM LIKE '%${CARDNUM}%'
+		</if>
+		<if test="CARDUSERNAME!=null and CARDUSERNAME!=''">
+		AND 
+				CARDUSERNAME LIKE '%${CARDUSERNAME}%'
+		</if>
+		<if test="TELEPHONE!=null and TELEPHONE!=''">
+		AND 
+				TELEPHONE LIKE '%${TELEPHONE}%'
+		</if>
+		<if test="FROMDATE!=null and FROMDATE!=''">
+	    AND
+				 STR_TO_DATE(REGTIME, '%Y-%m-%d') &gt;= #{FROMDATE}
+		</if>
+		<if test="TODATE!=null and TODATE!=''">
+		AND
+				 STR_TO_DATE(REGTIME, '%Y-%m-%d') &lt;= #{TODATE}
+		</if>
+		<if test="OPERATORID!=null and OPERATORID!=''">
+		AND
+				 CARDUSERINFO.OPERATORID = #{OPERATORID}
+		</if>
+	</select>
+	
+	<select id="selectByPage" parameterType="FindCardUserDto" resultType="CardUserDto">
+		SELECT CARDNUM, 
+				CARDUSERNAME, 
+				IDENTITYCARDNUM, 
+				SEX, 
+				INITKEY, 
+				PIN, 
+				ACCOUNTSUM, 
+				PLATENUM, 
+				VIN, 
+				(CARDUSERINFO.TELEPHONE)TELEPHONE, 
+				(CARDUSERINFO.EMAIL)EMAIL, 
+				(CARDUSERINFO.ADDRESS)ADDRESS, 
+				LEFT(REGTIME,19)REGTIME, 
+				CARDSTATE,
+				OPERATORNAME
+		FROM CARDUSERINFO
+		LEFT JOIN USERINFO ON CARDUSERINFO.USERID = USERINFO.USERID
+		LEFT JOIN OPERATORINFO ON CARDUSERINFO.OPERATORID = OPERATORINFO.OPERATORID
+		WHERE
+				FIND_IN_SET(USERINFO.OPERATORID, GetChildInfo(#{OPERATORLOGINID}))
+		<if test="CARDNUM!=null and CARDNUM!=''">
+		AND  
+				CARDNUM LIKE '%${CARDNUM}%'
+		</if>
+		<if test="CARDUSERNAME!=null and CARDUSERNAME!=''">
+		AND 
+				CARDUSERNAME LIKE '%${CARDUSERNAME}%'
+		</if>
+		<if test="TELEPHONE!=null and TELEPHONE!=''">
+		AND 
+				CARDUSERINFO.TELEPHONE LIKE '%${TELEPHONE}%'
+		</if>
+		<if test="FROMDATE!=null and FROMDATE!=''">
+	    AND
+				 STR_TO_DATE(REGTIME, '%Y-%m-%d') &gt;= #{FROMDATE}
+		</if>
+		<if test="TODATE!=null and TODATE!=''">
+		AND
+				 STR_TO_DATE(REGTIME, '%Y-%m-%d') &lt;= #{TODATE}
+		</if>
+		<if test="OPERATORID!=null and OPERATORID!=''">
+		AND
+				 CARDUSERINFO.OPERATORID = #{OPERATORID}
+		</if>
+	 
+	</select>
+	
+	<select id="findupdateUsercard" parameterType="FindCardUserDto"
+		resultType="CardUserDto">
+		SELECT CARDNUM, 
+				CARDUSERNAME, 
+				IDENTITYCARDNUM, 
+				SEX, 
+				INITKEY, 
+				PIN, 
+				ACCOUNTSUM, 
+				PLATENUM, 
+				VIN, 
+				TELEPHONE, 
+				EMAIL, 
+				ADDRESS, 
+				LEFT(REGTIME,19)REGTIME, 
+				CARDSTATE
+			FROM CARDUSERINFO
+			WHERE CARDNUM = #{CARDNUM}
+	</select>
+		<!-- 根据ID删除 -->
+	<delete id="deleteByCardNum" parameterType="String">
+		DELETE FROM
+				CARDUSERINFO
+		WHERE
+				CARDNUM
+		IN
+				<foreach item="CARDNUM" index="index" collection="array" open="(" separator="," close=")">
+						#{CARDNUM,jdbcType=VARCHAR}
+				</foreach>
+	</delete>
+	
+	<update id="updateusercard"  parameterType="CardUserDto">
+		UPDATE
+				CARDUSERINFO
+		SET
+				CARDUSERNAME=#{CARDUSERNAME},
+				TELEPHONE=#{TELEPHONE},
+				IDENTITYCARDNUM=#{IDENTITYCARDNUM},
+				PLATENUM=#{PLATENUM},
+				SEX=#{SEX},
+				EMAIL=#{EMAIL},
+				ADDRESS=#{ADDRESS}
+		WHERE
+				CARDNUM=#{CARDNUM}
+	</update>
+	
+	<insert id="insertModifyMoneyRecord" parameterType="ModifyMoneyRecord">
+		INSERT
+		INTO
+				MODIFYBALANCERECORD
+				(
+				CARDNUM,
+				ACCOUNTSUM,
+				MODIFIEDACCOUNTSUM,
+				USERID,
+				OPTIME
+				)
+		VALUES
+				(
+				#{CARDNUM},
+				(
+				SELECT
+						ACCOUNTSUM
+				FROM
+						CARDUSERINFO
+				WHERE
+						CARDNUM = #{CARDNUM}
+				),
+				#{MODIFIEDACCOUNTSUM},
+				#{USERID},
+				#{OPTIME}
+				)
+	</insert>
+	
+	<update id="updateBalance" parameterType="ModifyMoneyRecord">
+		UPDATE
+				CARDUSERINFO
+		SET
+				ACCOUNTSUM = #{MODIFIEDACCOUNTSUM}
+		WHERE
+				CARDNUM = #{CARDNUM}
+	</update>
+	
+	<!-- 查找满足条件的开卡记录总数 -->
+	<select id="getUCIRCount" parameterType="findUserCardIssueRecordDto" resultType="int">
+		SELECT
+				COUNT(*)
+		FROM
+				USERCARDISSUERECORD LEFT JOIN USERINFO ON USERCARDISSUERECORD.USERID = USERINFO.USERID
+		WHERE
+				FIND_IN_SET(USERINFO.OPERATORID, GetChildInfo(#{OPERATORLOGINID}))
+		<if test="OPERATORID!=null and OPERATORID!=''">
+		AND
+				 USERINFO.OPERATORID = #{OPERATORID}
+		</if>
+		<if test="CARDNUM!=null and CARDNUM!=''">
+		AND  
+				CARDNUM LIKE '%${CARDNUM}%'
+		</if>
+		<if test="FROMDATE!=null and FROMDATE!=''">
+	    AND
+				 STR_TO_DATE(SENDRECORDTIME, '%Y-%m-%d') &gt;= #{FROMDATE}
+		</if>
+		<if test="TODATE!=null and TODATE!=''">
+		AND
+				 STR_TO_DATE(SENDRECORDTIME, '%Y-%m-%d') &lt;= #{TODATE}
+		</if>
+		<if test="OPENCARDRESULT==1">
+		AND
+				 OPENCARDRESULT = 0
+		</if>
+		<if test="OPENCARDRESULT==2">
+		AND
+		(
+				OPENCARDRESULT != 0
+		OR
+				OPENCARDRESULT IS NULL
+		)
+ 		</if>
+	</select>
+	
+	<select id="selectUCIRByPage" parameterType="FindUserCardIssueRecordDto" resultType="UserCardIssueRecordDto">
+		SELECT
+				CARDNUM,
+				CARDUSERNAME,
+				IDENTITY,
+				PHONE,
+				LEFT(SENDRECORDTIME,19)SENDRECORDTIME,
+				CASE OPENCARDRESULT
+				WHEN 0 THEN "成功"
+				ELSE "失败" END OPENCARDRESULT,
+				INITIALKEY,
+				LOGINID,
+				OPERATORNAME
+		FROM
+				USERCARDISSUERECORD
+		LEFT JOIN USERINFO ON USERCARDISSUERECORD.USERID = USERINFO.USERID
+		LEFT JOIN OPERATORINFO ON USERCARDISSUERECORD.OPERATORID = OPERATORINFO.OPERATORID
+		WHERE
+				OPERATORINFO.OPERATORID IN (
+						SELECT OPERATORID FROM OPERATORINFO WHERE OPERATORID = #{OPERATORLOGINID}
+					OR BOSSID = #{OPERATORLOGINID}
+					OR BOSSID IN 
+					(SELECT OPERATORID FROM OPERATORINFO WHERE BOSSID=#{OPERATORLOGINID})
+				)
+		ORDER BY
+				ID
+	</select>
+	
+	<select id="findUserCard" parameterType="String" resultType="CardUserDto">	
+		SELECT
+				CARDNUM, 
+				CARDUSERNAME, 
+				IDENTITYCARDNUM, 
+				SEX, 
+				INITKEY, 
+				PIN, 
+				ACCOUNTSUM, 
+				PLATENUM, 
+				VIN, 
+				TELEPHONE, 
+				EMAIL, 
+				ADDRESS, 
+				LEFT(REGTIME,19)REGTIME, 
+				CARDSTATE
+		FROM
+				CARDUSERINFO
+		WHERE
+				CARDNUM = #{CARDNUM}
+	</select>
+	
+	<select id="getChargeRecordCount" parameterType="FindUserCardChargeDto" resultType="int">
+		SELECT
+				COUNT(*)
+		FROM
+				USERCHARGERECORD
+		WHERE
+				CHARGEMETHODID = 1
+		AND
+				CARDNUM = #{CARDNUM}
+		<if test="FROMDATE!=null and FROMDATE!=''">
+	    AND
+				 STR_TO_DATE(CHARGESTARTTIME, '%Y-%m-%d %H:%i') &gt;= #{FROMDATE}
+		</if>
+		<if test="TODATE!=null and TODATE!=''">
+		AND
+				 STR_TO_DATE(CHARGESTARTTIME, '%Y-%m-%d %H:%i') &lt;= #{TODATE}
+		</if>
+	</select>
+	
+	<select id="findCardUserChargeRecord" parameterType="FindUserCardChargeDto" resultType="UserCardChargeDto">
+		SELECT
+				co.operatorname,
+				cs.csname,
+				user.CPID,
+				LEFT(CHARGESTARTTIME,19)CHARGESTARTTIME,
+				LEFT(DATE_ADD(CHARGESTARTTIME,INTERVAL CHARGETIMESPAN SECOND),19)CHARGEENDTIME,
+				DEDUCTMONEY,
+				user.CHARGEMONEY,
+				user.SERVICETIP,
+				CHARGEQUANTITY,
+				CARDNUM,
+				CONCAT(SUBSTR(SEC_TO_TIME(CHARGETIMESPAN),1,2),"小时", SUBSTR(SEC_TO_TIME(CHARGETIMESPAN),4,2),"分",SUBSTR(SEC_TO_TIME(CHARGETIMESPAN),7),"秒")CHARGETIMESPAN,
+				COUNT(CARDNUM) CARDCOUNT
+		FROM
+				USERCHARGERECORD user,
+				USERDEDUCTMONEYRECORD,
+				cpinfo cp,
+				csinfo cs,
+				operatorinfo co
+		where
+				user.TRANSATIONID = USERDEDUCTMONEYRECORD.TRANSATIONID
+		and
+				cp.cpid = user.cpid
+		and
+				cp.csid = cs.csid
+		and
+				cp.operatorid = co.operatorid
+		and
+				CHARGEMETHODID = 1
+		AND
+				CARDNUM = #{CARDNUM}
+		<if test="FROMDATE!=null and FROMDATE!=''">
+	    AND
+				 STR_TO_DATE(USERCHARGERECORD.CHARGESTARTTIME, '%Y-%m-%d %H:%i') &gt;= #{FROMDATE}
+		</if>
+		<if test="TODATE!=null and TODATE!=''">
+		AND
+				 STR_TO_DATE(USERCHARGERECORD.CHARGESTARTTIME, '%Y-%m-%d %H:%i') &lt;= #{TODATE}
+		</if>
+		GROUP BY CHARGESTARTTIME
+		
+	</select>
+	
+	<select id="findUserCardInfo" parameterType="FindCardUserDto" resultType="CardUserDto">
+		SELECT
+				CARDNUM, 
+				CARDUSERNAME, 
+				IDENTITYCARDNUM, 
+				SEX, 
+				INITKEY, 
+				PIN, 
+				ACCOUNTSUM, 
+				PLATENUM, 
+				VIN, 
+				(CARDUSERINFO.TELEPHONE)TELEPHONE, 
+				(CARDUSERINFO.EMAIL)EMAIL,
+				(CARDUSERINFO.ADDRESS)ADDRESS, 
+				LEFT(REGTIME,19)REGTIME, 
+				CARDSTATE,
+				OPERATORNAME
+		FROM
+				CARDUSERINFO
+		LEFT JOIN USERINFO ON CARDUSERINFO.USERID = USERINFO.USERID
+		LEFT JOIN OPERATORINFO ON CARDUSERINFO.OPERATORID = OPERATORINFO.OPERATORID
+		WHERE
+				OPERATORINFO.OPERATORID IN (
+						SELECT OPERATORID FROM OPERATORINFO WHERE OPERATORID = #{OPERATORLOGINID}
+							OR BOSSID = #{OPERATORLOGINID}
+							OR BOSSID IN 
+							(SELECT OPERATORID FROM OPERATORINFO WHERE BOSSID=#{OPERATORLOGINID})
+						)
+		<if test="CARDNUM!=null and CARDNUM!=''">
+		AND  
+				CARDNUM LIKE '%${CARDNUM}%'
+		</if>
+		<if test="CARDUSERNAME!=null and CARDUSERNAME!=''">
+		AND 
+				CARDUSERNAME LIKE '%${CARDUSERNAME}%'
+		</if>
+		<if test="TELEPHONE!=null and TELEPHONE!=''">
+		AND 
+				CARDUSERINFO.TELEPHONE LIKE '%${TELEPHONE}%'
+		</if>
+		<if test="FROMDATE!=null and FROMDATE!=''">
+	    AND
+				 STR_TO_DATE(REGTIME, '%Y-%m-%d') &gt;= #{FROMDATE}
+		</if>
+		<if test="TODATE!=null and TODATE!=''">
+		AND
+				 STR_TO_DATE(REGTIME, '%Y-%m-%d') &lt;= #{TODATE}
+		</if>
+		<if test="OPERATORNAME!=null and OPERATORNAME!=''">
+		AND
+				 OPERATORNAME LIKE '%${OPERATORNAME}%'
+		</if>
+	</select>
+	
+	<select id="findChargeMoneyCount" parameterType="String" resultType="String">
+		SELECT
+				ROUND(SUM(CHARGEQUANTITY),4)CHARGEQUANTITY
+		FROM
+				USERCHARGERECORD
+		WHERE
+				CARDNUM = #{CARDNUM}
+		AND
+				CHARGEMODEID = 1
+	</select>
+	
+	<select id="findChargeQuantityCount" parameterType="String" resultType="String">
+		SELECT
+				ROUND(SUM(DEDUCTMONEY),4)DEDUCTMONEY
+		FROM
+				USERDEDUCTMONEYRECORD
+		WHERE
+				PHYSICALCARDNUM = #{CARDNUM}
+	</select>
+	
+	<select id="findCountData" parameterType="FindUserCardChargeDto" resultType="UserCardCountData">
+		SELECT
+			COUNT(USERCHARGERECORD.CARDNUM) CARDCOUNT,
+			ROUND(SUM(USERDEDUCTMONEYRECORD.SERVICETIP),4) SERVICETIPCOUNT,
+			ROUND(SUM(USERDEDUCTMONEYRECORD.CHARGEMONEY),4) CHARGEMONEYCOUNT,
+			ROUND(SUM(USERDEDUCTMONEYRECORD.DeductMoney),4) MONEYCOUNT,
+			ROUND(SUM(USERCHARGERECORD.CHARGEQUANTITY),4) CHARGEQUANTITYCOUNT
+		FROM USERCHARGERECORD
+		LEFT JOIN USERDEDUCTMONEYRECORD
+		ON USERCHARGERECORD.TRANSATIONID = USERDEDUCTMONEYRECORD.TRANSATIONID
+		WHERE CHARGEMETHODID = 1
+		AND CARDNUM = #{CARDNUM}
+		<if test="FROMDATE!=null and FROMDATE!=''">
+	    AND
+				STR_TO_DATE(USERCHARGERECORD.CHARGESTARTTIME, '%Y-%m-%d %H:%i') &gt;= #{FROMDATE}
+		</if>
+		<if test="TODATE!=null and TODATE!=''">
+		AND
+				STR_TO_DATE(USERCHARGERECORD.CHARGESTARTTIME, '%Y-%m-%d %H:%i') &lt;= #{TODATE}
+		</if>
+		GROUP BY
+				CARDNUM
+	</select>
+	
+	<select id="getRechargeRecordCount" parameterType="FindRechargeRecordDto" resultType="int">
+		SELECT
+				COUNT(*)
+		FROM
+				RECHARGERECORD
+		LEFT JOIN
+				USERINFO
+		ON
+				RECHARGERECORD.USERID = USERINFO.USERID
+		WHERE
+				FIND_IN_SET(USERINFO.OPERATORID, GetChildInfo(#{OPERATORLOGINID}))
+		<if test="OPERATORID!=null and OPERATORID!=''">
+		AND
+				 USERINFO.OPERATORID = #{OPERATORID}
+		</if>
+		<if test="CARDNUM!=null and CARDNUM!=''">
+	    AND
+				CARDNUM LIKE '%${CARDNUM}%'
+		</if>
+		<if test="FROMDATE!=null and FROMDATE!=''">
+	    AND
+				STR_TO_DATE(RECHARGETIME, '%Y-%m-%d') &gt;= #{FROMDATE}
+		</if>
+		<if test="TODATE!=null and TODATE!=''">
+		AND
+				STR_TO_DATE(RECHARGETIME, '%Y-%m-%d') &lt;= #{TODATE}
+		</if>
+		<if test="RECHARGERESULT==1">
+		AND
+				 RECHARGERESULT = 0
+		</if>
+		<if test="RECHARGERESULT==2">
+		AND
+		(
+				RECHARGERESULT != 0
+		OR
+				RECHARGERESULT IS NULL
+		</if>
+	</select>
+	
+	<select id="findRechargeRecord" parameterType="FindRechargeRecordDto" resultType="UserCardRechargeDto">
+		SELECT
+				LOGINID,
+				CARDNUM,
+				MONEY,
+				BALANCE,
+				LEFT(RECHARGETIME,19)RECHARGETIME,
+				OPERATORNAME,
+				CASE RECHARGERESULT
+				WHEN 0 THEN '成功'
+				ELSE '失败' END
+				RECHARGERESULT
+		FROM
+				RECHARGERECORD
+		LEFT JOIN USERINFO ON RECHARGERECORD.USERID = USERINFO.USERID
+		LEFT JOIN OPERATORINFO ON RECHARGERECORD.OPERATORID = OPERATORINFO.OPERATORID
+	    WHERE
+				FIND_IN_SET(USERINFO.OPERATORID, GetChildInfo(#{OPERATORLOGINID}))
+		ORDER BY
+				ID
+		
+	</select>
+	
+	<select id="userCardIssueRecordExport" parameterType="FindUserCardIssueRecordDto" resultType="UserCardIssueRecordDto">
+		SELECT
+				CARDNUM,
+				CARDUSERNAME,
+				IDENTITY,
+				PHONE,
+				LEFT(SENDRECORDTIME,19)SENDRECORDTIME,
+				OPENCARDRESULT,
+				INITIALKEY,
+				LOGINID,
+				OPERATORNAME
+		FROM
+				USERCARDISSUERECORD
+		LEFT JOIN USERINFO ON USERCARDISSUERECORD.USERID = USERINFO.USERID
+		LEFT JOIN OPERATORINFO ON USERCARDISSUERECORD.OPERATORID = OPERATORINFO.OPERATORID
+		WHERE
+				USERINFO.OPERATORID IN (
+				SELECT OPERATORID FROM OPERATORINFO WHERE OPERATORID =#{OPERATORLOGINID}
+				OR BOSSID = #{OPERATORLOGINID}
+				OR BOSSID IN 
+				(SELECT OPERATORID FROM OPERATORINFO WHERE BOSSID=#{OPERATORLOGINID})
+				)
+		<if test="OPERATORID!=null and OPERATORID!=''">
+		AND
+				USERCARDISSUERECORD.OPERATORID = #{OPERATORID}
+		</if>
+		<if test="CARDNUM!=null and CARDNUM!=''">
+		AND  
+				CARDNUM LIKE '%${CARDNUM}%'
+		</if>
+		<if test="FROMDATE!=null and FROMDATE!=''">
+	    AND
+				 STR_TO_DATE(SENDRECORDTIME, '%Y-%m-%d') &gt;= #{FROMDATE}
+		</if>
+		<if test="TODATE!=null and TODATE!=''">
+		AND
+				 STR_TO_DATE(SENDRECORDTIME, '%Y-%m-%d') &lt;= #{TODATE}
+		</if>
+		<if test="OPENCARDRESULT==1">
+		AND
+				 OPENCARDRESULT = 0
+		</if>
+		<if test="OPENCARDRESULT==2">
+		AND
+		(
+				OPENCARDRESULT != 0
+		OR
+				OPENCARDRESULT IS NULL
+		)
+		</if>
+		ORDER BY
+				ID
+	</select>
+	
+	<select id="userCardRechargeExport" parameterType="FindRechargeRecordDto" resultType="UserCardRechargeDto">
+		SELECT
+				LOGINID,
+				CARDNUM,
+				MONEY,
+				BALANCE,
+				LEFT(RECHARGETIME,19)RECHARGETIME,
+				RECHARGERESULT,
+				OPERATORNAME
+		FROM
+				RECHARGERECORD
+		LEFT JOIN USERINFO ON RECHARGERECORD.USERID = USERINFO.USERID
+		LEFT JOIN OPERATORINFO ON RECHARGERECORD.OPERATORID = OPERATORINFO.OPERATORID
+	    WHERE
+				OPERATORINFO.OPERATORID IN (
+						SELECT OPERATORID FROM OPERATORINFO WHERE OPERATORID = #{OPERATORLOGINID}
+							OR BOSSID = #{OPERATORLOGINID}
+							OR BOSSID IN 
+							(SELECT OPERATORID FROM OPERATORINFO WHERE BOSSID=#{OPERATORLOGINID})
+						)
+		<if test="OPERATORNAME != null and OPERATORNAME!=''">
+		AND
+				OPERATORNAME LIKE '%${OPERATORNAME}%'
+		</if>
+		<if test="CARDNUM!=null and CARDNUM!=''">
+	    AND
+				CARDNUM LIKE '%${CARDNUM}%'
+		</if>
+		<if test="FROMDATE!=null and FROMDATE!=''">
+	    AND
+				STR_TO_DATE(RECHARGETIME, '%Y-%m-%d') &gt;= #{FROMDATE}
+		</if>
+		<if test="TODATE!=null and TODATE!=''">
+		AND
+				STR_TO_DATE(RECHARGETIME, '%Y-%m-%d') &lt;= #{TODATE}
+		</if>
+		<if test="RECHARGERESULT != null and RECHARGERESULT != ''">
+		AND
+				 RECHARGERESULT = #{RECHARGERESULT}
+		</if>
+		ORDER BY
+				ID
+	</select>
+	
+	<select id="findUserCardRecord" parameterType="FindUserCardChargeDto" resultType="UserCardChargeDto">
+		SELECT
+				CO.OPERATORNAME,
+				CS.CSNAME,
+				USERCHARGERECORD.CPID,
+				LEFT(CHARGESTARTTIME,19)CHARGESTARTTIME,
+				LEFT(DATE_ADD(CHARGESTARTTIME,INTERVAL CHARGETIMESPAN SECOND),19)CHARGEENDTIME,
+				DEDUCTMONEY,
+				USERCHARGERECORD.CHARGEMONEY,
+				USERCHARGERECORD.SERVICETIP,
+				CHARGEQUANTITY,
+				CARDNUM,
+				CONCAT(SUBSTR(SEC_TO_TIME(CHARGETIMESPAN),1,2),"小时", SUBSTR(SEC_TO_TIME(CHARGETIMESPAN),4,2),"分",SUBSTR(SEC_TO_TIME(CHARGETIMESPAN),7),"秒")CHARGETIMESPAN
+		FROM
+				USERCHARGERECORD,
+				USERDEDUCTMONEYRECORD,
+				CPINFO CP,
+				CSINFO CS,
+				OPERATORINFO CO
+		WHERE
+				USERCHARGERECORD.TRANSATIONID = USERDEDUCTMONEYRECORD.TRANSATIONID
+		AND
+				cp.cpid = USERCHARGERECORD.cpid
+		and
+				cp.csid = cs.csid
+		and
+				cp.operatorid = co.operatorid
+		and
+				CHARGEMETHODID = 1
+		AND
+				CARDNUM = #{CARDNUM}
+		<if test="FROMDATE!=null and FROMDATE!=''">
+	    AND
+				 STR_TO_DATE(USERCHARGERECORD.RECORDTIME, '%Y-%m-%d %H:%i') &gt;= #{FROMDATE}
+		</if>
+		<if test="TODATE!=null and TODATE!=''">
+		AND
+				 STR_TO_DATE(USERCHARGERECORD.RECORDTIME, '%Y-%m-%d %H:%i') &lt;= #{TODATE}
+		</if>
+		GROUP BY CHARGESTARTTIME
+	</select>
+	
+	<select id="checkInfo" parameterType="ReportLostDto" resultType="int">
+		SELECT
+				COUNT(*)
+		FROM
+				CARDUSERINFO
+		WHERE
+				CARDNUM = #{CARDNUM}
+		AND
+				IDENTITYCARDNUM = #{IDENTITYCARDNUM}
+	</select>
+	
+	<update id="reportLost" parameterType="ReportLostDto">
+		UPDATE
+				CARDUSERINFO
+		SET
+				CARDSTATE = 1
+		WHERE
+				CARDNUM = #{CARDNUM}
+	</update>
+	
+	<update id="removeLost" parameterType="ReportLostDto">
+		UPDATE
+				CARDUSERINFO
+		SET
+				CARDSTATE = 0
+		WHERE
+				CARDNUM = #{CARDNUM}
+	</update>
+	
+	<insert id="insertReportLost" parameterType="ReportLostDto">
+		INSERT INTO
+				REPORTLOSTRECORD(CARDNUM,OPTIME,USERID,OP)
+		VALUE
+				(#{CARDNUM},#{OPTIME},#{USERID},0)
+	</insert>
+	
+	<insert id="insertRemoveLost" parameterType="ReportLostDto">
+		INSERT INTO
+				REPORTLOSTRECORD(CARDNUM,OPTIME,USERID,OP)
+		VALUE
+				(#{CARDNUM},#{OPTIME},#{USERID},1)
+	</insert>
+</mapper>

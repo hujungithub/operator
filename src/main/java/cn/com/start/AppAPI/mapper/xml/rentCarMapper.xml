@@ -1,0 +1,136 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.com.start.AppAPI.mapper.RentCarMapper">
+	<!-- 获取行程记录 -->
+	<select id="getCarRecord" parameterType="String" resultType="CarRecordDto">
+		SELECT
+		CARID,
+		CPUSERID,
+		STARTTIME,
+		ENDTIME,
+		ORDERSTATE,
+		ORDERRESULT
+		FROM
+		CARORDERRECORD
+		WHERE
+		CPUSERID = #{userId}
+
+	</select>
+
+
+	<!--租车记录 -->
+	<insert id="addCarRecord" parameterType="CarRecordDto">
+		INSERT
+		INTO
+		CARORDERRECORD
+		(
+		CARID,
+		CPUSERID,
+		STARTTIME,
+		ENDTIME,
+		ORDERSTATE,
+		ORDERRESULT,
+		ORDERNUMBER,
+		MONEY,
+		KILOMETRE
+		)
+		VALUES
+		(
+		#{carId},
+		#{cpuserId},
+		#{startTime},
+		#{endTime},
+		#{orderState},
+		#{orderResult},
+		#{orderNumber},
+		#{money},
+		#{kilometre}
+		)
+	</insert>
+
+
+	<!-- 预约 -->
+	<insert id="insertAppointRecorder" parameterType="AppointmentCarDto">
+		INSERT
+		INTO
+		APPOINTCARRECORD
+		(
+		CARID,
+		STARTTIME,
+		APPOINTSTATE,
+		CPUSERiD,
+		DESCRIPTION
+		)
+		VALUES
+		(
+		#{carId},
+		#{startTime},
+		#{appointState},
+		#{cpuserId},
+		#{description}
+		)
+
+	</insert>
+
+
+	<update id="updateAppointment" parameterType="AppointmentCarDto">
+		UPDATE
+		APPOINTCARRECORD
+		SET
+		RECORDTIME = #{recordTime},
+		APPOINTSTATE = #{appointState},
+		DESCRIPTION = #{description}
+		WHERE
+		CARID = #{carId}
+
+	</update>
+
+	<!-- 租车列表 -->
+	<select id="getCarlistInfo" resultType="CarlistInfoDto">
+		SELECT
+		A.SN,
+		CARID,
+		CARPLATE,
+		APPOINTID,
+		CARSTATE,
+		CARMODEL,
+		CARSOC,
+		P.HOUR,
+		P.DAY,
+		RANK,
+		MILEAGE,
+		LONGITUDE,
+		LATITUDE
+		FROM
+		CARINFO A, CARPRICE P
+		WHERE
+		A.PRICEID = P.SN
+		AND
+		A.CARSTATE != 2
+
+	</select>
+
+	<!-- 按SN查找汽车信息 -->
+	<select id="findCarInfoBySN" parameterType="String" resultType="CarlistInfoDto">
+		SELECT
+			SN,
+			CARID,
+			CARPLATE,
+			APPOINTID,
+			CARSTATE,
+			CARMODEL,
+			CARSOC,
+			PRICEID,
+			RANK,
+			MILEAGE,
+			LONGITUDE,
+			LATITUDE
+		FROM
+			CARINFO
+		WHERE
+			SN = #{SN}
+	</select>
+
+
+</mapper>

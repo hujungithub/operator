@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.com.start.DPF.mapper.GetCardDataMapper">
+	<!-- 查询修改PIN的结果信息 -->
+	<select id = "selectModifyPINResult" resultType = "ModifyPINResult">
+		SELECT 
+				*
+		FROM
+				MODIFYPINRESULT	
+	</select>
+	
+	<!-- 查询预处理的卡号类型信息 -->
+	<select id = "selectPretreatmentCardType" resultType = "PretreatmentCardType">
+		SELECT 
+				*
+		FROM
+				PRETREATMENTCARDTYPE	
+	</select>
+	
+	<!-- 查询预处理的结果信息 -->
+	<select id = "selectPretreatmentResult" resultType = "PretreatmentResult">
+		SELECT 
+				*
+		FROM
+				PRETREATMENTRESULT	
+	</select>
+	
+	<!-- 查询读取余额的结果信息 -->
+	<select id = "selectReadBalanceResult" resultType = "ReadBalanceResult">
+		SELECT 
+				*
+		FROM
+				READBALANCERESULT	
+	</select>
+	
+	<!-- 查询读取用户卡号的结果信息 -->
+	<select id = "selectReadUserCardNumResult" resultType = "ReadUserCardNumResult">
+		SELECT 
+				*
+		FROM
+				READUSERCARDNUMRESULT	
+	</select>
+	
+	<!-- 查询充值的结果信息 -->
+	<select id = "selectRechargeResult" resultType = "RechargeResult">
+		SELECT 
+				*
+		FROM
+				RECHARGERESULT	
+	</select>
+	
+	<!-- 查询重载PIN的结果信息 -->
+	<select id = "selectReloadPINResult" resultType = "ReloadPINResult">
+		SELECT 
+				*
+		FROM
+				RELOADPINRESULT	
+	</select>
+	
+	<!-- 查询联机解扣的结果信息 -->
+	<select id = "selectRemoveGreyResult" resultType = "RemoveGreyResult">
+		SELECT 
+				*
+		FROM
+				REMOVEGREYRESULT	
+	</select>
+</mapper>

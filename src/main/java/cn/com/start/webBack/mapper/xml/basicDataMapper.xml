@@ -1,0 +1,406 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.com.start.webBack.mapper.BasicDataMapper">
+	
+	<!-- 查询费率模板 -->
+	<select id = "selectBill" resultType = "String" parameterType = "String">
+		SELECT
+				DISTINCT(BILL.RATEID)
+		FROM
+				BILLMODELINFO BILL
+		where 
+				BILL.CSID = #{CSID}
+		
+	</select>
+	
+	<select id = "selectBillByCPID" resultType = "String" parameterType = "String">
+		SELECT
+				DISTINCT(BILL.RATEID)
+		FROM
+				BILLMODELINFO BILL,CPINFO CP
+		WHERE 
+				BILL.CSID = CP.CSID
+		AND
+				CP.CPID = #{CPID}
+		
+	</select>
+	
+	<!-- 查询充电模式 -->
+	<select id = "selectchargePattern" resultType = "CPInfoDto" parameterType = "String">
+		SELECT
+				*
+		FROM
+				CHARGEPATTERN
+	</select>
+	
+	<!-- 根据rateid查询所有 -->
+	<select id = "selectBillByRateId" parameterType = "findBillModelDto" resultType = "BillModelDto">
+		SELECT
+				OPER.OPERATORID,
+				CS.CSNAME,
+				BILL.CSID,
+				BILL.BILLMODELID,
+				BILL.RATEID,
+				BILL.BILLMODELID,
+				LEFT(VALIDTIME,19)VALIDTIME,
+				LEFT(INVALIDTIME,19)INVALIDTIME,
+				TIMEINTERVALCOUNT,
+				ROUND(SERVICETIP,4)SERVICETIP,
+				ROUND(JPRICE,4)JPRICE,
+				ROUND(FPRICE,4)FPRICE,
+				ROUND(PPRICE,4)PPRICE,
+				ROUND(GPRICE,4)GPRICE,
+				CASE TI_1_ID WHEN 0 THEN '尖电价'
+			   	WHEN 1 THEN '峰电价'
+			   	WHEN 2 THEN '平电价'
+			   	WHEN 3 THEN '谷电价' END TI_1_ID,
+			   
+			   	CASE TI_2_ID WHEN 0 THEN '尖电价'
+			   	WHEN 1 THEN '峰电价'
+			   	WHEN 2 THEN '平电价'
+			   	WHEN 3 THEN '谷电价' END TI_2_ID,
+			   	
+			   	CASE TI_3_ID WHEN 0 THEN '尖电价'
+			   	WHEN 1 THEN '峰电价'
+			   	WHEN 2 THEN '平电价'
+			   	WHEN 3 THEN '谷电价' END TI_3_ID,
+			   	
+			   	CASE TI_4_ID WHEN 0 THEN '尖电价'
+			   	WHEN 1 THEN '峰电价'
+			   	WHEN 2 THEN '平电价'
+			   	WHEN 3 THEN '谷电价' END TI_4_ID,
+			   	
+			   	CASE TI_5_ID WHEN 0 THEN '尖电价'
+			   	WHEN 1 THEN '峰电价'
+		  	 	WHEN 2 THEN '平电价'
+			   	WHEN 3 THEN '谷电价' END TI_5_ID,
+			   	
+			   	CASE TI_6_ID WHEN 0 THEN '尖电价'
+			   	WHEN 1 THEN '峰电价'
+			   	WHEN 2 THEN '平电价'
+			   	WHEN 3 THEN '谷电价' END TI_6_ID,
+			   	
+			   	CASE TI_7_ID WHEN 0 THEN '尖电价'
+			   	WHEN 1 THEN '峰电价'
+			   	WHEN 2 THEN '平电价'
+			   	WHEN 3 THEN '谷电价' END TI_7_ID,
+			   	
+			   	CASE TI_8_ID WHEN 0 THEN '尖电价'
+			   	WHEN 1 THEN '峰电价'
+		   		WHEN 2 THEN '平电价'
+			   	WHEN 3 THEN '谷电价' END TI_8_ID,
+
+				CASE 
+				  WHEN
+				  	RIGHT((TI_1_START/60),5)*60=0
+				  THEN 
+				 	CONCAT( FLOOR(TI_1_START/60),':',RIGHT((TI_1_START/60),5)*60,'0' )
+				  WHEN 
+				  	RIGHT((TI_1_START/60),5)*60>0
+				  THEN
+				 	CONCAT( FLOOR(TI_1_START/60),':',ROUND(RIGHT((TI_1_START/60),5)*60))
+				 END TI_1_START,
+				 
+				 CASE 
+				  WHEN
+				  	RIGHT((TI_2_START/60),5)*60=0
+				  THEN 
+				 	CONCAT( FLOOR(TI_2_START/60),':',RIGHT((TI_2_START/60),5)*60,'0' )
+				  WHEN 
+				  	RIGHT((TI_2_START/60),5)*60>0
+			 	  THEN
+				 	CONCAT( FLOOR(TI_2_START/60),':',ROUND(RIGHT((TI_2_START/60),5)*60))
+				 
+				 END TI_2_START,
+				 
+				 CASE 
+				  WHEN
+				  	RIGHT((TI_3_START/60),5)*60=0
+				  THEN 
+				 	CONCAT( FLOOR(TI_3_START/60),':',RIGHT((TI_3_START/60),5)*60,'0' )
+			   	  WHEN 
+			   	  	RIGHT((TI_3_START/60),5)*60>0
+				  THEN
+				 	CONCAT( FLOOR(TI_3_START/60),':',ROUND(RIGHT((TI_3_START/60),5)*60))
+				 
+				 END TI_3_START,
+				
+				CASE 
+				  WHEN
+				  	RIGHT((TI_4_START/60),5)*60=0
+				  THEN 
+				 	CONCAT( FLOOR(TI_4_START/60),':',RIGHT((TI_4_START/60),5)*60,'0' )
+				  WHEN 
+				  	RIGHT((TI_4_START/60),5)*60>0
+				  THEN
+				 	CONCAT( FLOOR(TI_4_START/60),':',ROUND(RIGHT((TI_4_START/60),5)*60))
+				 
+				 END TI_4_START,
+				
+				CASE 
+				  WHEN
+				  	RIGHT((TI_5_START/60),5)*60=0
+				  THEN 
+				 	CONCAT( FLOOR(TI_5_START/60),':',RIGHT((TI_5_START/60),5)*60,'0' )
+				  WHEN 
+				   	RIGHT((TI_5_START/60),5)*60>0
+				  THEN
+				 	CONCAT( FLOOR(TI_5_START/60),':',ROUND(RIGHT((TI_5_START/60),5)*60))
+				 
+				 END TI_5_START,
+				
+				CASE 
+				  WHEN
+				  	RIGHT((TI_6_START/60),5)*60=0
+				  THEN 
+				 	CONCAT( FLOOR(TI_6_START/60),':',RIGHT((TI_6_START/60),5)*60,'0' )
+				  WHEN 
+				  	RIGHT((TI_6_START/60),5)*60>0
+				  THEN
+				 	CONCAT( FLOOR(TI_6_START/60),':',ROUND(RIGHT((TI_6_START/60),5)*60))
+				 
+				 END TI_6_START,
+				
+				CASE 
+				  WHEN
+				  	RIGHT((TI_7_START/60),5)*60=0
+				  THEN 
+				 	CONCAT( FLOOR(TI_7_START/60),':',RIGHT((TI_7_START/60),5)*60,'0' )
+				  WHEN 
+				  	RIGHT((TI_7_START/60),5)*60>0
+				  THEN
+				 	CONCAT( FLOOR(TI_7_START/60),':',ROUND(RIGHT((TI_7_START/60),5)*60))
+				 
+				 END TI_7_START,
+				
+				CASE 
+				  WHEN
+				  	RIGHT((TI_8_START/60),5)*60=0
+				  THEN 
+				 	CONCAT( FLOOR(TI_8_START/60),':',RIGHT((TI_8_START/60),5)*60,'0' )
+				  WHEN 
+				  	RIGHT((TI_8_START/60),5)*60>0
+				  THEN
+				 	CONCAT( FLOOR(TI_8_START/60),':',ROUND(RIGHT((TI_8_START/60),5)*60))
+				 
+				 END TI_8_START
+		FROM
+				BILLMODELINFO BILL,OPERATORINFO OPER,CSINFO CS
+		WHERE 
+				1 = 1
+		AND
+				BILL.CSID = CS.CSID
+		AND
+				BILL.OPERATORID = OPER.OPERATORID
+		AND
+				BILL.OPERATORID = #{OPERATORLOGINID}
+	</select>
+	
+	<!-- 查询修改信息-->
+	<select id = "selectUpdate" parameterType = "String" resultType = "BillModelDto">
+		SELECT
+				
+				OPERATORID,
+				RATEID,
+				CSID,
+				BILLMODELID,
+				LEFT(VALIDTIME,10)VALIDTIME,
+				LEFT(INVALIDTIME,10)INVALIDTIME,
+				TIMEINTERVALCOUNT,
+				ROUND(SERVICETIP,4)SERVICETIP,
+				ROUND(JPRICE,4)JPRICE,
+				ROUND(FPRICE,4)FPRICE,
+				ROUND(PPRICE,4)PPRICE,
+				ROUND(GPRICE,4)GPRICE,
+				TI_1_ID,
+			   	TI_2_ID,
+			   	TI_3_ID,
+			   	TI_4_ID,
+			   	TI_5_ID,
+			   	TI_6_ID,
+			   	TI_7_ID,
+			   	TI_8_ID,
+				CASE 
+				  WHEN
+				  	RIGHT((TI_1_START/60),5)*60=0
+				  THEN 
+				 	CONCAT( FLOOR(TI_1_START/60),':',RIGHT((TI_1_START/60),5)*60,'0' )
+				  WHEN 
+				  	RIGHT((TI_1_START/60),5)*60>0
+				  THEN
+				 	CONCAT( FLOOR(TI_1_START/60),':',ROUND(RIGHT((TI_1_START/60),5)*60))
+				 END TI_1_START,
+				 
+				 CASE 
+				  WHEN
+				  	RIGHT((TI_2_START/60),5)*60=0
+				  THEN 
+				 	CONCAT( FLOOR(TI_2_START/60),':',RIGHT((TI_2_START/60),5)*60,'0' )
+				  WHEN 
+				  	RIGHT((TI_2_START/60),5)*60>0
+			 	  THEN
+				 	CONCAT( FLOOR(TI_2_START/60),':',ROUND(RIGHT((TI_2_START/60),5)*60))
+				 
+				 END TI_2_START,
+				 
+				 CASE 
+				  WHEN
+				  	RIGHT((TI_3_START/60),5)*60=0
+				  THEN 
+				 	CONCAT( FLOOR(TI_3_START/60),':',RIGHT((TI_3_START/60),5)*60,'0' )
+			   	  WHEN 
+			   	  	RIGHT((TI_3_START/60),5)*60>0
+				  THEN
+				 	CONCAT( FLOOR(TI_3_START/60),':',ROUND(RIGHT((TI_3_START/60),5)*60))
+				 
+				 END TI_3_START,
+				
+				CASE 
+				  WHEN
+				  	RIGHT((TI_4_START/60),5)*60=0
+				  THEN 
+				 	CONCAT( FLOOR(TI_4_START/60),':',RIGHT((TI_4_START/60),5)*60,'0' )
+				  WHEN 
+				  	RIGHT((TI_4_START/60),5)*60>0
+				  THEN
+				 	CONCAT( FLOOR(TI_4_START/60),':',ROUND(RIGHT((TI_4_START/60),5)*60))
+				 
+				 END TI_4_START,
+				
+				CASE 
+				  WHEN
+				  	RIGHT((TI_5_START/60),5)*60=0
+				  THEN 
+				 	CONCAT( FLOOR(TI_5_START/60),':',RIGHT((TI_5_START/60),5)*60,'0' )
+				  WHEN 
+				   	RIGHT((TI_5_START/60),5)*60>0
+				  THEN
+				 	CONCAT( FLOOR(TI_5_START/60),':',ROUND(RIGHT((TI_5_START/60),5)*60))
+				 
+				 END TI_5_START,
+				
+				CASE 
+				  WHEN
+				  	RIGHT((TI_6_START/60),5)*60=0
+				  THEN 
+				 	CONCAT( FLOOR(TI_6_START/60),':',RIGHT((TI_6_START/60),5)*60,'0' )
+				  WHEN 
+				  	RIGHT((TI_6_START/60),5)*60>0
+				  THEN
+				 	CONCAT( FLOOR(TI_6_START/60),':',ROUND(RIGHT((TI_6_START/60),5)*60))
+				 
+				 END TI_6_START,
+				
+				CASE 
+				  WHEN
+				  	RIGHT((TI_7_START/60),5)*60=0
+				  THEN 
+				 	CONCAT( FLOOR(TI_7_START/60),':',RIGHT((TI_7_START/60),5)*60,'0' )
+				  WHEN 
+				  	RIGHT((TI_7_START/60),5)*60>0
+				  THEN
+				 	CONCAT( FLOOR(TI_7_START/60),':',ROUND(RIGHT((TI_7_START/60),5)*60))
+				 
+				 END TI_7_START,
+				
+				CASE 
+				  WHEN
+				  	RIGHT((TI_8_START/60),5)*60=0
+				  THEN 
+				 	CONCAT( FLOOR(TI_8_START/60),':',RIGHT((TI_8_START/60),5)*60,'0' )
+				  WHEN 
+				  	RIGHT((TI_8_START/60),5)*60>0
+				  THEN
+				 	CONCAT( FLOOR(TI_8_START/60),':',ROUND(RIGHT((TI_8_START/60),5)*60))
+				 
+				 END TI_8_START
+		FROM
+				BILLMODELINFO
+		WHERE 
+				1 = 1
+		<if test="BILLMODELID!=null and BILLMODELID!=''">
+		AND  
+				BILLMODELID = #{BILLMODELID}
+		</if>
+		<if test="OPERATORID!=null and OPERATORID!=''">
+		AND  
+				OPERATORID = #{OPERATORID}
+		</if>
+		<if test="RATEID!=null and RATEID!=''">
+		AND  
+				RATEID = #{RATEID}
+		</if>
+		<if test="CSID!=null and CSID!=''">
+		AND  
+				CSID = #{CSID}
+		</if>
+		
+	</select>
+	
+	<!-- 查询共有几套模板 -->
+	<select id = "selectRateId" resultType = "String">
+		SELECT 
+				DISTINCT(RATEID)
+		FROM 
+				BILLMODELINFO
+	</select>
+	<select id = "selectRate" resultType = "BillModelInfo">
+		SELECT 
+				DISTINCT(RATEID)
+		FROM 
+				BILLMODELINFO
+	</select>
+	<!-- 查询共有几个方案 -->
+	<select id = "selectBillModelId" resultType = "String">
+		SELECT 
+				DISTINCT(BillModelId)
+		FROM 
+				BILLMODELINFO
+	</select>
+	<select id = "selectBillModel" resultType = "BillModelInfo">
+		SELECT 
+				DISTINCT(BillModelId)
+		FROM 
+				BILLMODELINFO
+	</select>
+	<!-- 修改某一模板 -->
+	<update id = "updateBill" parameterType = "BillModelInfo">
+		UPDATE 
+				BILLMODELINFO
+		SET
+				VALIDTIME = #{VALIDTIME},
+				INVALIDTIME = #{INVALIDTIME},
+				TIMEINTERVALCOUNT = #{TIMEINTERVALCOUNT},
+				SERVICETIP = #{SERVICETIP},
+				JPRICE = #{JPRICE},
+				FPRICE = #{FPRICE},
+				PPRICE = #{PPRICE},
+				GPRICE = #{GPRICE},
+				TI_1_START = #{TI_1_START},
+				TI_1_ID = #{TI_1_ID},				
+				TI_2_START = #{TI_2_START},
+				TI_2_ID = #{TI_2_ID},
+				TI_3_START = #{TI_3_START},
+				TI_3_ID = #{TI_3_ID},
+				TI_4_START = #{TI_4_START},
+				TI_4_ID = #{TI_4_ID},
+				TI_5_START = #{TI_5_START},
+				TI_5_ID = #{TI_5_ID},
+				TI_6_START = #{TI_6_START},
+				TI_6_ID = #{TI_6_ID},
+				TI_7_START = #{TI_7_START},
+				TI_7_ID = #{TI_7_ID},				
+				TI_8_START = #{TI_8_START},
+				TI_8_ID = #{TI_8_ID}
+		WHERE
+				OPERATORID = #{OPERATORID}
+		AND
+				BILLMODELID = #{BILLMODELID}
+		AND    
+				RATEID = #{RATEID}
+		AND
+				CSID = #{CSID}
+				
+	</update>
+</mapper>

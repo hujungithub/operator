@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.com.start.webBack.mapper.WeChatMapper">
+	
+	<!-- 微信支付记录 -->
+	<select id="findWeChatPayRecord" parameterType="WeChatDto"
+		resultType="WeChatPayDto">
+		SELECT  TRANSACTIONNUM,
+			WCU.USERID,
+			LEFT(WCP.PAYTIME,19) PAYTIME,
+			IFNULL(LEFT(WCP.REFUNDTIME,19),'') REFUNDTIME,
+			PAYMONEY,
+			IFNULL(REFUNDMONEY,'') REFUNDMONEY,
+			DESP
+		FROM WECHATPAYRECORD WCP,
+			 WECHATUSERINFO WCU
+		WHERE 
+				WCP.OPENID = WCU.OPENID
+		<if test="REFUNDSTATUS == '1' or REFUNDSTATUS == '2'">
+		<!-- 2017-10-13程序修改之refondmoney等于paymoney*100，
+		程序修改之后数据库数据没修复 -->
+		AND 
+				WCP.REFUNDMONEY  &lt;&gt; PAYMONEY * 100
+		</if>
+		<if test="TRANSACTIONNUM != null and TRANSACTIONNUM != ''">
+		AND 
+				WCP.TRANSACTIONNUM LIKE '%${TRANSACTIONNUM}'
+		</if>
+		<if test="USERID != null and USERID != ''">
+		AND 
+				WCU.USERID = ${USERID}
+		</if>
+		<if test="PAYTIMEFROM != null and PAYTIMEFROM != ''">
+		AND 
+				DATE_FORMATE(WCP.PAYTIME, '%Y-%m-%d %T') &gt; str_to_date(${PAYTIMEFROM},'%Y-%m-%d %T')
+		</if>
+		<if test="PAYTIMETO != null and PAYTIMETO != ''">
+		AND 
+				DATE_FORMATE(WCP.PAYTIME, '%Y-%m-%d %T') &lt; str_to_date(${PAYTIMETO},'%Y-%m-%d %T')
+		</if>
+		<if test="REFUNDSTATUS != null and REFUNDSTATUS != ''">
+		AND 
+				WCP.REFUNDSTATUS = ${REFUNDSTATUS}
+		</if>
+		ORDER BY PAYTIME DESC
+	</select>
+	
+	<!-- 微信支付数量 -->
+	<select id="getWeChatRecordCount" parameterType="WeChatDto"
+		resultType="Int">
+		SELECT  COUNT(*)
+		FROM WECHATPAYRECORD WCP,
+			 WECHATUSERINFO WCU
+		WHERE 
+				WCP.OPENID = WCU.OPENID
+		<if test="REFUNDSTATUS == '1' or REFUNDSTATUS == '2'">
+		<!-- 2017-10-13程序修改之refondmoney等于paymoney*100， -->
+		<!-- 程序修改之后数据库数据没修复 -->
+		AND 
+				WCP.REFUNDMONEY  &lt;&gt; PAYMONEY * 100
+		</if>
+		<if test="TRANSACTIONNUM != null and TRANSACTIONNUM != ''">
+		AND 
+				WCP.TRANSACTIONNUM LIKE '%${TRANSACTIONNUM}'
+		</if>
+		<if test="USERID != null and USERID != ''">
+		AND 
+				WCU.USERID = ${USERID}
+		</if>
+		<if test="PAYTIMEFROM != null and PAYTIMEFROM != ''">
+		AND 
+				DATE_FORMATE(WCP.PAYTIME, '%Y-%m-%d %T') &gt; str_to_date(${PAYTIMEFROM},'%Y-%m-%d %T')
+		</if>
+		<if test="PAYTIMETO != null and PAYTIMETO != ''">
+		AND 
+				DATE_FORMATE(WCP.PAYTIME, '%Y-%m-%d %T') &lt; str_to_date(${PAYTIMETO},'%Y-%m-%d %T')
+		</if>
+		<if test="REFUNDSTATUS != null and REFUNDSTATUS != ''">
+		AND 
+				WCP.REFUNDSTATUS = ${REFUNDSTATUS}
+		</if>
+		ORDER BY PAYTIME DESC
+	</select>
+	
+</mapper>

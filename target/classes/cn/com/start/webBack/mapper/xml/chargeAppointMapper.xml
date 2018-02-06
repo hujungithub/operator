@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+ 
+<mapper namespace="cn.com.start.webBack.mapper.ChargeAppointMapper">	
+	
+	<!-- 查询充电桩数量 -->
+	<select id="getAppointCount"  resultType="Int" >
+		SELECT 
+			COUNT(*)  
+		FROM 
+			APPOINTCARRECORD
+		WHERE 
+			1=1
+	</select>
+				
+	<select id="selectAppointByPage" parameterType="FindAppointInfoDto" resultType="AppointInfoDto">
+		
+		SELECT 
+			CARID,
+			LEFT(STARTTIME,19) AS STARTTIME,
+			LEFT(RECORDTIME,19) AS RECORDTIME,
+			APPOINTSTATE,
+			DESCRIPTION,
+			CPUSERID,
+			APPOINTPARAMETER,
+			APPOINTTYPE
+		FROM 
+			APPOINTCARRECORD APPOINT
+		WHERE 
+			1=1
+		<if test="CARID!=null and CARID!=''">
+		AND  
+				APPOINT.CARID = #{CARID}
+		</if>
+		<if test="APPOINTSTATE!=null and APPOINTSTATE!=''">
+		AND  
+				APPOINT.APPOINTSTATE = #{APPOINTSTATE}
+		</if>
+		<if test="CPUSERID!=null and CPUSERID!=''">
+		AND  
+				APPOINT.CPUSERID = #{CPUSERID}
+		</if>
+		LIMIT 0,10
+		
+	</select>
+	
+	<select id="selectAppointState"  resultType="String" >
+		SELECT 
+			DISTINCT APPOINTSTATE 
+		FROM 
+			APPOINTCARRECORD
+		WHERE 
+			1=1
+	</select>
+		
+</mapper>

@@ -1,0 +1,299 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="UTF-8">
+		<title>帮助</title>
+		<link rel="stylesheet" type="text/css" href="bootstrap/css/bootstrap.min.css"/>
+		<script type="text/javascript" src="bootstrap/js/bootstrap.min.js" ></script>
+		<style type="text/css">
+			#,body{
+				margin: 0;
+				padding: 0;
+				position: relative;
+			}
+			.left{
+/*	/*
+				position: flex;
+				right: 0px;
+				bottom: 20%;*/
+				
+				position: fixed;
+				top: 20%;
+				right: 0px;
+				/*font-size: 0;*/
+				/*line-height: 0;*/
+				z-index: 100;
+				
+			}
+			.row a{
+				width: 100px;
+				height: 50px;
+				line-height: 50px;
+				display: inline;
+				padding: 10px 5px 10px 30px;
+				
+				
+			}
+			.board .step{
+				width: 97%;
+				/*height: 300px;*/
+				border: 1px solid lightgray;
+				margin: 10px;
+				
+			}
+			.txt{
+				padding: 10px;
+			}
+			.nav{
+				line-height: 50px;
+			}
+			.container{
+				width:100%;
+			}
+		</style>
+		
+	</head>
+	<body>
+          
+         <div class="container">
+         	 <div class="row">
+				<div class="left col-xs-2 col-sm-2 col-md-2 col-lg-2" style="background-color: #FFFFFF;">
+					
+				<div id="stepDes" style="font-size: 18px;">
+								云平台操作步骤：
+				</div>
+					<a id="1" href="#step1">配置设备厂商</a>
+					<br />
+					<a id="2" href="#step2">配置运营商</a>
+					<br />
+					<a id="3" href="#step3">配置管理账户</a>
+					<br />
+					<a id="4" href="#step4">配置费率模板</a>
+					<br />
+					<a id="5" href="#step5">建充电站</a>
+					<br />
+					<a id="6" href="#step6">建充电桩</a>
+					<br />
+					<a id="7" href="#step7">设备实时概览</a>
+					<br />
+					<a id="8" href="#step8">充电报表记录</a>
+					<br />
+					<a id="9" href="#step9">发卡系统操作文档</a>
+				
+				</div>
+				<div class="col-xs-10 col-sm-10 col-md-10 col-lg-10" style="background-color: #F5F8FA;">
+					<div class="nav">
+						位置：<span>首页</span> > <span>帮助</span>
+					</div>
+					<div class="board">
+
+							<div class="step" id="step1" >
+								<h4>配置设备厂商</h4>
+								<p class="txt">
+									首先，我们进入充电桩运营管理平台，需要配置接入平台的充电桩设备，包含：充电桩生产厂商，厂商代号。桩的型号参数等。其中型号参数指的是桩的型号，额定功率，直流或交流，单相还是三相以及充电枪的个数。
+								</p>
+								<div class="txt">充电桩厂商：
+									<p>包括厂商名称、厂商代号、桩型号、桩额定功率、桩类型、桩相数、桩枪数。</p>	
+									<p>桩型号示例：</p>
+									<p>SXDL-131-7kW220V32A-2016</p>
+									<p>厂商代号-交流三相单枪-额定功率/输出电压/输出电流-2016款</p>
+									<p>桩类型：直流/交流</p>
+									<p>桩相数：单相/三相</p>
+									<p>桩枪数：单枪/双枪</p>
+								</div>
+								
+							</div>
+							<div class="step" id="step2" >
+								<h4>配置运营商</h4>
+								<p class="txt">
+									紧接着，就是为接入平台的运营者配置身份信息了。进入用户管理界面，点击新增运营商，可以设置不同的运营商以及该运营商的下属二级运营商。
+									有上级运营商（默认的最大运营商为云平台的经营者，已经由开发者写入），新增的运营商，联系人、联系电话、邮箱以及联系地址。带有标记的是必填选项。同时，还可以会根据下个步骤为各个下属二级运营商配置不同的权限。具体参见运营商账号权限配置。
+								</p>
+							</div>
+							<div class="step" id="step3" >
+									<h4>配置平台管理账户权限</h4>
+									<p class="txt">
+										由上可见，配置好运营商之后，需要为各个不同级别的下属二级运营商配置云平台的管理账号权限。
+										账号管理权限有：超级管理员（该级别最大，为云平台经营者所有），管理员，普通用户以及发卡员（为各个运营商内部发卡人员所有，配合发卡系统使用，具体见发卡系统操作手册）</p>
+									<div class="txt">
+										<p>超级管理员：权限最大，具有所有功能权限以及运营商账号权限的管理。</p>
+										<p>管理员：拥有除新增账号、新增设备数据之外的权限（发卡员权限除外），仅次于超级管理员。</p>
+										<p>普通用户：仅有浏览查询数据的功能，但无系统管理员账号的浏览权限。</p>
+										<p>发卡员：仅能操作发卡系统，除此之外均无权限浏览、管理数据等操作。</p>
+									</div>
+									
+							</div>
+							<div class="step" id="step4" >
+								<h4>配置费率模板</h4>
+								<p class="txt">
+									平台已经为我们准备了N套费率模板，模板根据12个月份分为了12套计费方案，每套方案可以根据运营商实际运营情况，修改配置费率。
+									方案中配置的费率包括：
+								</p>
+								<p class="txt">
+									可以自定义几个尖峰平谷不同波段的有效时段的电价以及服务费，以及每个时段的起始时间以及截止时间。
+								</p>
+								
+							</div>
+							<div class="step" id="step5" >
+								<h4>建充电站</h4>
+								<p class="txt">
+									接下来，在设备管理中上点击充电站页面上的新增按钮，根据我们布桩的每个充电点的地址，设置地址省市区以及地址、在运营商选择框中找到我们在上一步配置的运营商，为我们的站点去一个名字，设置开放时间。站点就已经建好了，在界面上就可以查到新建的充电站了。
+								</p>
+																
+								
+							</div>
+							<div class="step" id="step6">
+								<h4>建充电桩</h4>
+								<p class="txt">
+									之后，我们来到设备管理模块的充电桩。点击新增按钮，选择桩的运营商，充电站，充电桩名称，充电桩厂商，型号以及报警标志，费率模板，通信规约，设备ID等参数。
+								</p>
+								
+								
+							</div>
+							<div class="step" id="step7">
+								<h4>设备实时概览</h4>
+								<div style="margin: 0 20px;">
+									<h3><small>首页概览</small></h3>
+									<p class="txt">
+										概览：可以实时看到接入平台的充电桩的在线状态，运行状态<br />
+										变位信息：可以看到充电桩实时变位信息，登录管理员可以右键操作确认变位信息
+									</p>
+								</div>
+								<div style="margin: 0 20px;">
+									<h3><small>设备详情概览</small></h3>
+									<p class="txt">
+									充电桩：单击表格中充电桩名称，进入详情页，看到桩的基本信息以及充电桩用户的充电记录，统计各个不同时段各个用户的充电收入，充电电量。<br />
+									充电站：单击表格中充电站名称，进入详情页，看到站的基本信息以及站内桩的信息，统计不同时段站内的充电收入以及充电电量。
+									</p>
+								</div>
+								<div style="margin: 0 20px;">
+									<h3><small>用户概览</small></h3>
+									<p class="txt">
+										APP注册用户基本信息的概览
+									</p>
+								</div>
+							</div>
+							<div class="step" id="step8">
+								<h4>充电报表记录</h4>
+								<p class="txt">
+									充电报表：统计各个用户各个时段各个站点的充电统计并可以导出打印<br />
+									用户充电记录：浏览每个用户每次充电记录报表并可以导出打印。
+								</p>
+							</div>	
+							<div class="step" id="step9">
+								<h3>发卡系统操作文档</h3>
+								<p class="txt">
+									<title>发卡系统使用说明</title>
+									<section >
+										<p>一、系统名词介绍</p>
+										<div class="txt">
+											<p class="txt">用户卡：用户使用的充电桩充值消费卡。</p>
+											<p class="txt">ISAM卡：置入发卡机内使用的卡。</p>
+											<p class="txt">ESAM卡：安装在发卡机读卡板上的原件。</p>
+											<p class="txt">初始密钥：是用户卡、ISAM卡、ESAM卡之间相互认证的凭据，在开卡时写入卡内。只有相同密钥的用户卡、ISAM卡、ESAM卡之间才能相互认证进行充值、解扣、刷卡充电等操作。请勿随意使用其他密钥进行开卡操作！</p>
+											<p class="txt">交易序号：用户卡进行刷卡充电交易的当前次数。</p>
+										</div>
+										
+									</section>
+									<section >
+										<p>二、发卡器连接</p>
+										<div class="txt">
+											<p class="txt">使用发卡机前，请先下载并安装发卡机驱动程序。</p>
+											<p class="txt">安装驱动完成后，请下载发卡器通信软件。安装完成后，打开客户端，并连接服务器。</p>
+						
+										</div>
+										
+									</section>
+									<section >
+										<p>三、发卡系统使用</p>
+										<div class="txt">
+											<p class="txt">1、在使用其他功能前，请先配置串口。
+</p>
+											<p class="txt">将发卡器用USB线连接电脑。
+</p>
+											<p class="txt">发卡机连接好后，打开windows设备管理器，展开“端口(COM和LPT”，查看Prolific USB-to-Serial Comm Port后面的端口号。
+</p>
+											<p class="txt">右击，选择“属性”，然后切换到“端口设置”，可查看和设置波特率(“位/秒(B)”这一项)，一般情况请使用默认9600的设置。
+</p>
+											<p class="txt">在串口配置页面，按照查看到的本机设置选择串口和波特率，并打开串口。
+</p>
+										</div>
+										<div class="txt">
+											<p class="txt">2、用户卡开卡
+</p>
+											<p class="txt">将用户卡插入发卡机。
+</p>
+											<p class="txt">打开用户卡发卡页面，填写完带*的必填信息后，点击发卡。
+</p>
+											
+										</div>
+										<div class="txt">
+											<p class="txt">3、ISAM卡开卡
+</p>
+											<p class="txt">将ISAM卡可以看到芯片的一面朝下插入发卡机。
+</p>
+											<p class="txt">填写完带*的必填信息后，点击发卡。
+</p>
+											
+										</div>
+										<div class="txt">
+											<p class="txt">4、ESAM卡开卡</p>											
+											<p class="txt">将ESAM卡插在有压杆的一端，缺口朝向压杆，然后按下压杆固定。</p>											
+											<p class="txt">插有ESAM卡的一面朝下插入发卡器。</p>
+											<p class="txt">填写完带*的必填信息后，点击发卡。
+</p>											
+										</div>
+										<div class="txt">
+											<p class="txt">5、充值</p>											
+											<p class="txt">将用户卡插入发卡机。
+</p>											
+											<p class="txt">输入PIN后，点击“读取余额”，可查询当前插入的卡的余额。
+</p>
+											<p class="txt">输入PIN和充值金额后，点击充值，可对当前插入的卡进行充值。
+
+</p>											
+										</div>
+										
+										<div class="txt">
+											<p class="txt">6、修改PIN</p>											
+											<p class="txt">重置PIN是将卡的PIN直接改为新PIN。输入新PIN后，点击重置PIN。
+
+</p>											
+											<p class="txt">修改PIN是需要验证用户卡的当前PIN之后，再修改为新PIN。输入当前PIN和新PIN后，点击修改PIN。
+</p>
+										</div>
+										
+										<div class="txt">
+											<p class="txt">7、预处理
+</p>											
+											<p class="txt">输入PIN，点击预处理，读取预处理的信息。</p>											
+											
+										</div>
+										
+										
+										
+											<div class="txt">
+											<p class="txt">8、联机解扣
+</p>											
+											<p class="txt">填写完带*的必填信息后，点击联机解扣，解除用户卡灰锁状态。
+</p>											
+										</div>
+										
+										<div class="txt">
+											<p class="txt">9、用户卡管理</p>											
+											<p class="txt">可以查看及修改所有用户卡的信息。
+</p>											
+											<p class="txt">修改余额：修改用户卡的余额。该功能为防止因网络波动，用户卡内实际余额与服务器记录数据不同时，为用户修改余额，让用户卡可以正常刷卡充电使用。修改余额会记录下此次执行此次操作的发卡员编号，请勿随意修改。</p>
+										</div>
+									</section>
+									
+								</p>
+							</div>			
+					</div>					
+				</div>
+			</div>
+          
+         </div>
+          
+	</body>
+</html>
